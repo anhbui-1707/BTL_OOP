@@ -1,0 +1,36 @@
+IF DB_NAME() <> N'LinkIT_V2' THROW 51000, 'Migration requires LinkIT_V2.', 1;
+
+-- No reference/demo data in this task. Unique/PK indexes already cover many FKs.
+CREATE INDEX IX_refresh_tokens_user ON dbo.refresh_tokens(user_id);
+CREATE INDEX IX_freelancer_skills_skill ON dbo.freelancer_skills(skill_id);
+CREATE INDEX IX_jobs_client_status_created ON dbo.jobs(client_id,status,created_at);
+CREATE INDEX IX_jobs_status_published ON dbo.jobs(status,published_at);
+CREATE INDEX IX_job_skills_skill ON dbo.job_skills(skill_id);
+CREATE INDEX IX_job_quality_assessments_job_evaluated ON dbo.job_quality_assessments(job_id,evaluated_at DESC);
+CREATE INDEX IX_compatibility_scores_job_freelancer_evaluated ON dbo.compatibility_scores(job_id,freelancer_id,evaluated_at DESC);
+CREATE INDEX IX_compatibility_scores_freelancer ON dbo.compatibility_scores(freelancer_id);
+CREATE INDEX IX_proposals_job_status ON dbo.proposals(job_id,status);
+CREATE INDEX IX_proposals_freelancer_status ON dbo.proposals(freelancer_id,status);
+CREATE INDEX IX_assignments_client_status ON dbo.assignments(client_id,status);
+CREATE INDEX IX_assignments_freelancer_status ON dbo.assignments(freelancer_id,status);
+CREATE INDEX IX_scope_versions_creator ON dbo.scope_versions(created_by);
+CREATE INDEX IX_scope_approvals_user ON dbo.scope_approvals(user_id);
+CREATE INDEX IX_milestones_assignment_status_due ON dbo.milestones(assignment_id,status,due_date);
+CREATE INDEX IX_milestones_assignment_scope ON dbo.milestones(assignment_id,scope_version_id);
+CREATE INDEX IX_milestone_submissions_milestone_submitted ON dbo.milestone_submissions(milestone_id,submitted_at);
+CREATE INDEX IX_milestone_submissions_submitter ON dbo.milestone_submissions(submitted_by);
+CREATE INDEX IX_milestone_submissions_reviewer ON dbo.milestone_submissions(reviewed_by);
+CREATE INDEX IX_change_requests_assignment_status ON dbo.change_requests(assignment_id,status);
+CREATE INDEX IX_change_requests_base_scope ON dbo.change_requests(assignment_id,base_scope_version_id);
+CREATE INDEX IX_change_requests_result_scope ON dbo.change_requests(assignment_id,result_scope_version_id);
+CREATE INDEX IX_change_requests_requester ON dbo.change_requests(requested_by);
+CREATE INDEX IX_change_request_approvals_user ON dbo.change_request_approvals(user_id);
+CREATE INDEX IX_risk_alerts_assignment_status_severity ON dbo.risk_alerts(assignment_id,status,severity);
+CREATE INDEX IX_risk_alerts_milestone ON dbo.risk_alerts(milestone_id);
+CREATE INDEX IX_risk_alerts_assignment_milestone ON dbo.risk_alerts(assignment_id,milestone_id);
+CREATE INDEX IX_final_acceptances_assignment_scope ON dbo.final_acceptances(assignment_id,scope_version_id);
+CREATE INDEX IX_final_acceptances_acceptor ON dbo.final_acceptances(accepted_by);
+CREATE INDEX IX_reviews_reviewer ON dbo.reviews(reviewer_id);
+CREATE INDEX IX_reviews_freelancer ON dbo.reviews(freelancer_id);
+CREATE INDEX IX_audit_logs_entity_created ON dbo.audit_logs(entity_type,entity_id,created_at);
+CREATE INDEX IX_audit_logs_actor ON dbo.audit_logs(actor_user_id);

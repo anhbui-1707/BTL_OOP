@@ -1,0 +1,4 @@
+# Explicit opt-in: SPRING_PROFILES_ACTIVE=dev. Credentials remain environment-only.
+spring:
+  jpa:
+    show-sql: false

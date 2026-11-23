@@ -1,0 +1,819 @@
+.workspace3 .ws-template-milestones {
+  --ms-accent: #047857;
+  --ms-border: #e2e8f0;
+  --ms-ink: #0f172a;
+  display: grid !important;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr) !important;
+  gap: 24px !important;
+  align-items: start !important;
+  margin: 23px 0 !important;
+  background: transparent !important;
+}
+.workspace3 .ws-template-milestones > .ms-ref-list-panel,
+.workspace3 .ws-template-milestones > .ms-ref-detail-panel {
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.045) !important;
+  min-width: 0 !important;
+  padding: 24px !important;
+  color: var(--ms-ink);
+  box-sizing: border-box;
+}
+.workspace3 .ws-template-milestones > .ms-ref-list-panel {
+  grid-column: 1 !important;
+  grid-row: 1 / span 8 !important;
+}
+.workspace3 .ws-template-milestones > .ms-ref-detail-panel {
+  grid-column: 2 !important;
+}
+.workspace3 .ws-template-milestones > .v2-message,
+.workspace3 .ws-template-milestones > .v2-empty {
+  grid-column: 2 !important;
+}
+.workspace3 .ws-template-milestones .ms-ref-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 40px;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 0 0 17px;
+  margin: 0 0 17px;
+}
+.workspace3 .ws-template-milestones .ms-ref-panel-head h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px !important;
+  font-weight: 750 !important;
+  line-height: 1.4;
+  margin: 0;
+  color: #0f172a !important;
+  letter-spacing: -0.2px;
+}
+.workspace3 .ws-template-milestones .ms-ref-panel-head h2 svg,
+.workspace3 .ws-template-milestones .ms-ref-detail-title > svg {
+  color: #059669;
+  flex: none;
+}
+.workspace3 .ws-template-milestones .ms-ref-add {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.workspace3 .ws-template-milestones .ms-ref-add:hover {
+  background: #ecfdf5;
+}
+.workspace3 .ws-template-milestones .ms-ref-add:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.workspace3 .ws-template-milestones .ms-ref-items {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin: 0;
+}
+.workspace3 .ws-template-milestones .ms-ref-item {
+  width: 100%;
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 15px;
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+.workspace3 .ws-template-milestones .ms-ref-item:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+.workspace3 .ws-template-milestones .ms-ref-item.is-selected {
+  background: #edf9f3;
+  border-color: #6ee7b7;
+  box-shadow: inset 3px 0 0 #059669;
+}
+.workspace3 .ws-template-milestones .ms-ref-item:focus-visible,
+.workspace3 .ws-template-milestones .ms-ref-file-actions a:focus-visible {
+  outline: 3px solid #6ee7b7;
+  outline-offset: 2px;
+}
+.workspace3 .ws-template-milestones .ms-ref-mark {
+  flex: 0 0 22px;
+  display: grid;
+  place-items: center;
+  color: #94a3b8;
+}
+.workspace3 .ws-template-milestones .ms-ref-mark.is-done {
+  color: #059669;
+}
+.workspace3 .ws-template-milestones .ms-ref-circle {
+  width: 19px;
+  height: 19px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+}
+.workspace3 .ws-template-milestones .ms-ref-item-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.workspace3 .ws-template-milestones .ms-ref-item-text strong {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.workspace3 .ws-template-milestones .ms-ref-item-text small {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #64748b;
+}
+.workspace3 .ws-template-milestones .ms-ref-status {
+  flex: 0 0 auto;
+  font-size: 11px !important;
+  line-height: 1.3;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 9px;
+  color: #64748b;
+  background: #f1f5f9;
+}
+.workspace3 .ws-template-milestones .ms-ref-status-approved {
+  background: #dcfce7;
+  color: #166534;
+}
+.workspace3 .ws-template-milestones .ms-ref-status-in_progress {
+  background: #ecfdf5;
+  color: #047857;
+}
+.workspace3 .ws-template-milestones .ms-ref-status-submitted {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+.workspace3 .ws-template-milestones .ms-ref-status-revision_required {
+  background: #fff7ed;
+  color: #9a3412;
+}
+.workspace3 .ws-template-milestones .ms-ref-status-cancelled {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.workspace3 .ws-template-milestones .ms-ref-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.workspace3 .ws-template-milestones .ms-ref-detail-title h2 {
+  font-size: 18px !important;
+  font-weight: 750 !important;
+  line-height: 1.45 !important;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.workspace3 .ws-template-milestones .ms-ref-detail-content {
+  display: flex;
+  flex-direction: column;
+}
+.workspace3 .ws-template-milestones .ms-ref-description {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 0 22px;
+  margin-bottom: 19px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.7;
+}
+.workspace3 .ws-template-milestones .ms-ref-description > svg {
+  color: #94a3b8;
+  flex: none;
+  margin-top: 3px;
+}
+.workspace3 .ws-template-milestones .ms-ref-description .rich-description p {
+  margin: 0 0 7px;
+}
+.workspace3 .ws-template-milestones .ms-ref-result > h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 0 0 16px;
+  padding: 0;
+}
+.workspace3 .ws-template-milestones .ms-ref-result > h3 svg {
+  color: #059669;
+}
+.workspace3 .ws-template-milestones .ms-ref-file {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 15px;
+}
+.workspace3 .ws-template-milestones .ms-ref-file-type {
+  flex: 0 0 43px;
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #047857;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  overflow: hidden;
+}
+.workspace3 .ws-template-milestones .ms-ref-file-info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.workspace3 .ws-template-milestones .ms-ref-file-info strong {
+  display: block;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workspace3 .ws-template-milestones .ms-ref-file-info small {
+  font-size: 11px;
+  color: #64748b;
+}
+.workspace3 .ws-template-milestones .ms-ref-file-actions {
+  flex: none;
+  display: flex;
+  gap: 7px;
+}
+.workspace3 .ws-template-milestones .ms-ref-file-actions a {
+  width: 37px;
+  height: 37px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  text-decoration: none;
+}
+.workspace3 .ws-template-milestones .ms-ref-file-actions a:hover {
+  color: #059669;
+  border-color: #a7f3d0;
+}
+.workspace3 .ws-template-milestones .ms-ref-empty-result {
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 18px;
+  font-size: 13px;
+  color: #64748b;
+}
+.workspace3 .ws-template-milestones .ms-ref-note {
+  margin: 13px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.workspace3 .ws-template-milestones .ms-ref-note p {
+  margin: 0 0 6px;
+}
+.workspace3 .ws-template-milestones .ms-ref-review-feedback {
+  background: #fffbeb;
+  color: #92400e;
+  border-radius: 9px;
+  padding: 11px;
+  margin: 12px 0;
+  font-size: 12px;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-toggle {
+  padding: 8px 0;
+  margin: 12px 0 0;
+  border: 0;
+  background: transparent;
+  color: #047857;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery {
+  padding: 12px 0;
+  border-top: 1px solid #e2e8f0;
+  font-size: 12px;
+  color: #64748b;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery strong {
+  color: #334155;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery a {
+  color: #047857;
+}
+.workspace3 .ws-template-milestones .ms-ref-criteria {
+  margin-top: 19px;
+  font-size: 12px;
+  color: #64748b;
+}
+.workspace3 .ws-template-milestones .ms-ref-criteria summary {
+  cursor: pointer;
+  color: #047857;
+  font-weight: 700;
+  padding: 7px 0;
+}
+.workspace3 .ws-template-milestones .ms-ref-criteria .rich-description {
+  padding: 10px 0;
+  line-height: 1.6;
+}
+.workspace3 .ws-template-milestones .ms-ref-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 17px;
+  margin-top: 26px;
+}
+.workspace3 .ws-template-milestones .ms-ref-detail-actions .v2-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-right: auto;
+}
+.workspace3 .ws-template-milestones .ms-ref-detail-actions .v2-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 10px 15px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.workspace3 .ws-template-milestones .ms-ref-submit-form,
+.workspace3 .ws-template-milestones .ms-ref-review-note {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #f1f5f9;
+}
+.workspace3 .ws-template-milestones .ms-ref-submit-form h3 {
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+.workspace3 .ws-template-milestones .ms-ref-review-note label {
+  display: block;
+  font-size: 12px;
+  font-weight: 650;
+  margin-bottom: 7px;
+  color: #475569;
+}
+.workspace3 .ws-template-milestones .ms-ref-review-note textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 10px;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+.workspace3 .ws-template-milestones .ms-ref-review-note textarea:focus {
+  outline: 2px solid #a7f3d0;
+}
+@media (max-width: 1020px) {
+  .workspace3 .ws-template-milestones {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .workspace3 .ws-template-milestones > .ms-ref-list-panel,
+  .workspace3 .ws-template-milestones > .ms-ref-detail-panel {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+}
+@media (max-width: 600px) {
+  .workspace3 .ws-template-milestones {
+    gap: 14px !important;
+  }
+  .workspace3 .ws-template-milestones > .ms-ref-list-panel,
+  .workspace3 .ws-template-milestones > .ms-ref-detail-panel {
+    padding: 17px !important;
+  }
+  .workspace3 .ws-template-milestones .ms-ref-item {
+    padding: 11px;
+    gap: 7px;
+  }
+  .workspace3 .ws-template-milestones .ms-ref-item-text strong {
+    font-size: 12px;
+  }
+  .workspace3 .ws-template-milestones .ms-ref-status {
+    font-size: 10px !important;
+    padding: 5px 7px;
+  }
+  .workspace3 .ws-template-milestones .ms-ref-file {
+    flex-wrap: wrap;
+  }
+  .workspace3 .ws-template-milestones .ms-ref-file-actions {
+    margin-left: auto;
+  }
+}
+
+.workspace3 .ws-template-milestones .ms-ref-latest-note {
+  margin-top: 13px;
+  padding: 13px 16px;
+  border: 1px solid #e5ebe9;
+  border-radius: 11px;
+  background: #f8faf9;
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.workspace3 .ws-template-milestones .ms-ref-latest-note .ms-ref-note-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #708077;
+  font-size: 11px;
+  font-weight: 650;
+}
+.workspace3 .ws-template-milestones .ms-ref-latest-note p,
+.workspace3 .ws-template-milestones .ms-ref-old-delivery-note p,
+.workspace3 .ws-template-milestones .ms-ref-criteria-content p {
+  margin: 0 0 5px;
+}
+.workspace3 .ws-template-milestones .ms-ref-latest-note p:last-child,
+.workspace3 .ws-template-milestones .ms-ref-old-delivery-note p:last-child,
+.workspace3 .ws-template-milestones .ms-ref-criteria-content p:last-child {
+  margin-bottom: 0;
+}
+.workspace3 .ws-template-milestones .ms-ref-review-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin: 11px 0 0;
+  border: 1px solid #f1e7ce;
+  border-radius: 10px;
+  background: #fffcf5;
+  color: #765d33;
+}
+.workspace3 .ws-template-milestones .ms-ref-review-feedback svg {
+  flex: none;
+  margin-top: 2px;
+  color: #a7833b;
+}
+.workspace3 .ws-template-milestones .ms-ref-review-feedback strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 750;
+}
+.workspace3 .ws-template-milestones .ms-ref-review-feedback p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-block {
+  margin-top: 15px;
+  border: 1px solid #e3eae7;
+  border-radius: 11px;
+  background: #fff;
+  overflow: hidden;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-toggle {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 15px !important;
+  margin: 0 !important;
+  background: #fff !important;
+  border: 0 !important;
+  color: #243c31 !important;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-toggle:hover {
+  background: #f6faf7 !important;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-toggle > span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-toggle > span svg {
+  color: #128054;
+  flex: none;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-toggle small {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8a9991;
+  white-space: nowrap;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-toggle > svg {
+  flex: none;
+  color: #658074;
+  transition: transform 0.2s ease;
+}
+.workspace3 .ws-template-milestones .ms-ref-history-toggle > svg.is-expanded {
+  transform: rotate(90deg);
+}
+.workspace3 .ws-template-milestones .ms-ref-history-list {
+  border-top: 1px solid #e9eeeb;
+  padding: 13px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #fbfcfb;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery {
+  padding: 13px 14px !important;
+  border: 1px solid #e4ebe7 !important;
+  border-radius: 10px !important;
+  background: white !important;
+  color: #475569 !important;
+  line-height: 1.55;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery-head strong {
+  font-size: 12px;
+  color: #1d3830;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery-head time {
+  font-size: 11px;
+  color: #8c9d95;
+  white-space: nowrap;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery-note {
+  margin-bottom: 7px;
+  color: #475569;
+  font-size: 12px;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 650;
+  color: #08784d;
+  text-decoration: none;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-delivery a:hover {
+  text-decoration: underline;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-feedback {
+  margin-top: 9px;
+  padding: 9px 11px;
+  background: #f5f7f5;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #687871;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-feedback span {
+  display: block;
+  font-size: 10px;
+  color: #8a9992;
+  margin-bottom: 3px;
+}
+.workspace3 .ws-template-milestones .ms-ref-old-feedback p {
+  margin: 0;
+}
+.workspace3 .ws-template-milestones .ms-ref-criteria-panel {
+  margin-top: 18px;
+  padding-top: 17px;
+  border-top: 1px solid #e9eeeb;
+}
+.workspace3 .ws-template-milestones .ms-ref-criteria-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 11px;
+  font-size: 13px;
+  font-weight: 750;
+  color: #172c25;
+}
+.workspace3 .ws-template-milestones .ms-ref-criteria-panel h3 svg {
+  color: #15915c;
+  flex: none;
+}
+.workspace3 .ws-template-milestones .ms-ref-criteria-content {
+  padding: 14px 16px;
+  border: 1px solid #e3ece6;
+  border-radius: 10px;
+  background: #f5faf7;
+  color: #3c5c4d;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .workspace3 .ws-template-milestones .ms-ref-history-toggle {
+    padding: 12px !important;
+  }
+  .workspace3 .ws-template-milestones .ms-ref-old-delivery-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .workspace3 .ws-template-milestones .ms-ref-criteria-content {
+    padding: 12px;
+  }
+}
+
+.workspace3 .ws-template-milestones .ms-ref-detail-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  background: transparent !important;
+}
+.workspace3
+  .ws-template-milestones
+  .ms-ref-detail-actions
+  .ms-ref-management-actions {
+  display: flex !important;
+  flex: 0 1 auto !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: 100% !important;
+  margin-right: auto !important;
+  background: transparent !important;
+}
+.workspace3
+  .ws-template-milestones
+  .ms-ref-detail-actions
+  .ms-ref-management-actions
+  > .v2-button {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 130px !important;
+  max-width: none !important;
+  min-height: 40px !important;
+  padding: 10px 15px !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  text-align: center !important;
+}
+@media (max-width: 480px) {
+  .workspace3
+    .ws-template-milestones
+    .ms-ref-detail-actions
+    .ms-ref-management-actions {
+    width: 100% !important;
+  }
+  .workspace3
+    .ws-template-milestones
+    .ms-ref-detail-actions
+    .ms-ref-management-actions
+    > .v2-button {
+    flex: 1 1 120px !important;
+    min-width: 0 !important;
+  }
+}
+
+.workspace3 .ws-template-milestones .ms-ref-detail-panel {
+  min-height: 0 !important;
+  height: auto !important;
+  align-self: start !important;
+}
+.workspace3 .ws-template-milestones .ms-ref-detail-actions {
+  position: static !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 14px 0 0 !important;
+  margin: 14px 0 0 !important;
+  justify-content: flex-end !important;
+  align-content: center !important;
+}
+.workspace3
+  .ws-template-milestones
+  .ms-ref-detail-actions
+  .ms-ref-management-actions {
+  margin: 0 0 0 auto !important;
+  justify-content: flex-end !important;
+}
+.workspace3
+  .ws-template-milestones
+  .ms-ref-detail-actions
+  .ms-ref-management-actions
+  > .v2-button {
+  min-height: 38px !important;
+  padding: 8px 14px !important;
+}
+
+.ms-delivery-links {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.ms-delivery-links-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ms-delivery-links-heading strong {
+  font-size: 14px;
+  font-weight: 650;
+}
+.ms-delivery-links-heading button,
+.ms-delivery-link-row button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border-color, #dce3ed);
+  background: transparent;
+  color: inherit;
+  border-radius: 9px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ms-delivery-links-heading button:hover,
+.ms-delivery-link-row button:hover {
+  background: rgba(100, 116, 139, 0.08);
+}
+.ms-delivery-link-row {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  min-width: 0;
+}
+.ms-delivery-link-row input {
+  flex: 1;
+  min-width: 0;
+}
+.ms-delivery-links small {
+  font-size: 12px;
+  opacity: 0.7;
+}
+@media (max-width: 520px) {
+  .ms-delivery-link-row {
+    align-items: stretch;
+  }
+  .ms-delivery-link-row button {
+    flex-shrink: 0;
+  }
+}

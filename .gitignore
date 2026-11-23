@@ -1,0 +1,27 @@
+.idea/
+
+# Local Windows launcher credentials
+linkit.local.cmd
+
+# Release repository: exclude Markdown at every directory depth.
+*.[mM][dD]
+node_modules/
+target/
+dist/
+build/
+.cache/
+.m2/
+.tmp/
+.playwright-cli/
+uploads/
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.bak
+*.dump

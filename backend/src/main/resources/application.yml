@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: linkit-backend
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  mail:
+    host: ${LINKIT_SMTP_HOST:localhost}
+    port: ${LINKIT_SMTP_PORT:587}
+    username: ${LINKIT_SMTP_USERNAME:}
+    password: ${LINKIT_SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${LINKIT_SMTP_AUTH:true}
+      mail.smtp.starttls.enable: ${LINKIT_SMTP_STARTTLS:true}
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://${LINKIT_DB_HOST}:${LINKIT_DB_PORT:1433};databaseName=LinkIT_V2;encrypt=true;trustServerCertificate=${LINKIT_DB_TRUST_SERVER_CERTIFICATE:false}
+    username: ${LINKIT_DB_USERNAME}
+    password: ${LINKIT_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: dbo
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    default-schema: dbo
+    schemas: dbo
+    create-schemas: false
+    baseline-on-migrate: false
+    clean-disabled: true
+  sql:
+    init:
+      mode: never
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 3MB
+server:
+  port: ${LINKIT_SERVER_PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+linkit:
+  mail:
+    from: ${LINKIT_MAIL_FROM:noreply@linkit.local}
+  jwt:
+    secret: ${LINKIT_JWT_SECRET}
+    issuer: ${LINKIT_JWT_ISSUER:linkit}
+    audience: ${LINKIT_JWT_AUDIENCE:linkit-api}
+    access-ttl: ${LINKIT_JWT_ACCESS_TTL:15m}
+    refresh-ttl: ${LINKIT_JWT_REFRESH_TTL:30d}

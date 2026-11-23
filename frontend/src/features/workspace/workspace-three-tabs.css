@@ -1,0 +1,711 @@
+.workspace3 {
+  --ws3-ref-green: #15803d;
+  --ws3-ref-soft: #e8f7f0;
+  --ws3-ref-border: #e2e8f0;
+  --ws3-ref-text: #0f172a;
+}
+.workspace3 .ws-template-scope,
+.workspace3 .ws-template-milestones,
+.workspace3 .ws-template-acceptance {
+  color: var(--ws3-ref-text);
+}
+.workspace3 .ws-template-scope-columns,
+.workspace3 .ws-template-milestones {
+  gap: 20px !important;
+  align-items: start !important;
+}
+.workspace3 .ws-template-scope-columns {
+  display: grid !important;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr) !important;
+}
+.workspace3 .ws-template-scope-columns > .v2-card,
+.workspace3 .ws-template-scope-columns > .v2-stack > .v2-card,
+.workspace3 .ws-template-milestones > .v2-card,
+.workspace3 .ws-template-acceptance > .v2-card {
+  background: #fff !important;
+  border: 1px solid var(--ws3-ref-border) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  min-width: 0;
+}
+.workspace3 .ws-template-scope-columns .v2-card-heading,
+.workspace3 .ws-template-milestones .v2-card-heading,
+.workspace3 .ws-template-acceptance .v2-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.workspace3 .ws-template-scope-columns .v2-card-heading h2,
+.workspace3 .ws-template-milestones .v2-card-heading h2,
+.workspace3 .ws-template-acceptance .v2-card-heading h2 {
+  font-size: 16px !important;
+  font-weight: 750 !important;
+  color: #0f172a !important;
+  margin: 0;
+}
+.workspace3 .ws-template-scope .ws-ref-scope-detail {
+  gap: 12px !important;
+}
+.workspace3 .ws-template-scope .ws-template-section-caption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0f172a !important;
+  font-size: 15px !important;
+  font-weight: 750;
+  border-top: 1px solid #f1f5f9;
+  margin: 15px 0 0 !important;
+  padding-top: 19px !important;
+}
+.workspace3 .ws-template-scope .ws-template-section-caption:first-child {
+  border: 0;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+.workspace3 .ws-template-scope .ws-template-section-caption svg {
+  color: var(--ws3-ref-green);
+  flex: none;
+}
+.workspace3 .ws-template-scope .ws-ref-list {
+  gap: 9px !important;
+}
+.workspace3 .ws-template-scope .ws-ref-list > div {
+  border: 1px solid #e9edf1 !important;
+  background: #f8fafc !important;
+  border-radius: 11px !important;
+  margin: 0 !important;
+  padding: 11px 14px !important;
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  font-size: 13px !important;
+  color: #334155;
+  line-height: 1.5;
+}
+.workspace3 .ws-template-scope .ws-ref-list svg {
+  color: #16a34a;
+}
+.workspace3 .ws-template-scope .ws-criteria-panel {
+  background: #f8fafc !important;
+  border: 1px solid #e9edf1 !important;
+  padding: 14px 16px !important;
+  border-radius: 12px !important;
+  color: #334155 !important;
+  line-height: 1.6;
+}
+.workspace3 .ws-template-scope .ws-criteria-panel .rich-description p {
+  border-bottom: 1px solid #e9edf1;
+}
+.workspace3 .ws-template-scope .ws-ref-attachment {
+  border-top: 1px solid #f1f5f9;
+  margin-top: 20px !important;
+  padding-top: 20px !important;
+}
+.workspace3 .ws-template-scope .ws-ref-document {
+  background: #f8fafc !important;
+  padding: 12px 14px !important;
+}
+.workspace3 .ws-template-scope .ws-template-pdf-badge {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #dc2626;
+  color: white;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+.workspace3 .ws-template-scope .ws-ref-document-name strong {
+  font-size: 13px !important;
+  color: #0f172a;
+}
+.workspace3 .ws-template-scope .ws-ref-document-actions button {
+  min-width: 50px;
+  height: 36px !important;
+  color: #475569;
+  border: 1px solid #dbe4ec !important;
+}
+.workspace3
+  .ws-template-scope
+  .ws-ref-document-actions
+  button:not(:disabled):hover {
+  background: #ecfdf5 !important;
+  color: var(--ws3-ref-green) !important;
+}
+.workspace3 .ws-template-scope .ws-template-approval-card .v2-card-heading {
+  margin-bottom: 6px;
+}
+.workspace3 .ws-template-scope .ws-template-approval-row {
+  padding: 18px 0 !important;
+  min-height: 76px;
+  border-bottom: 1px solid #f1f5f9 !important;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.workspace3 .ws-template-scope .ws-template-approval-avatar {
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--ws3-ref-soft);
+  color: var(--ws3-ref-green);
+}
+.workspace3 .ws-template-scope .ws-template-approval-row b {
+  font-size: 13px !important;
+  font-weight: 750;
+  color: #0f172a;
+}
+.workspace3 .ws-template-scope .ws-template-approval-row small {
+  font-size: 12px !important;
+  color: #64748b !important;
+}
+.workspace3 .ws-template-scope .ws-template-approval-row .v2-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.workspace3 .ws-template-scope .ws-ref-compact-journey {
+  margin-top: 16px;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+}
+
+.workspace3 .ws-template-milestones {
+  display: grid !important;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr) !important;
+  gap: 20px !important;
+  align-items: start;
+}
+.workspace3 .ws-template-milestones > .v2-card:first-child {
+  grid-column: 1 !important;
+  grid-row: 1 / span 8 !important;
+  min-height: 280px !important;
+}
+.workspace3 .ws-template-milestones > .v2-card:not(:first-child),
+.workspace3 .ws-template-milestones > .v2-message,
+.workspace3 .ws-template-milestones > .v2-empty {
+  grid-column: 2 !important;
+}
+.workspace3 .ws-template-milestones .v2-card-heading h2 {
+  font-size: 17px !important;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-item {
+  margin: 0 0 9px !important;
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-item.is-selected {
+  border-color: #a7e7be;
+  background: #e8f7f0;
+  box-shadow: inset 3px 0 0 #15803d;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 72px;
+  padding: 12px 13px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+}
+.workspace3
+  .ws-template-milestones
+  .ws-template-milestone-pick:not(:disabled):hover {
+  background: #f1f8f4;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-pick:focus-visible {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-mark {
+  flex: 0 0 25px;
+  color: #94a3b8;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-mark.is-done {
+  color: #16a34a;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-info {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  flex: 1;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-info strong {
+  font-size: 13px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-info small {
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-status {
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-status.is-done {
+  background: #dcfce7;
+  color: #166534;
+}
+.workspace3 .ws-template-milestones .v2-milestone .rich-description {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #475569;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-description {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  padding: 4px 0 15px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-description > svg {
+  color: #15803d;
+  flex: none;
+  margin-top: 3px;
+}
+.workspace3 .ws-template-milestones .ws-template-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px !important;
+  color: #0f172a;
+  margin: 18px 0 9px !important;
+}
+.workspace3 .ws-template-milestones .ws-template-detail-heading svg {
+  color: #15803d;
+}
+.workspace3 .ws-template-milestones .ws-template-milestone-criteria {
+  font-size: 13px;
+  color: #475569;
+}
+.workspace3 .ws-template-milestones .v2-milestone-meta {
+  border-radius: 10px !important;
+  background: #f6faf8 !important;
+  margin: 16px 0;
+  padding: 12px 14px !important;
+  display: flex;
+  gap: 10px;
+}
+.workspace3 .ws-template-milestones .v2-history-entry {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 11px !important;
+  padding: 13px 15px !important;
+  margin: 9px 0 !important;
+}
+.workspace3 .ws-template-milestones .v2-history-entry a {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.workspace3 .ws-template-milestones .v2-history-entry a:hover {
+  text-decoration: underline;
+}
+.workspace3 .ws-template-milestones .v2-card .v2-form {
+  margin-top: 15px;
+}
+
+.workspace3 .ws-template-acceptance {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 20px !important;
+  align-items: stretch !important;
+}
+.workspace3 .ws-template-acceptance > .v2-card {
+  min-height: 340px !important;
+}
+.workspace3 .ws-template-acceptance .ws-template-success-banner {
+  position: relative;
+  overflow: hidden;
+  min-height: 112px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: 14px !important;
+  padding: 22px !important;
+  background: #e8f7f0 !important;
+  border: 1px solid #bbecd1 !important;
+}
+.workspace3 .ws-template-acceptance .ws-template-success-icon {
+  flex: 0 0 49px;
+  display: grid;
+  place-items: center;
+  width: 49px;
+  height: 49px;
+  background: #15803d;
+  border-radius: 50%;
+  color: #fff;
+}
+.workspace3 .ws-template-acceptance .ws-template-success-banner strong {
+  font-size: 21px !important;
+  color: #166534 !important;
+}
+.workspace3 .ws-template-acceptance .ws-template-success-banner small {
+  color: #477d5e;
+  font-size: 12px;
+}
+.workspace3 .ws-template-acceptance .ws-template-success-watermark {
+  margin-left: auto;
+  color: #7fc9a2;
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+.workspace3 .ws-template-acceptance .ws-template-accepted-checks {
+  padding-top: 17px !important;
+  gap: 0 !important;
+}
+.workspace3 .ws-template-acceptance .ws-template-accepted-checks > div {
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9 !important;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.workspace3 .ws-template-acceptance .ws-template-accepted-checks svg {
+  color: #16a34a;
+  flex: none;
+}
+.workspace3 .ws-template-acceptance .ws-template-review-company {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: 12px 0 20px;
+}
+.workspace3 .ws-template-acceptance .ws-template-company-icon {
+  flex: 0 0 54px;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  color: #15803d;
+  background: #e8f7f0;
+}
+.workspace3 .ws-template-acceptance .ws-template-review-company strong {
+  font-size: 15px;
+  font-weight: 750;
+  color: #0f172a;
+}
+.workspace3 .ws-template-acceptance .ws-template-review-stars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+}
+.workspace3 .ws-template-acceptance .ws-template-review-stars svg {
+  width: 18px;
+  height: 18px;
+  color: #f59e0b;
+}
+.workspace3 .ws-template-acceptance .ws-template-review-stars > span {
+  font-size: 12px;
+  color: #64748b;
+}
+.workspace3 .ws-template-acceptance .ws-template-review-quote {
+  display: flex;
+  gap: 10px;
+  padding: 17px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.workspace3 .ws-template-acceptance .ws-template-review-quote > span {
+  font-size: 30px;
+  color: #94a3b8;
+  line-height: 1;
+}
+.workspace3
+  .ws-template-acceptance
+  .ws-template-review-quote
+  .rich-description
+  p {
+  margin: 0;
+}
+.workspace3 .ws-template-acceptance .ws-template-rating-details {
+  margin: 17px 0 0;
+  font-size: 12px;
+}
+.workspace3 .ws-template-acceptance .ws-template-rating-details summary {
+  cursor: pointer;
+  color: #15803d;
+  font-weight: 700;
+  padding: 8px 0;
+}
+.workspace3 .ws-template-acceptance .workspace3-review-date {
+  margin-top: 12px;
+  font-size: 11px;
+}
+@media (max-width: 980px) {
+  .workspace3 .ws-template-scope-columns,
+  .workspace3 .ws-template-milestones,
+  .workspace3 .ws-template-acceptance {
+    grid-template-columns: 1fr !important;
+  }
+  .workspace3 .ws-template-milestones > .v2-card:first-child,
+  .workspace3 .ws-template-milestones > .v2-card:not(:first-child) {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+}
+@media (max-width: 650px) {
+  .workspace3 .ws-template-scope-columns > .v2-card,
+  .workspace3 .ws-template-scope-columns > .v2-stack > .v2-card,
+  .workspace3 .ws-template-milestones > .v2-card,
+  .workspace3 .ws-template-acceptance > .v2-card {
+    padding: 17px !important;
+  }
+  .workspace3 .ws-template-milestones .ws-template-milestone-pick {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .workspace3 .ws-template-milestones .ws-template-milestone-status {
+    margin-left: 34px;
+  }
+  .workspace3 .ws-template-scope .ws-template-approval-row {
+    flex-wrap: wrap;
+  }
+  .workspace3 .ws-template-acceptance .ws-template-success-watermark {
+    display: none;
+  }
+}
+
+.workspace3 .ws-template-scope-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 1px solid #ddebe2;
+  background: #f5faf7;
+  border-radius: 15px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.workspace3 .ws-template-scope-status.is-locked {
+  background: #e8f7f0;
+  border-color: #bbecd1;
+}
+.workspace3 .ws-template-scope-status-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #15803d;
+  font-size: 15px;
+}
+.workspace3 .ws-template-scope-status-message strong {
+  font-weight: 750;
+}
+.workspace3 .ws-template-scope-status-message svg {
+  flex: none;
+}
+.workspace3 .ws-template-scope-status .v2-button {
+  background: #fff !important;
+  border: 1px solid #dbe6de !important;
+  color: #185c39 !important;
+  border-radius: 10px !important;
+  padding: 9px 13px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+.workspace3 .ws-template-scope-columns .v2-stack {
+  gap: 0 !important;
+}
+.workspace3
+  .ws-template-acceptance
+  > .ws-template-review-card
+  .v2-form
+  .v2-rating-row {
+  align-items: center;
+}
+.workspace3
+  .ws-template-acceptance
+  > .ws-template-review-card
+  .v2-form
+  > button {
+  margin-top: 10px;
+}
+
+.workspace3 .ws-template-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(3px);
+}
+.workspace3 .ws-template-modal-dialog {
+  background: #fff;
+  width: min(540px, 100%);
+  max-height: min(90vh, 850px);
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
+  padding: 0 0 16px;
+  box-shadow: 0 22px 65px rgba(15, 23, 42, 0.19);
+}
+.workspace3 .ws-template-modal-dialog > .v2-card {
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 16px !important;
+  padding: 25px 26px 12px !important;
+  min-height: 0 !important;
+}
+.workspace3 .ws-template-modal-dialog .v2-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 0 !important;
+}
+.workspace3 .ws-template-modal-dialog .v2-form label {
+  font-size: 12px;
+  font-weight: 650;
+  color: #334155;
+}
+.workspace3 .ws-template-modal-dialog .v2-form input,
+.workspace3 .ws-template-modal-dialog .v2-form textarea,
+.workspace3 .ws-template-modal-dialog .v2-form select {
+  border: 1px solid #dbe3ea;
+  border-radius: 10px;
+  background: #fff;
+  color: #0f172a;
+}
+.workspace3 .ws-template-modal-dialog .v2-form input:focus,
+.workspace3 .ws-template-modal-dialog .v2-form textarea:focus,
+.workspace3 .ws-template-modal-dialog .v2-form select:focus {
+  outline: 2px solid #a7f3d0;
+  border-color: #16a34a;
+}
+.workspace3 .ws-template-modal-close {
+  display: block;
+  margin: 0 26px 0 auto;
+  padding: 9px 17px;
+  border: 1px solid #dbe3ea;
+  border-radius: 9px;
+  background: #fff;
+  color: #475569;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+.workspace3 .ws-template-modal-close:hover {
+  background: #f8fafc;
+}
+@media (max-width: 650px) {
+  .workspace3 .ws-template-modal-overlay {
+    padding: 12px;
+  }
+  .workspace3 .ws-template-modal-dialog > .v2-card {
+    padding: 18px !important;
+  }
+}
+
+.workspace3 .ws-template-review-composer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.workspace3 .ws-template-review-composer > .v2-button {
+  padding: 11px 18px !important;
+  border-radius: 10px !important;
+  background: #15803d !important;
+  color: white !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+.workspace3 .ws-template-review-composer > .v2-button:hover {
+  background: #166534 !important;
+}
+.workspace3 .ws-template-review-modal-title {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 20px 26px 14px;
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 750;
+  color: #0f172a;
+}
+.workspace3 .ws-template-review-composer .ws-template-modal-dialog > .v2-form {
+  padding: 12px 26px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 12px;
+  color: #334155;
+}
+.workspace3
+  .ws-template-review-composer
+  .ws-template-modal-dialog
+  > .v2-form
+  .v2-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.workspace3
+  .ws-template-review-composer
+  .ws-template-modal-dialog
+  > .v2-form
+  select {
+  max-width: 150px;
+  min-height: 37px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 6px 8px;
+  background: white;
+}
+.workspace3
+  .ws-template-review-composer
+  .ws-template-modal-dialog
+  > .v2-form
+  textarea {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 80px;
+}
+@media (max-width: 650px) {
+  .workspace3 .ws-template-review-modal-title {
+    padding: 16px 18px 12px;
+  }
+  .workspace3
+    .ws-template-review-composer
+    .ws-template-modal-dialog
+    > .v2-form {
+    padding: 12px 18px;
+  }
+}

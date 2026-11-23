@@ -1,0 +1,380 @@
+import type {
+  Role,
+  JobItem,
+  ProposalItem,
+  AssignmentItem,
+  TalentItem,
+  UserItem,
+  FreelancerProfileData,
+} from "../App";
+
+export const initialJobs: JobItem[] = [
+  {
+    id: "job-saas-sales",
+    title: "Phát triển ứng dụng quản lý bán hàng SaaS",
+    company: "NovaTech Solutions",
+    budget: "35–50 triệu",
+    time: "12/06/2025",
+    deadline: "30/08/2025",
+    status: "Đang mở",
+    description:
+      "Phát triển nền tảng quản lý bán hàng cho doanh nghiệp vừa và nhỏ, bao gồm dashboard, quản lý kho và báo cáo vận hành.",
+    skills: ["React", "Node.js", "PostgreSQL"],
+    category: "Lập trình Web",
+    proposals: 8,
+    image:
+      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=82&w=1000&h=560",
+  },
+  {
+    id: "job-ecommerce",
+    title: "Thiết kế website thương mại điện tử",
+    company: "Mộc Nhiên Home",
+    budget: "20–30 triệu",
+    time: "11/06/2025",
+    deadline: "15/08/2025",
+    status: "Đang mở",
+    description:
+      "Thiết kế và triển khai trải nghiệm mua sắm trực tuyến tối ưu trên desktop và mobile cho thương hiệu nội thất.",
+    skills: ["Next.js", "Figma", "Tailwind CSS"],
+    category: "UI/UX",
+    proposals: 12,
+    image:
+      "https://images.unsplash.com/photo-1587620962725-abab7fe55159?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=82&w=1000&h=560",
+  },
+  {
+    id: "job-fintech",
+    title: "Senior Backend Developer cho Fintech Platform",
+    company: "FlowPay Vietnam",
+    budget: "600–850 nghìn/giờ",
+    time: "10/06/2025",
+    deadline: "30/09/2025",
+    status: "Đang thực hiện",
+    description:
+      "Xây dựng các dịch vụ backend có khả năng mở rộng, bảo mật cao và tích hợp với hệ thống tài chính hiện có.",
+    skills: ["Go", "AWS", "Microservices"],
+    category: "Data & AI",
+    proposals: 6,
+    image:
+      "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=82&w=1000&h=560",
+  },
+  {
+    id: "job-mobile-logistics",
+    title: "Phát triển ứng dụng điều phối giao hàng",
+    company: "GoFast Logistics",
+    budget: "28–40 triệu",
+    time: "09/06/2025",
+    deadline: "20/09/2025",
+    status: "Đang mở",
+    description:
+      "Xây dựng ứng dụng mobile giúp tài xế nhận chuyến, cập nhật trạng thái giao hàng và theo dõi lộ trình theo thời gian thực.",
+    skills: ["Flutter", "Firebase", "Maps API"],
+    category: "Mobile",
+    proposals: 9,
+    image:
+      "https://images.unsplash.com/photo-1575089976121-8ed7b2a54265?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=82&w=1000&h=560",
+  },
+];
+
+export const marketplaceStats = [
+  ["2.480+", "Freelancer trên nền tảng"],
+  ["1.284", "Công việc đã đăng"],
+  ["936", "Công việc hoàn thành"],
+  ["420+", "Client đang hoạt động"],
+];
+
+export const initialProposals: ProposalItem[] = [
+  {
+    id: "PR-1042",
+    jobId: "job-saas-sales",
+    freelancerName: "Trần Minh Anh",
+    freelancerRole: "Senior Product Designer",
+    freelancerInitials: "MA",
+    freelancerRating: "4.9",
+    freelancerJobs: "32 dự án",
+    freelancerSkills: ["Figma", "UX Research", "React"],
+    cv: "CV_Frontend_2025.pdf",
+    price: "42.000.000đ",
+    duration: "10 tuần",
+    status: "Chờ phản hồi",
+    statusKey: "pending",
+    cover:
+      "Tôi có 5 năm kinh nghiệm phát triển sản phẩm SaaS bằng React và TypeScript. Tôi có thể bắt đầu trong tuần này và cam kết cập nhật tiến độ định kỳ.",
+  },
+  {
+    id: "PR-1038",
+    jobId: "job-ecommerce",
+    freelancerName: "Nguyễn Hoàng Nam",
+    freelancerRole: "Full-stack Developer",
+    freelancerInitials: "HN",
+    freelancerRating: "5.0",
+    freelancerJobs: "27 dự án",
+    freelancerSkills: ["React", "Node.js", "Next.js"],
+    cv: "CV_Fullstack_Vietnamese.pdf",
+    price: "26.000.000đ",
+    duration: "8 tuần",
+    status: "Đã chấp nhận",
+    statusKey: "accepted",
+    cover:
+      "Tôi đã triển khai nhiều website thương mại điện tử responsive và có kinh nghiệm tối ưu hiệu năng, SEO kỹ thuật và trải nghiệm thanh toán.",
+  },
+  {
+    id: "PR-1029",
+    jobId: "job-fintech",
+    freelancerName: "Lê Thu Trang",
+    freelancerRole: "Mobile App Developer",
+    freelancerInitials: "TT",
+    freelancerRating: "4.9",
+    freelancerJobs: "21 dự án",
+    freelancerSkills: ["Flutter", "Firebase", "Go"],
+    cv: "CV_Backend_2025.pdf",
+    price: "750.000đ/giờ",
+    duration: "12 tuần",
+    status: "Đã từ chối",
+    statusKey: "rejected",
+    cover:
+      "Tôi có kinh nghiệm xây dựng microservice trên AWS, thiết kế API bảo mật và vận hành hệ thống có lưu lượng lớn.",
+  },
+];
+
+export const initialAssignments: AssignmentItem[] = [
+  {
+    id: "as-1",
+    code: "AS-0248",
+    jobId: "job-saas-sales",
+    title: initialJobs[0].title,
+    company: initialJobs[0].company,
+    freelancerName: "Nguyễn Minh Long",
+    price: "42.000.000đ",
+    period: "12/06 – 30/08/2025",
+    status: "Đang thực hiện",
+    description: initialJobs[0].description,
+    review: null,
+  },
+  {
+    id: "as-2",
+    code: "AS-0249",
+    jobId: "job-ecommerce",
+    title: initialJobs[1].title,
+    company: initialJobs[1].company,
+    freelancerName: "Nguyễn Minh Long",
+    price: "26.000.000đ",
+    period: "11/06 – 15/08/2025",
+    status: "Đang thực hiện",
+    description: initialJobs[1].description,
+    review: null,
+  },
+  {
+    id: "as-3",
+    code: "AS-0231",
+    jobId: "job-fintech",
+    title: initialJobs[2].title,
+    company: initialJobs[2].company,
+    freelancerName: "Nguyễn Minh Long",
+    price: "48.000.000đ",
+    period: "10/04 – 10/06/2025",
+    status: "Đã hoàn thành",
+    description: initialJobs[2].description,
+    review: {
+      rating: 5,
+      comment:
+        "Hoàn thành đúng tiến độ, chủ động trao đổi và chất lượng sản phẩm tốt.",
+    },
+  },
+  {
+    id: "as-4",
+    code: "AS-0219",
+    jobId: "job-ecommerce",
+    title: initialJobs[1].title,
+    company: initialJobs[1].company,
+    freelancerName: "Nguyễn Minh Long",
+    price: "24.000.000đ",
+    period: "05/03 – 20/05/2025",
+    status: "Đã hoàn thành",
+    description: initialJobs[1].description,
+    review: null,
+  },
+  {
+    id: "as-5",
+    code: "AS-0198",
+    jobId: "job-mobile-logistics",
+    title: initialJobs[3].title,
+    company: initialJobs[3].company,
+    freelancerName: "Nguyễn Minh Long",
+    price: "32.000.000đ",
+    period: "09/05 – 20/06/2025",
+    status: "Đã hủy",
+    description: initialJobs[3].description,
+    review: null,
+  },
+];
+
+export const demoAccounts: Record<string, { password: string; role: Role }> = {
+  "freelancer.demo@example.com": { password: "Demo@123", role: "Freelancer" },
+  "client.demo@example.com": { password: "Demo@123", role: "Client" },
+  "admin.demo@example.com": { password: "Demo@123", role: "Admin" },
+};
+
+export const initialTalents: TalentItem[] = [
+  {
+    name: "Trần Minh Anh",
+    role: "Senior Product Designer",
+    location: "TP. Hồ Chí Minh",
+    hourlyRate: "650.000đ/giờ",
+    rating: "4.9",
+    jobs: "32 dự án",
+    initials: "MA",
+    category: "UI/UX",
+    bio: "Tôi có hơn 7 năm kinh nghiệm thiết kế sản phẩm số cho SaaS, Fintech và thương mại điện tử. Tập trung vào trải nghiệm đơn giản, hiệu quả và có khả năng mở rộng.",
+    skills: [
+      "Figma",
+      "UX Research",
+      "Product Design",
+      "UI/UX",
+      "Design System",
+    ],
+    portfolios: ["Fintech Mobile App", "SaaS Analytics Platform"],
+  },
+  {
+    name: "Nguyễn Hoàng Nam",
+    role: "Full-stack Developer",
+    location: "Hà Nội",
+    hourlyRate: "750.000đ/giờ",
+    rating: "5.0",
+    jobs: "27 dự án",
+    initials: "HN",
+    category: "Developer",
+    bio: "Kỹ sư phần mềm Full-stack chuyên sâu về React, Node.js, PostgreSQL và kiến trúc Cloud cho các sản phẩm B2B SaaS tốc độ cao.",
+    skills: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS"],
+    portfolios: [
+      "Nền tảng quản lý bán hàng đa kênh",
+      "Cổng thanh toán doanh nghiệp",
+    ],
+  },
+  {
+    name: "Lê Thu Trang",
+    role: "Mobile App Developer",
+    location: "Đà Nẵng",
+    hourlyRate: "680.000đ/giờ",
+    rating: "4.9",
+    jobs: "21 dự án",
+    initials: "TT",
+    category: "Mobile",
+    bio: "Chuyên gia phát triển ứng dụng di động đa nền tảng với Flutter và Firebase, tối ưu hiệu năng mượt mà và tích hợp bản đồ thời gian thực.",
+    skills: ["Flutter", "Firebase", "Dart", "Maps API", "CI/CD"],
+    portfolios: [
+      "Ứng dụng điều phối giao hàng GoFast",
+      "Ví điện tử thông minh",
+    ],
+  },
+];
+
+export const initialUsers: UserItem[] = [
+  {
+    id: "u-1",
+    name: "Trần Minh Anh",
+    email: "minhanh@email.com",
+    phone: "090 234 5678",
+    role: "Freelancer",
+    initials: "MA",
+    joinedAt: "12/03/2024",
+    status: "Đang hoạt động",
+  },
+  {
+    id: "u-2",
+    name: "Nguyễn Hoàng Nam",
+    email: "hoangnam@novatech.vn",
+    phone: "091 345 6789",
+    role: "Client",
+    initials: "HN",
+    joinedAt: "08/05/2024",
+    status: "Đang hoạt động",
+  },
+  {
+    id: "u-3",
+    name: "Lê Thu Trang",
+    email: "thutrang@email.com",
+    phone: "098 765 4321",
+    role: "Freelancer",
+    initials: "TT",
+    joinedAt: "19/07/2024",
+    status: "Đang hoạt động",
+  },
+  {
+    id: "u-4",
+    name: "Phạm Quốc Bảo",
+    email: "quocbao@flowpay.vn",
+    phone: "093 888 9999",
+    role: "Client",
+    initials: "QB",
+    joinedAt: "02/09/2024",
+    status: "Đã khóa",
+  },
+];
+
+export const initialFreelancerProfile: FreelancerProfileData = {
+  name: "Nguyễn Minh Long",
+  shortName: "Minh Long",
+  initials: "NL",
+  title: "Frontend Developer",
+  email: "minhlong@email.com",
+  phone: "090 123 4567",
+  bio: "",
+  skills: [
+    {
+      id: "sk-1",
+      title: "React & TypeScript",
+      updatedAt: "Cập nhật 12/06/2025",
+    },
+    { id: "sk-2", title: "Node.js", updatedAt: "Cập nhật 12/06/2025" },
+    { id: "sk-3", title: "PostgreSQL", updatedAt: "Cập nhật 12/06/2025" },
+  ],
+  experiences: [
+    {
+      id: "ex-1",
+      title: "Senior Frontend Developer · NovaTech",
+      updatedAt: "Cập nhật 12/06/2025",
+    },
+    {
+      id: "ex-2",
+      title: "Frontend Developer · PixelWorks",
+      updatedAt: "Cập nhật 12/06/2025",
+    },
+  ],
+  portfolios: [
+    {
+      id: "pf-1",
+      title: "SaaS Analytics Dashboard",
+      updatedAt: "Cập nhật 12/06/2025",
+    },
+    {
+      id: "pf-2",
+      title: "Ứng dụng quản lý bán hàng",
+      updatedAt: "Cập nhật 12/06/2025",
+    },
+  ],
+  cvs: [
+    {
+      id: "cv-1",
+      title: "CV_Frontend_2025.pdf",
+      updatedAt: "PDF · Cập nhật 12/06/2025",
+    },
+    {
+      id: "cv-2",
+      title: "CV_Fullstack_Vietnamese.pdf",
+      updatedAt: "PDF · Cập nhật 12/06/2025",
+    },
+  ],
+  reviews: [
+    {
+      id: "rev-1",
+      assignmentId: "as-3",
+      jobTitle: initialJobs[2].title,
+      company: initialJobs[2].company,
+      rating: 5,
+      comment:
+        "Hoàn thành đúng tiến độ, chủ động trao đổi và chất lượng sản phẩm tốt.",
+      createdAt: "10/06/2025",
+    },
+  ],
+  averageRating: 5.0,
+};

@@ -1,0 +1,10 @@
+{
+  "description": "Connect IT freelancers with clients seeking tech project support through a user-friendly platform that streamlines job postings, proposals, and management.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

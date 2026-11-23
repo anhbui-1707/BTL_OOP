@@ -1,0 +1,605 @@
+.workspace3.ws-template-active {
+  --ws-compact-width: 1210px;
+  --ws-compact-gap: 16px;
+}
+.workspace3.ws-template-active .workspace3-header,
+.workspace3.ws-template-active .v2-main {
+  box-sizing: border-box !important;
+  width: min(100%, var(--ws-compact-width)) !important;
+  max-width: var(--ws-compact-width) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.workspace3.ws-template-active .v2-layout {
+  box-sizing: border-box !important;
+  padding-top: 0 !important;
+  padding-bottom: 22px !important;
+}
+.workspace3.ws-template-active .workspace3-header {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+.workspace3.ws-template-active .workspace3-breadcrumb {
+  margin: 0 0 10px !important;
+  min-height: 20px !important;
+  font-size: 12px !important;
+}
+.workspace3.ws-template-active .workspace3-titlebar {
+  min-height: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  padding: 0 0 12px !important;
+  border: 0 !important;
+}
+.workspace3.ws-template-active .workspace3-title {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  flex: 1 1 640px !important;
+  min-width: 0 !important;
+}
+.workspace3.ws-template-active .ws-ref-project-title {
+  gap: 10px !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+}
+.workspace3.ws-template-active .ws-ref-title-symbol {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  border-radius: 12px !important;
+}
+.workspace3.ws-template-active .ws-ref-title-symbol svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+.workspace3.ws-template-active .ws-ref-project-title h1 {
+  font-size: clamp(19px, 1.65vw, 23px) !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.4px !important;
+  font-weight: 750 !important;
+  margin: 0 !important;
+}
+.workspace3.ws-template-active .workspace3-project-meta {
+  padding-left: 52px !important;
+  gap: 5px 0 !important;
+  font-size: 11.5px !important;
+  line-height: 1.4 !important;
+  flex-wrap: wrap !important;
+}
+.workspace3.ws-template-active .workspace3-project-meta span {
+  display: inline-flex !important;
+  gap: 6px !important;
+  padding: 0 12px !important;
+  min-height: 16px !important;
+}
+.workspace3.ws-template-active .workspace3-project-meta span:first-child {
+  padding-left: 0 !important;
+}
+.workspace3.ws-template-active .workspace3-project-meta svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+.workspace3.ws-template-active .workspace3-actions {
+  gap: 8px !important;
+  flex: 0 0 auto;
+  align-self: center !important;
+  margin-left: auto !important;
+}
+.workspace3.ws-template-active .workspace3-actions .v2-button,
+.workspace3.ws-template-active .workspace3-role,
+.workspace3.ws-template-active .workspace3-actions .v2-badge {
+  min-height: 32px !important;
+  box-sizing: border-box !important;
+  padding: 7px 11px !important;
+  font-size: 11.5px !important;
+  line-height: 1.3 !important;
+  border-radius: 9px !important;
+}
+.workspace3.ws-template-active .ws-template-steps {
+  width: 100% !important;
+  min-height: 0 !important;
+  gap: 12px !important;
+  padding: 7px 0 12px !important;
+  margin: 0 !important;
+}
+.workspace3.ws-template-active .ws-template-steps button {
+  padding: 7px 14px !important;
+  min-height: 34px !important;
+  font-size: 11.5px !important;
+  gap: 7px !important;
+}
+.workspace3.ws-template-active .ws-template-steps button svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+.workspace3.ws-template-active .ws-template-step-line {
+  flex: 0 1 44px !important;
+  width: 44px !important;
+}
+.workspace3.ws-template-active .workspace3-tabs {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  padding: 5px 7px 0 !important;
+  margin: 0 !important;
+  gap: 3px !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+.workspace3.ws-template-active .workspace3-tabs button {
+  min-height: 43px !important;
+  padding: 9px 8px !important;
+  margin: 0 !important;
+  font-size: 12px !important;
+  gap: 7px !important;
+  white-space: nowrap !important;
+  border-radius: 9px 9px 0 0 !important;
+}
+.workspace3.ws-template-active .workspace3-tabs button svg {
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
+}
+
+.workspace3.ws-template-active .ws-template-overview {
+  margin: 0 !important;
+  gap: 13px !important;
+  padding-top: 12px !important;
+}
+.workspace3.ws-template-active .ws-template-kpis {
+  gap: 14px !important;
+  margin: 0 !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+.workspace3.ws-template-active .ws-template-kpi {
+  min-height: 76px !important;
+  padding: 12px 15px !important;
+  gap: 11px !important;
+  border-radius: 13px !important;
+}
+.workspace3.ws-template-active .ws-template-kpi-icon {
+  width: 38px !important;
+  height: 38px !important;
+  flex-basis: 38px !important;
+  border-radius: 11px !important;
+}
+.workspace3.ws-template-active .ws-template-kpi-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+.workspace3.ws-template-active .ws-template-kpi-label {
+  font-size: 11.5px !important;
+}
+.workspace3.ws-template-active .ws-template-kpi strong {
+  font-size: clamp(16px, 1.42vw, 20px) !important;
+  line-height: 1.3 !important;
+}
+.workspace3.ws-template-active .ws-template-status {
+  font-size: 11px !important;
+  padding: 5px 10px !important;
+}
+.workspace3.ws-template-active .ws-template-content {
+  gap: 14px !important;
+  margin: 0 !important;
+}
+.workspace3.ws-template-active .ws-template-panel {
+  min-height: 234px !important;
+  padding: 19px 20px !important;
+  border-radius: 13px !important;
+}
+.workspace3.ws-template-active .ws-template-panel h2 {
+  font-size: 15px !important;
+  padding-bottom: 12px !important;
+}
+.workspace3.ws-template-active .ws-template-project-description {
+  margin-top: 12px !important;
+  max-height: 115px !important;
+  font-size: 12.5px !important;
+  line-height: 1.6 !important;
+  overflow: auto !important;
+}
+.workspace3.ws-template-active .ws-template-scope-block {
+  padding-top: 15px !important;
+}
+.workspace3.ws-template-active .ws-template-scope-block h3 {
+  margin-bottom: 9px !important;
+}
+.workspace3.ws-template-active .ws-template-skills span {
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+}
+.workspace3.ws-template-active .ws-template-review-body {
+  gap: 13px !important;
+  margin: 16px 0 10px !important;
+}
+.workspace3.ws-template-active .ws-template-score > strong {
+  font-size: 28px !important;
+}
+.workspace3.ws-template-active .ws-template-avatar {
+  width: 39px !important;
+  height: 39px !important;
+  flex-basis: 39px !important;
+}
+.workspace3.ws-template-active .ws-template-review-button {
+  min-height: 40px !important;
+  padding: 10px 12px !important;
+  font-size: 12px !important;
+}
+
+.workspace3.ws-template-active .ws-template-scope,
+.workspace3.ws-template-active .ws-template-milestones,
+.workspace3.ws-template-active .ws-final-page {
+  margin-top: 16px !important;
+}
+.workspace3.ws-template-active .ws-template-scope .ws-template-scope-columns,
+.workspace3.ws-template-active .ws-template-milestones,
+.workspace3.ws-template-active .ws-final-grid {
+  gap: 16px !important;
+}
+.workspace3.ws-template-active
+  .ws-template-scope
+  .ws-template-scope-columns
+  > .v2-card,
+.workspace3.ws-template-active
+  .ws-template-scope
+  .ws-template-scope-columns
+  > .v2-stack
+  > .v2-card,
+.workspace3.ws-template-active .ws-template-milestones > .ms-ref-list-panel,
+.workspace3.ws-template-active .ws-template-milestones > .ms-ref-detail-panel,
+.workspace3.ws-template-active .ws-final-card {
+  padding: 19px 20px !important;
+  border-radius: 13px !important;
+}
+.workspace3.ws-template-active
+  .ws-template-scope
+  .ws-template-scope-columns
+  .v2-card-heading,
+.workspace3.ws-template-active .ws-template-milestones .ms-ref-panel-head,
+.workspace3.ws-template-active .ws-final-card-heading {
+  padding-bottom: 12px !important;
+  margin-bottom: 14px !important;
+}
+.workspace3.ws-template-active
+  .ws-template-scope
+  .ws-template-scope-columns
+  .v2-card-heading
+  h2,
+.workspace3.ws-template-active .ws-template-milestones .ms-ref-panel-head h2,
+.workspace3.ws-template-active .ws-final-card-heading h2 {
+  font-size: 15px !important;
+}
+.workspace3.ws-template-active
+  .ws-template-scope
+  .ws-ref-scope-detail
+  .ws-sample-scope-row,
+.workspace3.ws-template-active
+  .ws-template-scope
+  .ws-ref-scope-detail
+  .ws-sample-criterion-row {
+  min-height: 39px !important;
+  padding: 8px 2px !important;
+  font-size: 12.5px !important;
+}
+.workspace3.ws-template-active
+  .ws-template-scope
+  .ws-ref-scope-detail
+  .ws-template-section-caption {
+  margin: 14px 0 9px !important;
+  padding-top: 16px !important;
+  font-size: 14px !important;
+}
+.workspace3.ws-template-active .ws-template-scope .ws-template-approval-row {
+  min-height: 65px !important;
+  padding: 12px 0 !important;
+}
+.workspace3.ws-template-active .ws-template-scope .ws-ref-document {
+  padding: 10px !important;
+}
+.workspace3.ws-template-active .ws-template-milestones .ms-ref-item {
+  min-height: 67px !important;
+  padding: 11px 12px !important;
+}
+.workspace3.ws-template-active .ws-template-milestones .ms-ref-detail-head {
+  min-height: 36px !important;
+}
+.workspace3.ws-template-active .ws-template-milestones .ms-ref-description {
+  padding-bottom: 14px !important;
+  margin-bottom: 14px !important;
+}
+.workspace3.ws-template-active .ws-template-milestones .ms-ref-file {
+  padding: 11px 12px !important;
+}
+.workspace3.ws-template-active .ws-final-card {
+  min-height: 270px !important;
+}
+.workspace3.ws-template-active .ws-final-success {
+  min-height: 88px !important;
+  padding: 15px !important;
+}
+.workspace3.ws-template-active .ws-final-success-label strong {
+  font-size: 16px !important;
+}
+.workspace3.ws-template-active .ws-final-success-list {
+  gap: 11px !important;
+  padding-top: 15px !important;
+}
+
+@media (max-width: 1199px) {
+  .workspace3.ws-template-active {
+    --ws-compact-width: 100%;
+  }
+  .workspace3.ws-template-active .workspace3-header,
+  .workspace3.ws-template-active .v2-main {
+    width: 100% !important;
+  }
+}
+@media (max-width: 920px) {
+  .workspace3.ws-template-active .workspace3-title {
+    flex-basis: 100% !important;
+  }
+  .workspace3.ws-template-active .workspace3-actions {
+    margin-left: 52px !important;
+    align-self: flex-start !important;
+  }
+  .workspace3.ws-template-active .workspace3-project-meta {
+    padding-left: 52px !important;
+  }
+  .workspace3.ws-template-active .ws-template-scope .ws-template-scope-columns,
+  .workspace3.ws-template-active .ws-template-milestones,
+  .workspace3.ws-template-active .ws-final-grid,
+  .workspace3.ws-template-active .ws-template-content {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .workspace3.ws-template-active .ws-template-milestones > .ms-ref-list-panel,
+  .workspace3.ws-template-active
+    .ws-template-milestones
+    > .ms-ref-detail-panel {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+}
+@media (max-width: 700px) {
+  .workspace3.ws-template-active .ws-template-kpis {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .workspace3.ws-template-active .workspace3-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .workspace3.ws-template-active .workspace3-tabs button {
+    white-space: normal !important;
+    font-size: 11.5px !important;
+  }
+  .workspace3.ws-template-active .ws-template-steps {
+    gap: 5px !important;
+  }
+  .workspace3.ws-template-active .ws-template-step-line {
+    flex-basis: 14px !important;
+    width: 14px !important;
+  }
+  .workspace3.ws-template-active .ws-template-steps button {
+    padding: 7px 8px !important;
+    font-size: 10.5px !important;
+  }
+  .workspace3.ws-template-active .workspace3-project-meta {
+    padding-left: 0 !important;
+  }
+  .workspace3.ws-template-active .workspace3-actions {
+    margin-left: 0 !important;
+  }
+  .workspace3.ws-template-active .ws-template-kpi {
+    min-height: 76px !important;
+  }
+  .workspace3.ws-template-active .ws-template-panel {
+    padding: 16px !important;
+  }
+}
+
+@media (min-width: 921px) {
+  .workspace3.ws-template-active {
+    margin-top: -18px !important;
+  }
+  .workspace3.ws-template-active .workspace3-header {
+    padding-top: 0 !important;
+  }
+  .workspace3.ws-template-active .workspace3-breadcrumb {
+    margin-bottom: 7px !important;
+  }
+  .workspace3.ws-template-active .workspace3-titlebar {
+    padding-bottom: 9px !important;
+  }
+  .workspace3.ws-template-active .ws-template-steps {
+    padding: 4px 0 9px !important;
+  }
+}
+@media (max-width: 920px) {
+  .workspace3.ws-template-active {
+    margin-top: 0 !important;
+  }
+}
+
+.workspace3.ws-template-active .workspace3-breadcrumb {
+  margin-bottom: 5px !important;
+}
+.workspace3.ws-template-active .workspace3-title {
+  gap: 0 !important;
+}
+.workspace3.ws-template-active .ws-ref-project-title {
+  min-height: 42px !important;
+  margin-bottom: 0 !important;
+}
+.workspace3.ws-template-active .workspace3-project-meta {
+  margin-top: -2px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  row-gap: 2px !important;
+  line-height: 1.35 !important;
+}
+.workspace3.ws-template-active .workspace3-project-meta span {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+@media (max-width: 700px) {
+  .workspace3.ws-template-active .workspace3-project-meta {
+    margin-top: 5px !important;
+  }
+}
+
+.workspace3.ws-template-active .workspace3-tabs {
+  margin-top: 11px !important;
+}
+.workspace3.ws-template-active .workspace3-titlebar {
+  padding-bottom: 5px !important;
+}
+.workspace3.ws-template-active .workspace3-project-meta {
+  margin-top: 2px !important;
+}
+.workspace3.ws-template-active .ws-template-steps + .workspace3-tabs {
+  margin-top: 0 !important;
+}
+@media (max-width: 700px) {
+  .workspace3.ws-template-active .workspace3-tabs {
+    margin-top: 8px !important;
+  }
+}
+
+.workspace3.ws-template-active {
+  margin-top: 0 !important;
+}
+.workspace3.ws-template-active .workspace3-header {
+  position: relative !important;
+  isolation: isolate;
+  background: #fff !important;
+  padding-top: 17px !important;
+  margin-bottom: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.workspace3.ws-template-active .workspace3-header::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  background: #fff;
+  pointer-events: none;
+  border-bottom: 1px solid #e9efeb;
+}
+.workspace3.ws-template-active .workspace3-breadcrumb {
+  margin-bottom: 12px !important;
+}
+.workspace3.ws-template-active .workspace3-title {
+  gap: 0 !important;
+}
+.workspace3.ws-template-active .workspace3-titlebar {
+  padding-bottom: 15px !important;
+}
+.workspace3.ws-template-active .workspace3-project-meta {
+  margin-top: -2px !important;
+  row-gap: 2px !important;
+}
+.workspace3.ws-template-active .ws-template-steps {
+  padding: 10px 0 14px !important;
+  gap: 15px !important;
+}
+.workspace3.ws-template-active .workspace3-tabs {
+  margin-top: 16px !important;
+  background: #fff !important;
+}
+.workspace3.ws-template-active .ws-template-steps + .workspace3-tabs {
+  margin-top: 8px !important;
+}
+.workspace3.ws-template-active .v2-layout {
+  background: transparent !important;
+}
+@media (max-width: 700px) {
+  .workspace3.ws-template-active .workspace3-header {
+    padding-top: 12px !important;
+  }
+  .workspace3.ws-template-active .workspace3-breadcrumb {
+    margin-bottom: 9px !important;
+  }
+  .workspace3.ws-template-active .workspace3-titlebar {
+    padding-bottom: 12px !important;
+  }
+  .workspace3.ws-template-active .workspace3-tabs {
+    margin-top: 11px !important;
+  }
+}
+
+.workspace3.ws-template-active {
+  position: relative !important;
+  box-sizing: border-box !important;
+  margin-top: -36px !important;
+  padding-top: 6px !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.workspace3.ws-template-active .workspace3-header {
+  position: relative !important;
+  isolation: isolate;
+  box-sizing: border-box !important;
+  margin: 0 auto !important;
+  padding-top: 9px !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.workspace3.ws-template-active .workspace3-header::before {
+  background: #fff !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.workspace3.ws-template-active .workspace3-breadcrumb {
+  margin-bottom: 13px !important;
+}
+.workspace3.ws-template-active .workspace3-breadcrumb button {
+  color: #64748b !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.workspace3.ws-template-active .workspace3-breadcrumb button svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+.workspace3.ws-template-active .v2-layout {
+  padding-top: 14px !important;
+  margin: 0 !important;
+  background: #f5f7f9 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.workspace3.ws-template-active .v2-main {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+@media (max-width: 920px) {
+  .workspace3.ws-template-active {
+    margin-top: -24px !important;
+    padding-top: 5px !important;
+  }
+}
+@media (max-width: 600px) {
+  .workspace3.ws-template-active {
+    margin-top: -16px !important;
+    padding-top: 5px !important;
+  }
+}
