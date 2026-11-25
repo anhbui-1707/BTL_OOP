@@ -25,11 +25,10 @@ CREATE TABLE dbo.notification_delivery_cursor (
     last_audit_id BIGINT NOT NULL,
     CONSTRAINT CK_notification_delivery_cursor_singleton CHECK(id=1 AND last_audit_id>=0)
 );
--- Start at deployment; do not synthesize historical/demo notifications.
+
 INSERT INTO dbo.notification_delivery_cursor(id,last_audit_id)
 SELECT 1,COALESCE(MAX(id),0) FROM dbo.audit_logs WITH(READCOMMITTEDLOCK);
--- This cursor is an immutable deployment boundary, not a moving watermark:
--- identity values can commit out of order. Receipts prevent losing late commits.
+
 CREATE TABLE dbo.notification_delivery_receipts (
     source_audit_id BIGINT NOT NULL CONSTRAINT PK_notification_delivery_receipts PRIMARY KEY,
     CONSTRAINT FK_notification_delivery_receipts_audit FOREIGN KEY(source_audit_id) REFERENCES dbo.audit_logs(id)

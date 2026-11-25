@@ -27,7 +27,6 @@ public class FinalAcceptanceService {
     private final JobRepository jobs;
     private final ScopeVersionRepository scopes;
     private final MilestoneRepository milestones;
-    private final ChangeRequestRepository changes;
     private final FinalAcceptanceRepository acceptances;
     private final UserRepository users;
     private final AuditLogRepository audit;
@@ -38,7 +37,6 @@ public class FinalAcceptanceService {
             JobRepository jobs,
             ScopeVersionRepository scopes,
             MilestoneRepository milestones,
-            ChangeRequestRepository changes,
             FinalAcceptanceRepository acceptances,
             UserRepository users,
             AuditLogRepository audit,
@@ -47,7 +45,6 @@ public class FinalAcceptanceService {
         this.jobs = jobs;
         this.scopes = scopes;
         this.milestones = milestones;
-        this.changes = changes;
         this.acceptances = acceptances;
         this.users = users;
         this.audit = audit;
@@ -86,14 +83,6 @@ public class FinalAcceptanceService {
         if (!hasApprovedRequired)
             throw conflict(
                     "At least one required APPROVED Milestone in the current Scope is necessary.");
-        if (changes.findByAssignment_Id(id).stream()
-                .anyMatch(
-                        c ->
-                                Objects.equals(c.getBaseScopeVersionId(), scope.getId())
-                                        && (c.getStatus() == ChangeRequest.Status.PENDING
-                                                || c.getStatus() == ChangeRequest.Status.APPROVED)))
-            throw conflict(
-                    "An unresolved Change Request on the current Scope prevents acceptance.");
         Instant now = clock.instant().truncatedTo(ChronoUnit.MILLIS);
         FinalAcceptance value = new FinalAcceptance();
         value.setAssignment(a);

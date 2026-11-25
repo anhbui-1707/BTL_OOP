@@ -17,7 +17,8 @@ public class UserRole {
         ADMIN
     }
 
-    @EmbeddedId private UserRoleId id = new UserRoleId();
+    @EmbeddedId
+    private UserRoleId id = new UserRoleId();
 
     @JdbcTypeCode(SqlTypes.TIMESTAMP)
     @Column(name = "assigned_at", nullable = false, columnDefinition = "datetime2(3)")
@@ -31,7 +32,9 @@ public class UserRole {
             foreignKey = @ForeignKey(name = "FK_user_roles_user"))
     private User user;
 
-    public UserRole() {}
+    public UserRole() {
+
+    }
 
     public UserRoleId getId() {
         return id;

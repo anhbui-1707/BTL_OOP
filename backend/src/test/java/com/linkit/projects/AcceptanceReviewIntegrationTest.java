@@ -48,9 +48,7 @@ import java.util.concurrent.*;
             "spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=LinkIT_V2;integratedSecurity=true;encrypt=true;trustServerCertificate=true",
             "spring.datasource.username=",
             "spring.datasource.password=",
-            "spring.jpa.hibernate.ddl-auto=validate",
-            "linkit.seed.enabled=false",
-            "debug=false"
+            "spring.jpa.hibernate.ddl-auto=validate",            "debug=false"
         })
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @EnabledIfEnvironmentVariable(named = "LINKIT_ACCEPTANCE_REVIEW_TEST", matches = "true")
@@ -114,11 +112,6 @@ class AcceptanceReviewIntegrationTest {
                                 Object[] values = users.toArray();
                                 String owned =
                                         "SELECT id FROM dbo.jobs WHERE client_id IN (" + ids + ")";
-                                jdbc.update(
-                                        "DELETE FROM dbo.compatibility_scores WHERE job_id IN ("
-                                                + owned
-                                                + ")",
-                                        values);
                                 String project =
                                         "SELECT id FROM dbo.assignments WHERE job_id IN ("
                                                 + owned
@@ -480,70 +473,6 @@ class AcceptanceReviewIntegrationTest {
                 "SELECT status FROM dbo.milestones WHERE id=?", String.class, id);
     }
 
-    private Map<String, Object> changeBody(String delta, int days) {
-        return new LinkedHashMap<>(
-                Map.of(
-                        "title",
-                        "Extend portfolio delivery",
-                        "reason",
-                        "Additional reporting requirements agreed for the project",
-                        "proposedDeliverables",
-                        "Deliver portfolio, reporting module and acceptance tests",
-                        "budgetDelta",
-                        new BigDecimal(delta),
-                        "daysDelta",
-                        days));
-    }
-
-    private MvcResult change(MvcResult a, TokenResponse actor, String delta, int days)
-            throws Exception {
-        return call(
-                post("/api/assignments/" + id(a) + "/change-requests"),
-                actor,
-                changeBody(delta, days),
-                null,
-                201);
-    }
-
-    private MvcResult changeGet(long id) throws Exception {
-        return call(get("/api/change-requests/" + id), client, null, null, 200);
-    }
-
-    private MvcResult decide(MvcResult c, TokenResponse actor, String decision, int expected)
-            throws Exception {
-        return call(
-                post("/api/change-requests/" + id(c) + "/decisions"),
-                actor,
-                Map.of("decision", decision),
-                etag(c),
-                expected);
-    }
-
-    private MvcResult agreed(MvcResult c) throws Exception {
-        return decide(decide(c, client, "APPROVED", 200), freelancer, "APPROVED", 200);
-    }
-
-    private MvcResult apply(MvcResult c, int expected) throws Exception {
-        return call(
-                post("/api/change-requests/" + id(c) + "/apply"), client, null, etag(c), expected);
-    }
-
-    private JsonNode evaluate(MvcResult a, TokenResponse actor) throws Exception {
-        return node(
-                call(
-                        post("/api/assignments/" + id(a) + "/risk-alerts/evaluate"),
-                        actor,
-                        null,
-                        null,
-                        200));
-    }
-
-    private JsonNode alerts(MvcResult a) throws Exception {
-        return node(call(
-                        get("/api/assignments/" + id(a) + "/risk-alerts"), client, null, null, 200))
-                .path("content");
-    }
-
     private Long scopeId(MvcResult a) throws Exception {
         return jdbc.queryForObject(
                 "SELECT id FROM dbo.scope_versions WHERE assignment_id=? AND status='LOCKED'",
@@ -698,7 +627,7 @@ class AcceptanceReviewIntegrationTest {
     }
 
     @Test
-    void ignoresCancelledRequiredAndUnapprovedOptionalMilestonesAndOpenRisks() throws Exception {
+    void ignoresCancelledRequiredAndUnapprovedOptionalMilestones() throws Exception {
         var a = ready();
         var cancelled = task(a, "100", 2);
         cancel(cancelled, 204);
@@ -707,22 +636,9 @@ class AcceptanceReviewIntegrationTest {
         var optional =
                 call(post("/api/assignments/" + id(a) + "/milestones"), client, in, null, 201);
         deliver(optional, freelancer, 201);
-        jdbc.update(
-                "UPDATE dbo.scope_versions SET deadline=? WHERE id=?",
-                LocalDate.now(ZoneOffset.UTC).plusDays(2),
-                scopeId(a));
-        evaluate(a, client);
-        long risk = alerts(a).get(0).path("id").asLong();
-        call(post("/api/risk-alerts/" + risk + "/acknowledge"), client, null, null, 200);
         var before = history();
         finish(a, client, 201);
         assertThat(history()).isEqualTo(before);
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT status FROM dbo.risk_alerts WHERE id=?",
-                                String.class,
-                                risk))
-                .isEqualTo("ACKNOWLEDGED");
         assertThat(taskStatus(id(optional))).isEqualTo("SUBMITTED");
     }
 
@@ -739,40 +655,6 @@ class AcceptanceReviewIntegrationTest {
                 call(post("/api/assignments/" + id(a) + "/milestones"), client, in, null, 201);
         accept(deliver(optional, freelancer, 201), 200);
         finish(a, client, 409);
-    }
-
-    @org.junit.jupiter.params.ParameterizedTest
-    @org.junit.jupiter.params.provider.EnumSource(
-            com.linkit.projects.entity.ChangeRequest.Status.class)
-    void onlyPendingAndApprovedChangesOnCurrentScopeBlock(
-            com.linkit.projects.entity.ChangeRequest.Status status) throws Exception {
-        var a = ready();
-        var c = change(a, client, "10", 0);
-        jdbc.update("UPDATE dbo.change_requests SET status=? WHERE id=?", status.name(), id(c));
-        finish(
-                a,
-                client,
-                status == com.linkit.projects.entity.ChangeRequest.Status.PENDING
-                                || status
-                                        == com.linkit.projects.entity.ChangeRequest.Status.APPROVED
-                        ? 409
-                        : 201);
-    }
-
-    @Test
-    void oldRequiredAndOldUnresolvedChangesDoNotReplaceCurrentScopeRequirements() throws Exception {
-        var a = ready();
-        var oldPending = change(a, client, "10", 0);
-        var oldApproved = agreed(change(a, client, "20", 0));
-        apply(agreed(change(a, client, "30", 0)), 200);
-        finish(a, client, 409);
-        var current = task(a, "100", 2);
-        accept(deliver(current, freelancer, 201), 200);
-        var before = history();
-        finish(a, client, 201);
-        assertThat(history()).isEqualTo(before);
-        assertThat(node(changeGet(id(oldPending))).path("status").asText()).isEqualTo("PENDING");
-        assertThat(node(changeGet(id(oldApproved))).path("status").asText()).isEqualTo("APPROVED");
     }
 
     @org.junit.jupiter.params.ParameterizedTest
@@ -915,32 +797,6 @@ class AcceptanceReviewIntegrationTest {
                                 "SELECT COUNT(*) FROM dbo.final_acceptances WHERE assignment_id=?",
                                 id(a)))
                 .isEqualTo(1);
-    }
-
-    @Test
-    void acceptanceRacingChangeCreationLeavesAConsistentWinner() throws Exception {
-        var a = ready();
-        String version = etag(finalState(a, client));
-        var result =
-                race(
-                        () ->
-                                raw(
-                                        post("/api/assignments/" + id(a) + "/final-acceptance"),
-                                        client,
-                                        Map.of(),
-                                        version),
-                        () ->
-                                raw(
-                                        post("/api/assignments/" + id(a) + "/change-requests"),
-                                        client,
-                                        changeBody("10", 0),
-                                        null));
-        assertThat(result).containsExactlyInAnyOrder(201, 409);
-        long finalCount =
-                scalar("SELECT COUNT(*) FROM dbo.final_acceptances WHERE assignment_id=?", id(a));
-        long changes =
-                scalar("SELECT COUNT(*) FROM dbo.change_requests WHERE assignment_id=?", id(a));
-        assertThat(finalCount + changes).isEqualTo(1);
     }
 
     @Test

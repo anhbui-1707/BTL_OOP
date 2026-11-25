@@ -944,7 +944,6 @@ table td {
 .public-header .linkit-logo-img,
 .auth-brand .linkit-logo-img,
 .about-brand .linkit-logo-img,
-.demo-brand .linkit-logo-img,
 .sidebar .linkit-logo-img {
   filter: none !important;
   text-shadow: none !important;
@@ -953,14 +952,12 @@ table td {
 html:not([data-theme="dark"]) .public-header .logo-img-dark-text,
 html:not([data-theme="dark"]) .auth-brand .logo-img-dark-text,
 html:not([data-theme="dark"]) .about-brand .logo-img-dark-text,
-html:not([data-theme="dark"]) .demo-brand .logo-img-dark-text,
 html:not([data-theme="dark"]) .sidebar .logo-img-dark-text {
   display: block !important;
 }
 html:not([data-theme="dark"]) .public-header .logo-img-light-text,
 html:not([data-theme="dark"]) .auth-brand .logo-img-light-text,
 html:not([data-theme="dark"]) .about-brand .logo-img-light-text,
-html:not([data-theme="dark"]) .demo-brand .logo-img-light-text,
 html:not([data-theme="dark"]) .sidebar .logo-img-light-text {
   display: none !important;
 }

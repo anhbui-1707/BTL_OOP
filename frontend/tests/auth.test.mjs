@@ -250,15 +250,6 @@ test('freelancer registration derives its role from /me', async t => {
   assert.equal(JSON.parse(h.calls[0].options.body).role, 'FREELANCER');
 });
 
-test('isolated preview cannot send requests or refresh against the real API', async t => {
-  const h = await harness(t);
-  const previous = globalThis.window;
-  globalThis.window = { location: { pathname: '/preview-v2' } };
-  t.after(() => { if (previous === undefined) delete globalThis.window; else globalThis.window = previous; });
-  await assert.rejects(h.http.apiRequest('/api/protected'), error => error.status === 0);
-  assert.equal(h.calls.length, 0);
-});
-
 test('401 during /me verification has no refresh loop', async t => {
   const h = await harness(t, call => call.path.endsWith('/login') ? json(pair()) : json({}, 401));
   await assert.rejects(h.authApi.login({ email: user.email, password: 'test-password-123' }), error => error.status === 401);

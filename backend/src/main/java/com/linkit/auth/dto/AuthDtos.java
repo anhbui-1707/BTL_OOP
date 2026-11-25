@@ -10,7 +10,9 @@ import java.util.Locale;
 import java.util.Set;
 
 public final class AuthDtos {
-    private AuthDtos() {}
+    private AuthDtos() {
+
+    }
 
     public record RegisterRequest(
             @NotBlank @Email @Size(max = 254) String email,
@@ -55,7 +57,9 @@ public final class AuthDtos {
             String phoneNumber,
             String avatarUrl,
             User.Status status,
-            Set<Role> roles) {}
+            Set<Role> roles) {
+
+    }
 
     public record TokenResponse(
             String accessToken,

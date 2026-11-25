@@ -83,8 +83,8 @@ class JpaMappingIntegrationTest {
 
     @Test
     void validatesAllEntitiesAgainstSqlServer() {
-        assertThat(em.getMetamodel().getEntities()).hasSize(23);
-        assertThat(repositories).hasSize(23);
+        assertThat(em.getMetamodel().getEntities()).hasSize(24);
+        assertThat(repositories).hasSize(24);
         assertThat(em.createNativeQuery("SELECT DB_NAME()", String.class).getSingleResult())
                 .isEqualTo("LinkIT_V2");
     }
@@ -231,7 +231,7 @@ class JpaMappingIntegrationTest {
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    void rejectsStaleUpdatesForAllSevenRowversionMappings() {
+    void rejectsStaleUpdatesForAllSixRowversionMappings() {
         Map<String, Long> initial = rowCounts();
         JpaTestGraph graph;
         List<EntityKey> keys;
@@ -266,8 +266,7 @@ class JpaMappingIntegrationTest {
                             new VersionCase(Proposal.class, graph.proposal.getId(), "coverLetter"),
                             new VersionCase(
                                     Assignment.class, graph.assignment.getId(), "currencyCode"),
-                            new VersionCase(Milestone.class, graph.milestone.getId(), "title"),
-                            new VersionCase(ChangeRequest.class, graph.change.getId(), "title"));
+                            new VersionCase(Milestone.class, graph.milestone.getId(), "title"));
             for (VersionCase testCase : cases) {
                 try (EntityManager winner = emf.createEntityManager();
                         EntityManager stale = emf.createEntityManager()) {

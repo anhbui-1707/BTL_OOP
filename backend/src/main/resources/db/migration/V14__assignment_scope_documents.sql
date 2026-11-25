@@ -1,6 +1,6 @@
 IF DB_NAME() <> N'LinkIT_V2' THROW 51000, 'Migration requires LinkIT_V2.', 1;
 
--- Each assignment has one current scope PDF, readable only by its two parties.
+
 CREATE TABLE dbo.assignment_scope_documents (
     assignment_id BIGINT NOT NULL CONSTRAINT PK_assignment_scope_documents PRIMARY KEY,
     file_name NVARCHAR(255) NOT NULL,

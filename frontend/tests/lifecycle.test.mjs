@@ -33,36 +33,6 @@ const assignment = {
 const job = { id: 7, status: "IN_PROGRESS", version: "j1" }
 const scope = { id: 56, versionNumber: 2, status: "LOCKED" }
 const context = () => ({ assignment, job, scopes: [scope] })
-const change = (status = "PENDING") => ({
-  id: 66,
-  assignmentId: 44,
-  baseScopeVersionId: 56,
-  requestedBy: 2,
-  title: "Improve reporting",
-  reason: "Need monthly reports",
-  proposedDeliverables: "New reporting module",
-  budgetDelta: "200.50",
-  daysDelta: 7,
-  status,
-  resultScopeVersionId: null,
-  createdAt: "2026-01-01",
-  resolvedAt: null,
-  decisions: [],
-  version: "c1",
-})
-const risk = (status = "OPEN") => ({
-  id: 77,
-  assignmentId: 44,
-  milestoneId: null,
-  riskType: "LARGE_SCOPE_CHANGE",
-  severity: "HIGH",
-  title: "Large scope change",
-  description: "Backend threshold exceeded",
-  ruleCode: "LARGE_SCOPE_CHANGE:CR:66",
-  status,
-  detectedAt: "2026-01-01",
-  resolvedAt: null,
-})
 const acceptance = (accepted = false) => ({
   assignmentId: 44,
   assignmentStatus: accepted ? "COMPLETED" : "ACTIVE",
@@ -101,7 +71,6 @@ const evidence = () => ({
   milestones: [
     { id: 1, scopeVersionId: 56, isRequired: true, status: "APPROVED" },
   ],
-  changes: [],
 })
 async function harness(t, respond) {
   const folder = mkdtempSync(join(tmpdir(), "linkit-lifecycle-"))
@@ -148,7 +117,7 @@ async function harness(t, respond) {
     calls.push(call)
     return respond
       ? respond(call, calls)
-      : json(change(), 200, { ETag: '"actual"' })
+      : json(acceptance(), 200, { ETag: '"actual"' })
   }
   t.after(() => {
     globalThis.fetch = old
@@ -166,194 +135,6 @@ async function harness(t, respond) {
     calls,
   }
 }
-test("Change Request uses real DTO and PENDING without automatically approving its creator", async (t) => {
-  const h = await harness(t)
-  const input = h.changeInput({
-    title: "Report",
-    reason: "Need report",
-    proposedDeliverables: "Reporting module",
-    budgetDelta: "-200.50",
-    daysDelta: "-7",
-  })
-  const result = await h.changesApi.create(44, input)
-  assert.equal(h.calls[0].url.pathname, "/api/assignments/44/change-requests")
-  assert.equal(h.calls[0].options.method, "POST")
-  assert.deepEqual(JSON.parse(h.calls[0].options.body), input)
-  assert.deepEqual(result.decisions, [])
-  assert.equal(result.status, "PENDING")
-  assert.equal(h.calls.length, 1)
-  assert.equal("requestedBy" in input, false)
-})
-test("Change list/detail preserve server pagination, status and real ETag", async (t) => {
-  const h = await harness(t, (c) =>
-    c.url.pathname.includes("/assignments/")
-      ? json(page([change("APPLIED")]))
-      : json(change(), 200, { ETag: '"c9"' }),
-  )
-  const list = await h.changesApi.list(44, 2, 5),
-    detail = await h.changesApi.detail(66)
-  assert.equal(list.page, 2)
-  assert.equal(list.totalPages, 3)
-  assert.equal(list.content[0].status, "APPLIED")
-  assert.equal(detail.etag, '"c9"')
-  assert.equal(h.calls[0].url.searchParams.get("size"), "5")
-})
-test("Decision and apply use Change Request ETag, never Assignment version or user identity payload", async (t) => {
-  const h = await harness(t)
-  await h.changesApi.decide(66, "APPROVED", "Agree", '"c1"')
-  await h.changesApi.decide(66, "REJECTED", null, '"c2"')
-  await h.changesApi.apply(66, '"c3"')
-  assert.deepEqual(
-    h.calls.map((c) => c.url.pathname),
-    [
-      "/api/change-requests/66/decisions",
-      "/api/change-requests/66/decisions",
-      "/api/change-requests/66/apply",
-    ],
-  )
-  assert.deepEqual(
-    h.calls.map((c) => c.options.headers.get("If-Match")),
-    ['"c1"', '"c2"', '"c3"'],
-  )
-  assert.deepEqual(JSON.parse(h.calls[0].options.body), {
-    decision: "APPROVED",
-    comment: "Agree",
-  })
-  assert.equal(h.calls[2].options.body, undefined)
-})
-test("Change rights require actual parties, active project and no prior decision from that party", async (t) => {
-  const h = await harness(t)
-  assert.equal(h.changeRights(client, context(), change()).decide, true)
-  const c = {
-    ...change(),
-    decisions: [{ userId: 2, partyRole: "CLIENT", decision: "APPROVED" }],
-  }
-  assert.equal(h.changeRights(client, context(), c).decide, false)
-  assert.equal(h.changeRights(freelancer, context(), c).decide, true)
-  for (const actor of [admin, user(8, "CLIENT"), user(8, "FREELANCER")])
-    assert.equal(h.changeRights(actor, context(), c).create, false)
-  assert.equal(
-    h.changeRights(
-      client,
-      { ...context(), assignment: { ...assignment, status: "COMPLETED" } },
-      c,
-    ).create,
-    false,
-  )
-  for (const status of ["APPROVED", "REJECTED", "APPLIED", "CANCELLED"])
-    assert.equal(
-      h.changeRights(client, context(), change(status)).decide,
-      false,
-    )
-})
-test("Only owner CLIENT applies two authentic approvals on the current Scope once", async (t) => {
-  const h = await harness(t)
-  const c = {
-    ...change("APPROVED"),
-    decisions: [
-      { userId: 2, partyRole: "CLIENT", decision: "APPROVED" },
-      { userId: 3, partyRole: "FREELANCER", decision: "APPROVED" },
-    ],
-  }
-  assert.equal(h.changeRights(client, context(), c).apply, true)
-  assert.equal(h.changeRights(freelancer, context(), c).apply, false)
-  for (const patch of [
-    { baseScopeVersionId: 55 },
-    { resultScopeVersionId: 90 },
-    { decisions: [] },
-    { status: "APPLIED" },
-    { decisions: c.decisions.map((d) => ({ ...d, userId: 9 })) },
-  ])
-    assert.equal(
-      h.changeRights(client, context(), { ...c, ...patch }).apply,
-      false,
-    )
-})
-test("Signed budget/days deltas follow DECIMAL and SQL INT limits without computing a new Scope", async (t) => {
-  const h = await harness(t)
-  const f = {
-    title: "x",
-    reason: "x",
-    proposedDeliverables: "x",
-    budgetDelta: "-99999999999999999.99",
-    daysDelta: "-2147483648",
-  }
-  const before = structuredClone(f)
-  const input = h.changeInput(f)
-  assert.equal(input.budgetDelta, f.budgetDelta)
-  assert.equal(input.daysDelta, -2147483648)
-  assert.deepEqual(f, before)
-  for (const patch of [
-    { title: "" },
-    { reason: "" },
-    { proposedDeliverables: "" },
-    { title: "x".repeat(201) },
-    { budgetDelta: "1.001" },
-    { budgetDelta: "100000000000000000" },
-    { daysDelta: "2147483648" },
-    { daysDelta: "1.5" },
-  ])
-    assert.throws(() => h.changeInput({ ...f, ...patch }))
-  assert.throws(() => h.decisionComment("x".repeat(20001)))
-})
-test("Risk read/evaluate/acknowledge/resolve use actual routes, no fabricated ETag or formula", async (t) => {
-  const h = await harness(t, (c) =>
-    c.url.pathname.endsWith("/evaluate")
-      ? json({ created: 2, resolved: 1 })
-      : c.url.pathname.endsWith("/risk-alerts")
-        ? json(page([risk()]))
-        : json(risk()),
-  )
-  const list = await h.risksApi.list(44, 2, 5)
-  await h.risksApi.detail(77)
-  const result = await h.risksApi.evaluate(44)
-  await h.risksApi.acknowledge(77)
-  await h.risksApi.resolve(77)
-  assert.equal(list.page, 2)
-  assert.deepEqual(result, { created: 2, resolved: 1 })
-  assert.deepEqual(
-    h.calls.slice(1).map((c) => c.url.pathname),
-    [
-      "/api/risk-alerts/77",
-      "/api/assignments/44/risk-alerts/evaluate",
-      "/api/risk-alerts/77/acknowledge",
-      "/api/risk-alerts/77/resolve",
-    ],
-  )
-  for (const c of h.calls.slice(2)) {
-    assert.equal(c.options.method, "POST")
-    assert.equal(c.options.headers.has("If-Match"), false)
-    assert.equal(c.options.body, undefined)
-  }
-})
-test("Risk permissions allow ADMIN management reads/evaluate/resolve but never acknowledge", async (t) => {
-  const h = await harness(t)
-  assert.deepEqual(h.riskRights(admin, context(), risk()), {
-    read: true,
-    evaluate: true,
-    acknowledge: false,
-    resolve: true,
-  })
-  assert.deepEqual(h.riskRights(client, context(), risk()), {
-    read: true,
-    evaluate: true,
-    acknowledge: true,
-    resolve: true,
-  })
-  assert.deepEqual(h.riskRights(freelancer, context(), risk()), {
-    read: true,
-    evaluate: false,
-    acknowledge: false,
-    resolve: false,
-  })
-  assert.deepEqual(h.riskRights(user(8, "CLIENT"), context(), risk()), {
-    read: false,
-    evaluate: false,
-    acknowledge: false,
-    resolve: false,
-  })
-  assert.equal(h.riskRights(client, context(), risk("RESOLVED")).resolve, false)
-})
 test("Explicit ADMIN workspace mode fetches Assignment/Job only, never private Scope/Milestone endpoints", async (t) => {
   const h = await harness(t, (c) =>
     json(c.url.pathname === "/api/assignments/44" ? assignment : job),
@@ -396,7 +177,6 @@ test("Acceptance ignores cancelled/optional/old-Scope milestones but requires ap
   assert.equal(
     h.canAccept(client, context(), acceptance(), {
       milestones: [],
-      changes: [],
     }),
     false,
   )
@@ -408,33 +188,6 @@ test("Acceptance ignores cancelled/optional/old-Scope milestones but requires ap
       ],
     }),
     false,
-  )
-})
-test("Only unresolved Change Requests on the current Scope block acceptance; Risk is not a blocker", async (t) => {
-  const h = await harness(t)
-  for (const status of ["PENDING", "APPROVED"])
-    assert.equal(
-      h.canAccept(client, context(), acceptance(), {
-        ...evidence(),
-        changes: [change(status)],
-      }),
-      false,
-    )
-  for (const status of ["REJECTED", "CANCELLED", "APPLIED"])
-    assert.equal(
-      h.canAccept(client, context(), acceptance(), {
-        ...evidence(),
-        changes: [change(status)],
-        risks: [risk()],
-      }),
-      true,
-    )
-  assert.equal(
-    h.canAccept(client, context(), acceptance(), {
-      ...evidence(),
-      changes: [{ ...change(), baseScopeVersionId: 55 }],
-    }),
-    true,
   )
 })
 test("Only owner CLIENT accepts ACTIVE/AWAITING_ACCEPTANCE with IN_PROGRESS Job, once", async (t) => {
@@ -467,7 +220,7 @@ test("Only owner CLIENT accepts ACTIVE/AWAITING_ACCEPTANCE with IN_PROGRESS Job,
     false,
   )
 })
-test("Acceptance evidence reads all Milestone/Change pages and never evaluates or resolves risks", async (t) => {
+test("Acceptance evidence reads every Milestone page using only milestone GET requests", async (t) => {
   const h = await harness(t, (c) =>
     json({
       content: c.url.pathname.endsWith("/milestones")
@@ -479,11 +232,11 @@ test("Acceptance evidence reads all Milestone/Change pages and never evaluates o
   )
   const result = await h.acceptanceEvidence(44)
   assert.equal(result.milestones.length, 2)
-  assert.equal(h.calls.length, 4)
+  assert.equal(h.calls.length, 2)
   assert.equal(
     h.calls.some(
       (c) =>
-        c.options.method === "POST" || c.url.pathname.includes("risk-alerts"),
+        c.options.method === "POST" || !c.url.pathname.endsWith("/milestones"),
     ),
     false,
   )
@@ -551,62 +304,20 @@ test("Review absence is recognized only by backend REVIEW_NOT_FOUND; forbidden/n
     await assert.rejects(other.reviewsApi.get(44), (e) => e.status === status)
   }
 })
-test("Signed DECIMAL budget delta remains exact, without rewriting user text", async (t) => {
-  const text = 'text "budgetDelta":123'
-  const h = await harness(
-    t,
-    () =>
-      new Response(
-        JSON.stringify({
-          ...change(),
-          budgetDelta: "BIG",
-          reason: text,
-        }).replace('"BIG"', "-99999999999999999.99"),
-      ),
-  )
-  const c = await h.changesApi.detail(66)
-  assert.equal(c.budgetDelta, "-99999999999999999.99")
-  assert.equal(c.reason, text)
-})
-test("409/412/422 expose real backend error and preserve input without retrying apply/decisions", async (t) => {
-  for (const status of [409, 412, 422]) {
-    const h = await harness(t, () =>
-      json(
-        {
-          code: "CHANGE_REQUEST_CONFLICT",
-          message: "Scope changed or milestones block apply",
-        },
-        status,
-      ),
-    )
-    await assert.rejects(
-      h.changesApi.apply(66, '"c1"'),
-      (e) => e.status === status && e.message.includes("milestones"),
-    )
-    assert.equal(h.calls.length, 1)
-    assert.equal(h.calls[0].options.headers.get("If-Match"), '"c1"')
-  }
-})
-test("Network failures never retry create/apply/accept/review writes or substitute fixtures", async (t) => {
+test("Network failures never retry acceptance/review writes or substitute fixtures", async (t) => {
   const h = await harness(t, () => {
     throw new TypeError("offline")
   })
-  await assert.rejects(h.changesApi.apply(66, '"c1"'), (e) => e.status === 0)
   await assert.rejects(
     h.acceptanceApi.accept(44, null, '"a1"'),
     (e) => e.status === 0,
   )
   await assert.rejects(h.reviewsApi.create(44, review), (e) => e.status === 0)
-  assert.equal(h.calls.length, 3)
+  assert.equal(h.calls.length, 2)
 })
 test("Missing aggregate versions fail closed with unknown-result error", async (t) => {
-  const h = await harness(t, (c) =>
-    json(
-      c.url.pathname.includes("final-acceptance")
-        ? { ...acceptance(), assignmentVersion: null }
-        : { ...change(), version: null },
-    ),
+  const h = await harness(t, () =>
+    json({ ...acceptance(), assignmentVersion: null }),
   )
-  await assert.rejects(h.changesApi.detail(66), (e) => e.status === 0)
   await assert.rejects(h.acceptanceApi.get(44), (e) => e.status === 0)
 })

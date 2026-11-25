@@ -68,23 +68,8 @@ const candidate = {
   proposalStatus: "PENDING",
   selectable: true,
   ineligibilityReasons: [],
-  score: {
-    total: 73.45,
-    rulesVersion: "matching-v1",
-    evaluatedAt: "2026-11-01T02:03:00Z",
-    breakdown: {
-      total: 73.45,
-      skills: 32.45,
-      experience: 16,
-      budget: 20,
-      availability: 5,
-      skillBreakdown: [],
-      yearsExperience: 4,
-      proposedBudget: "100.25",
-      budgetMax: "500.00",
-      availabilityStatus: "BUSY",
-    },
-  },
+  averageRating: 4.5,
+  reviewCount: 7,
 };
 const page = (content) => ({
   content,
@@ -293,7 +278,7 @@ test("Only owner CLIENT rejects and applicant FREELANCER withdraws PENDING on OP
     false,
   );
 });
-test("Matching preserves backend ranking/breakdown and uses a single paginated GET", async (t) => {
+test("Candidate listing preserves backend ratings and ranking and uses a single paginated GET", async (t) => {
   const h = await harness(t, () => json(page([candidate])));
   const result = await h.matchingApi.candidates(7, {
     status: "REJECTED",
@@ -307,15 +292,17 @@ test("Matching preserves backend ranking/breakdown and uses a single paginated G
   assert.equal(h.calls[0].options.method ?? "GET", "GET");
   assert.equal(h.calls[0].options.body, undefined);
   assert.equal(h.calls[0].url.searchParams.get("size"), "5");
-  assert.deepEqual(result.content[0].score, candidate.score);
+  assert.equal(result.content[0].averageRating, 4.5);
+  assert.equal(result.content[0].reviewCount, 7);
   assert.equal(result.totalPages, 3);
 });
-test("Selection trusts server eligibility with no invented minimum score", async (t) => {
+test("Selection trusts server eligibility without a minimum rating", async (t) => {
   const h = await harness(t);
   assert.equal(
     h.canSelect(user(2, "CLIENT"), job, {
       ...candidate,
-      score: { ...candidate.score, total: 0 },
+      averageRating: null,
+      reviewCount: 0,
     }),
     true,
   );
@@ -418,20 +405,20 @@ test("Assignment list/detail preserve every real status, dates, exact amounts an
   assert.equal(detail.etag, '"a1"');
   assert.equal(detail.startedAt, null);
 });
-test("DECIMAL precision is preserved without rewriting proposal text or score numbers", async (t) => {
+test("DECIMAL precision is preserved without rewriting proposal text or rating numbers", async (t) => {
   const h = await harness(t);
   const text = 'text "proposedBudget": 123.45';
   const raw = JSON.stringify({
     coverLetter: text,
     proposedBudget: "big",
     agreedBudget: "big",
-    score: { total: 73.45 },
+    averageRating: 4.5,
   }).replaceAll('"big"', "99999999999999999.99");
   const decoded = h.parseRecruitmentJson(raw);
   assert.equal(decoded.proposedBudget, "99999999999999999.99");
   assert.equal(decoded.agreedBudget, "99999999999999999.99");
   assert.equal(decoded.coverLetter, text);
-  assert.equal(decoded.score.total, 73.45);
+  assert.equal(decoded.averageRating, 4.5);
 });
 test("403/409/412/422 errors surface backend DTO and never retry writes or change versions", async (t) => {
   for (const status of [403, 409, 412, 422]) {

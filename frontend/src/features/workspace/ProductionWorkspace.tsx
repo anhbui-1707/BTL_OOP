@@ -1,3 +1,4 @@
+import "./workspace.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./workspace-polish.css";
 import "./overview-template.css";
@@ -754,7 +755,6 @@ function ScopePanel({ runtime: r }: { runtime: Runtime }) {
     client || (current != null && current.status !== "DRAFT");
   const approvals = detail?.approvals ?? [];
 
-  const lockedByChange = detail?.status === "LOCKED" && approvals.length === 0;
   useEffect(() => {
     if (!selected && ordered.length) setSelected(ordered[0].id);
   }, [selected, ordered[0]?.id]);
@@ -1214,9 +1214,9 @@ function ScopePanel({ runtime: r }: { runtime: Runtime }) {
                       </small>
                     </div>
                     <Badge
-                      tone={approval || lockedByChange ? "green" : "amber"}
+                      tone={approval ? "green" : "amber"}
                     >
-                      {approval || lockedByChange
+                      {approval
                         ? "Đã xác nhận"
                         : "Chờ xác nhận"}
                     </Badge>

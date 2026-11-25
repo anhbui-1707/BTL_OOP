@@ -1,7 +1,4 @@
--- Flyway V19: one-time repair of the original November 2026 demo recruitment dates.
--- No-op for databases that do not match the original demo job signatures.
--- The original demo has jobs 11..42, each with a November deadline derived from
--- 2026-11-01 + (7 + id % 15) days. These were OPEN before expiry automation.
+
 IF DB_NAME() = N'LinkIT_V2'
    AND EXISTS (SELECT 1 FROM dbo.users WHERE id = 1 AND email = N'client@linkit.test')
    AND EXISTS (SELECT 1 FROM dbo.users WHERE id = 31 AND email = N'freelancer@linkit.test')

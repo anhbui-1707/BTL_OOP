@@ -49,7 +49,9 @@ public class RefreshToken {
     @Column(name = "created_at", nullable = false, columnDefinition = "datetime2(3)")
     private Instant createdAt;
 
-    public RefreshToken() {}
+    public RefreshToken() {
+
+    }
 
     public Long getId() {
         return id;

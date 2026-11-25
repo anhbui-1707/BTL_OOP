@@ -40,9 +40,7 @@ import java.util.concurrent.*;
             "spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=LinkIT_V2;integratedSecurity=true;encrypt=true;trustServerCertificate=true",
             "spring.datasource.username=",
             "spring.datasource.password=",
-            "spring.jpa.hibernate.ddl-auto=validate",
-            "linkit.seed.enabled=false",
-            "debug=false",
+            "spring.jpa.hibernate.ddl-auto=validate",            "debug=false",
             "LINKIT_CORS_ALLOWED_ORIGINS=https://jobs.example.test"
         })
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
@@ -208,15 +206,7 @@ class JobIntegrationTest {
                 Arrays.stream(skills)
                         .map(
                                 id ->
-                                        Map.of(
-                                                "skillId",
-                                                id,
-                                                "requiredLevel",
-                                                3,
-                                                "isRequired",
-                                                true,
-                                                "weight",
-                                                50))
+                                        Map.of("skillId", id, "isRequired", true))
                         .toList());
         return result;
     }
@@ -555,15 +545,7 @@ class JobIntegrationTest {
         invalid.put(
                 "skills",
                 List.of(
-                        Map.of(
-                                "skillId",
-                                1,
-                                "requiredLevel",
-                                6,
-                                "isRequired",
-                                true,
-                                "weight",
-                                101)));
+                        Map.of("skillId", -1, "isRequired", true)));
         call(post("/api/jobs"), owner, invalid, null, 422);
         call(get("/api/jobs").param("page", "-1"), owner, null, null, 422);
         call(get("/api/jobs").param("size", "101"), owner, null, null, 422);

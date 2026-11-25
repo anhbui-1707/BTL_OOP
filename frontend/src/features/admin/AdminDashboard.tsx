@@ -1,8 +1,8 @@
-import SupportInbox from "./SupportInbox";
+import SupportInbox from "./SupportInbox"
 import NotificationBell, {
   NotificationPage,
-} from "../notifications/Notifications";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+} from "../notifications/Notifications"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import {
   Activity,
   ArrowLeft,
@@ -28,18 +28,18 @@ import {
   ShieldCheck,
   UsersRound,
   X,
-} from "lucide-react";
-import { jobApi, type Job, type JobSummary, type Page } from "../../api/jobs";
-import { assignmentsApi, type Assignment } from "../../api/recruitment";
-import type { AuthUser } from "../../api/auth";
+} from "lucide-react"
+import { jobApi, type Job, type JobSummary, type Page } from "../../api/jobs"
+import { assignmentsApi, type Assignment } from "../../api/recruitment"
+import type { AuthUser } from "../../api/auth"
 import AdminRecords, {
   AdminActivities,
   ProjectMilestones,
   adminLabels,
   adminMoney,
-} from "./AdminRecords";
-import { adminDashboardApi } from "../../api/admin";
-import "./admin.css";
+} from "./AdminRecords"
+import { adminDashboardApi } from "../../api/admin"
+import "./admin.css"
 
 export const adminPages = [
   "Tổng quan",
@@ -49,7 +49,7 @@ export const adminPages = [
   "Quản lý dự án",
   "Báo cáo & thống kê",
   "Yêu cầu liên hệ",
-];
+]
 const icons = [
   LayoutDashboard,
   UsersRound,
@@ -58,7 +58,7 @@ const icons = [
   FolderKanban,
   BarChart3,
   Mail,
-];
+]
 const labels: Record<string, string> = {
   DRAFT: "Bản nháp",
   OPEN: "Đang tuyển",
@@ -70,10 +70,10 @@ const labels: Record<string, string> = {
   PENDING_SCOPE: "Chờ chốt phạm vi",
   ACTIVE: "Đang thực hiện",
   AWAITING_ACCEPTANCE: "Chờ nghiệm thu",
-};
+}
 const date = (value?: string | null) =>
-  value ? new Date(value).toLocaleDateString("vi-VN") : "Chưa có";
-const amount = adminMoney;
+  value ? new Date(value).toLocaleDateString("vi-VN") : "Chưa có"
+const amount = adminMoney
 const initials = (name: string) =>
   name
     .trim()
@@ -81,28 +81,28 @@ const initials = (name: string) =>
     .map((s) => s[0])
     .slice(-2)
     .join("")
-    .toUpperCase();
+    .toUpperCase()
 const errorText = (error: unknown) =>
   error instanceof Error
     ? error.message
-    : "Không thể kết nối máy chủ. Vui lòng thử lại.";
-type Resource<T> = {
-  data: T[] | null;
-  loading: boolean;
-  error: string | null;
-};
+    : "Không thể kết nối máy chủ. Vui lòng thử lại."
+type Resource<T,> = {
+  data: T[] | null
+  loading: boolean
+  error: string | null
+}
 async function allPages<T>(
   load: (page: number) => Promise<Page<T>>,
 ): Promise<T[]> {
-  const first = await load(0);
-  const rows = [...first.content];
+  const first = await load(0)
+  const rows = [...first.content]
   for (let page = 1; page < first.totalPages; page++)
-    rows.push(...(await load(page)).content);
+    rows.push(...(await load(page)).content)
   if (rows.length !== first.totalElements)
     throw new Error(
       "Dữ liệu đã thay đổi trong lúc tải. Vui lòng làm mới để xem thống kê chính xác.",
-    );
-  return rows;
+    )
+  return rows
 }
 function useResource<T>(
   load: () => Promise<T[]>,
@@ -113,48 +113,48 @@ function useResource<T>(
     data: null,
     loading: enabled,
     error: null,
-  });
+  })
   useEffect(() => {
-    let active = true;
+    let active = true
     if (!enabled) {
-      setState({ data: null, loading: false, error: null });
-      return;
+      setState({ data: null, loading: false, error: null })
+      return
     }
-    setState({ data: null, loading: true, error: null });
+    setState({ data: null, loading: true, error: null })
     load()
       .then((data) => {
-        if (active) setState({ data, loading: false, error: null });
+        if (active) setState({ data, loading: false, error: null })
       })
       .catch((error) => {
         if (active)
-          setState({ data: null, loading: false, error: errorText(error) });
-      });
+          setState({ data: null, loading: false, error: errorText(error) })
+      })
     return () => {
-      active = false;
-    };
-  }, [enabled, revision, load]);
-  return state;
+      active = false
+    }
+  }, [enabled, revision, load])
+  return state
 }
-const loadStats = async () => [await adminDashboardApi.stats()];
-const loadJobs = () => allPages((page) => jobApi.search({ page, size: 100 }));
+const loadStats = async () => [await adminDashboardApi.stats()]
+const loadJobs = () => allPages((page) => jobApi.search({ page, size: 100 }))
 const loadProjects = () =>
-  allPages((page) => assignmentsApi.list({ page, size: 100 }));
+  allPages((page) => assignmentsApi.list({ page, size: 100 }))
 function Badge({ status }: { status: string }) {
   return (
     <span className={`ad-badge ad-status-${status.toLowerCase()}`}>
       <i />
       {labels[status] || status}
     </span>
-  );
+  )
 }
 function State({
   title,
   children,
   error = false,
 }: {
-  title: string;
-  children?: ReactNode;
-  error?: boolean;
+  title: string
+  children?: ReactNode
+  error?: boolean
 }) {
   return (
     <div
@@ -167,7 +167,7 @@ function State({
       <strong>{title}</strong>
       {children && <p>{children}</p>}
     </div>
-  );
+  )
 }
 function Panel({
   title,
@@ -175,10 +175,10 @@ function Panel({
   action,
   children,
 }: {
-  title: string;
-  icon: ReactNode;
-  action?: ReactNode;
-  children: ReactNode;
+  title: string
+  icon: ReactNode
+  action?: ReactNode
+  children: ReactNode
 }) {
   return (
     <section className="ad-panel">
@@ -191,25 +191,25 @@ function Panel({
       </div>
       {children}
     </section>
-  );
+  )
 }
 function Distribution({
   data,
   empty,
 }: {
-  data: { label: string; value: number; color: string }[];
-  empty: string;
+  data: { label: string ; value: number ; color: string }[]
+  empty: string
 }) {
-  const total = data.reduce((sum, item) => sum + item.value, 0);
-  if (!total) return <State title={empty} />;
-  let offset = 0;
+  const total = data.reduce((sum, item) => sum + item.value, 0)
+  if (!total) return <State title={empty} />
+  let offset = 0
   const stops = data
     .map((item) => {
-      const start = offset;
-      offset += (item.value / total) * 100;
-      return `${item.color} ${start}% ${offset}%`;
+      const start = offset
+      offset += (item.value / total) * 100
+      return `${item.color} ${start}% ${offset}%`
     })
-    .join(",");
+    .join(",")
   return (
     <div className="ad-distribution">
       <div
@@ -236,17 +236,17 @@ function Distribution({
         ))}
       </div>
     </div>
-  );
+  )
 }
 function Trend({ jobs }: { jobs: JobSummary[] }) {
   const days = useMemo(() => {
-    const now = new Date();
+    const now = new Date()
     return Array.from({ length: 30 }, (_, index) => {
       const day = new Date(
         now.getFullYear(),
         now.getMonth(),
         now.getDate() - 29 + index,
-      );
+      )
       return {
         label: day.toLocaleDateString("vi-VN", {
           day: "2-digit",
@@ -256,20 +256,20 @@ function Trend({ jobs }: { jobs: JobSummary[] }) {
           (job) =>
             new Date(job.createdAt).toDateString() === day.toDateString(),
         ).length,
-      };
-    });
-  }, [jobs]);
-  const [selected, setSelected] = useState<number | null>(null);
+      }
+    })
+  }, [jobs])
+  const [selected, setSelected] = useState<number | null>(null)
   if (!days.some((day) => day.count))
     return (
       <State title="Chưa có Job mới trong 30 ngày qua">
         Job mới sẽ xuất hiện trên biểu đồ khi được đăng.
       </State>
-    );
-  const max = Math.max(4, ...days.map((day) => day.count));
+    )
+  const max = Math.max(4, ...days.map((day) => day.count))
   const points = days
     .map((day, i) => `${40 + (i * 500) / 29},${170 - (day.count / max) * 140}`)
-    .join(" ");
+    .join(" ")
   return (
     <div className="ad-trend">
       <div className="ad-chart-caption" aria-live="polite">
@@ -340,35 +340,35 @@ function Trend({ jobs }: { jobs: JobSummary[] }) {
         ))}
       </svg>
     </div>
-  );
+  )
 }
 function RecordDetail({
   type,
   id,
   back,
 }: {
-  type: "job" | "project";
-  id: number;
-  back: () => void;
+  type: "job" | "project"
+  id: number
+  back: () => void
 }) {
-  const [value, setValue] = useState<Job | Assignment | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [retry, setRetry] = useState(0);
+  const [value, setValue] = useState<Job | Assignment | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [retry, setRetry] = useState(0)
   useEffect(() => {
-    let active = true;
-    setValue(null);
-    setError(null);
-    (type === "job" ? jobApi.detail(id) : assignmentsApi.detail(id))
+    let active = true
+    setValue(null)
+    setError(null)
+    ;(type === "job" ? jobApi.detail(id) : assignmentsApi.detail(id))
       .then((record) => {
-        if (active) setValue(record);
+        if (active) setValue(record)
       })
       .catch((e) => {
-        if (active) setError(errorText(e));
-      });
+        if (active) setError(errorText(e))
+      })
     return () => {
-      active = false;
-    };
-  }, [id, type, retry]);
+      active = false
+    }
+  }, [id, type, retry])
   return (
     <>
       <button className="ad-back" onClick={back}>
@@ -468,7 +468,7 @@ function RecordDetail({
         </>
       )}
     </>
-  );
+  )
 }
 
 export default function AdminDashboard({
@@ -476,28 +476,28 @@ export default function AdminDashboard({
   navigate,
   onPublic,
   onLogout,
-  onDemoBack,
+
   theme,
   toggleTheme,
   user,
-  demo = false,
+
   settings,
 }: {
-  page: string;
-  navigate: (page: string) => void;
-  onPublic: () => void;
-  onLogout: () => void;
-  onDemoBack?: () => void;
-  theme: "light" | "dark";
-  toggleTheme: () => void;
-  user: AuthUser | null;
-  demo?: boolean;
-  settings: ReactNode;
+  page: string
+  navigate: (page: string) => void
+  onPublic: () => void
+  onLogout: () => void
+
+  theme: "light" | "dark"
+  toggleTheme: () => void
+  user: AuthUser | null
+
+  settings: ReactNode
 }) {
-  const [mobile, setMobile] = useState(false);
+  const [mobile, setMobile] = useState(false)
   const [collapsed, setCollapsed] = useState(
     () => sessionStorage.getItem("itlink-admin-sidebar-collapsed") === "true",
-  );
+  )
   useEffect(
     () =>
       sessionStorage.setItem(
@@ -505,114 +505,114 @@ export default function AdminDashboard({
         String(collapsed),
       ),
     [collapsed],
-  );
-  const [accountOpen, setAccountOpen] = useState(false);
-  const [revision, setRevision] = useState(0);
-  const [query, setQuery] = useState("");
+  )
+  const [accountOpen, setAccountOpen] = useState(false)
+  const [revision, setRevision] = useState(0)
+  const [query, setQuery] = useState("")
   const [reportView, setReportView] = useState(() =>
     new URLSearchParams(window.location.hash.split("?")[1] || "").get(
       "view",
     ) === "activity"
       ? "activity"
       : "stats",
-  );
-  const [status, setStatus] = useState("");
-  const [current, setCurrent] = useState(0);
+  )
+  const [status, setStatus] = useState("")
+  const [current, setCurrent] = useState(0)
   const readId = () => {
     const raw = new URLSearchParams(
       window.location.hash.split("?")[1] || "",
-    ).get("record");
+    ).get("record")
     return raw &&
       /^\d+$/.test(raw) &&
       Number.isSafeInteger(Number(raw)) &&
       Number(raw) > 0
       ? Number(raw)
-      : null;
-  };
-  const [recordId, setRecordId] = useState<number | null>(readId);
+      : null
+  }
+  const [recordId, setRecordId] = useState<number | null>(readId)
   useEffect(() => {
     const sync = () => {
-      setRecordId(readId());
+      setRecordId(readId())
       setReportView(
         new URLSearchParams(window.location.hash.split("?")[1] || "").get(
           "view",
         ) === "activity"
           ? "activity"
           : "stats",
-      );
+      )
       setStatus(
         new URLSearchParams(window.location.hash.split("?")[1] || "").get(
           "status",
         ) || "",
-      );
-    };
-    window.addEventListener("hashchange", sync);
-    window.addEventListener("popstate", sync);
+      )
+    }
+    window.addEventListener("hashchange", sync)
+    window.addEventListener("popstate", sync)
     return () => {
-      window.removeEventListener("hashchange", sync);
-      window.removeEventListener("popstate", sync);
-    };
-  }, []);
+      window.removeEventListener("hashchange", sync)
+      window.removeEventListener("popstate", sync)
+    }
+  }, [])
   useEffect(() => {
-    setQuery("");
+    setQuery("")
     setReportView(
       new URLSearchParams(window.location.hash.split("?")[1] || "").get(
         "view",
       ) === "activity"
         ? "activity"
         : "stats",
-    );
+    )
     setStatus(
       new URLSearchParams(window.location.hash.split("?")[1] || "").get(
         "status",
       ) || "",
-    );
-    setCurrent(0);
-    setMobile(false);
-    setRecordId(readId());
-  }, [page]);
+    )
+    setCurrent(0)
+    setMobile(false)
+    setRecordId(readId())
+  }, [page])
   useEffect(() => {
-    setCurrent(0);
-  }, [query, status]);
+    setCurrent(0)
+  }, [query, status])
   useEffect(() => {
-    if (!mobile && !accountOpen) return;
+    if (!mobile && !accountOpen) return
     const escape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setMobile(false);
-        setAccountOpen(false);
+        setMobile(false)
+        setAccountOpen(false)
       }
-    };
-    window.addEventListener("keydown", escape);
-    return () => window.removeEventListener("keydown", escape);
-  }, [mobile, accountOpen]);
-  const authorized = !demo && !!user?.roles.includes("ADMIN");
+    }
+    window.addEventListener("keydown", escape)
+    return () => window.removeEventListener("keydown", escape)
+  }, [mobile, accountOpen])
+  const authorized = !!user?.roles.includes("ADMIN")
   const jobs = useResource(
     loadJobs,
     authorized && ["Tổng quan", "Quản lý Job"].includes(page),
     revision,
-  );
+  )
   const projects = useResource(
     loadProjects,
     authorized && ["Tổng quan", "Quản lý dự án"].includes(page),
     revision,
-  );
+  )
   const summary = useResource(
     loadStats,
     authorized && ["Tổng quan", "Báo cáo & thống kê"].includes(page),
     revision,
-  );
-  const stats = summary.data?.[0];
-  const refresh = () => setRevision((value) => value + 1);
+  )
+  const stats = summary.data?.[0]
+  const refresh = () => setRevision((value) => value + 1)
   const changeReport = (view: string) => {
-    const params = new URLSearchParams();
-    params.set("view", view);
+    const params = new URLSearchParams()
+    params.set("view", view)
     window.history.pushState(
       null,
       "",
       `#/dashboard/${encodeURIComponent("Báo cáo & thống kê")}?${params}`,
-    );
-    setReportView(view);
-  };
+    )
+    setReportView(view)
+  }
   const counted = (values?: Record<string, number>) => {
     const order = [
       "FREELANCER",
@@ -633,7 +633,7 @@ export default function AdminDashboard({
       "WITHDRAWN",
       "CLOSED",
       "CANCELLED",
-    ];
+    ]
     const colors: Record<string, string> = {
       FREELANCER: "#00a94f",
       CLIENT: "#77d69c",
@@ -646,39 +646,39 @@ export default function AdminDashboard({
       PENDING: "#e4b96b",
       PENDING_SCOPE: "#e4b96b",
       AWAITING_ACCEPTANCE: "#e4b96b",
-    };
+    }
     return Object.entries(values || {})
       .sort(([a], [b]) => order.indexOf(a) - order.indexOf(b))
       .map(([key, value]) => ({
         label: labels[key] || adminLabels[key] || key,
         value,
         color: colors[key] || "#a0afbf",
-      }));
-  };
+      }))
+  }
   const go = (target: string, id?: number, filter?: string, view?: string) => {
-    const params = new URLSearchParams();
-    if (id) params.set("record", String(id));
-    if (filter) params.set("status", filter);
-    if (view) params.set("view", view);
+    const params = new URLSearchParams()
+    if (id) params.set("record", String(id))
+    if (filter) params.set("status", filter)
+    if (view) params.set("view", view)
     if (target === "Báo cáo & thống kê")
-      setReportView(view === "activity" ? "activity" : "stats");
+      setReportView(view === "activity" ? "activity" : "stats")
     const hash = `#/dashboard/${encodeURIComponent(target)}${
       params.size ? `?${params}` : ""
-    }`;
-    if (window.location.hash !== hash) window.history.pushState(null, "", hash);
-    setRecordId(id || null);
-    setStatus(filter || "");
-    setMobile(false);
-    navigate(target);
-  };
+    }`
+    if (window.location.hash !== hash) window.history.pushState(null, "", hash)
+    setRecordId(id || null)
+    setStatus(filter || "")
+    setMobile(false)
+    navigate(target)
+  }
   const openRecord = (id: number | null) => {
-    const base = window.location.hash.split("?")[0];
-    window.history.pushState(null, "", `${base}${id ? `?record=${id}` : ""}`);
-    setRecordId(id);
-  };
-  const isJobs = page === "Quản lý Job";
-  const isProjects = page === "Quản lý dự án";
-  const selectedResource = isProjects ? projects : jobs;
+    const base = window.location.hash.split("?")[0]
+    window.history.pushState(null, "", `${base}${id ? `?record=${id}` : ""}`)
+    setRecordId(id)
+  }
+  const isJobs = page === "Quản lý Job"
+  const isProjects = page === "Quản lý dự án"
+  const selectedResource = isProjects ? projects : jobs
   const filtered = (isProjects ? projects.data || [] : jobs.data || []).filter(
     (row) =>
       (!status || row.status === status) &&
@@ -689,9 +689,9 @@ export default function AdminDashboard({
       }`
         .toLocaleLowerCase("vi-VN")
         .includes(query.trim().toLocaleLowerCase("vi-VN")),
-  );
-  const pageCount = Math.max(1, Math.ceil(filtered.length / 10));
-  const safePage = Math.min(current, pageCount - 1);
+  )
+  const pageCount = Math.max(1, Math.ceil(filtered.length / 10))
+  const safePage = Math.min(current, pageCount - 1)
   const resourceContent = (resource: Resource<unknown>, children: ReactNode) =>
     resource.loading ? (
       <div className="ad-skeleton" aria-label="Đang tải dữ liệu" />
@@ -701,13 +701,13 @@ export default function AdminDashboard({
       </State>
     ) : (
       children
-    );
-  const fullName = user?.fullName || "Admin";
+    )
+  const fullName = user?.fullName || "Admin"
   const link = (target: string) => (
     <button className="ad-text-button" onClick={() => go(target)}>
       Xem tất cả <ArrowRight size={15} />
     </button>
-  );
+  )
   return (
     <div className={`ad-shell ${collapsed ? "ad-sidebar-collapsed" : ""}`}>
       {mobile && (
@@ -754,7 +754,7 @@ export default function AdminDashboard({
         </div>
         <nav>
           {adminPages.map((item, i) => {
-            const Icon = icons[i];
+            const Icon = icons[i]
             return (
               <button
                 key={item}
@@ -765,7 +765,7 @@ export default function AdminDashboard({
                 <Icon size={20} />
                 <span>{item}</span>
               </button>
-            );
+            )
           })}
         </nav>
         <div className="ad-sidebar-bottom">
@@ -811,12 +811,8 @@ export default function AdminDashboard({
             </span>
           )}
           <div className="ad-topbar-actions">
-            <NotificationBell user={demo ? null : user} navigate={navigate} />
-            {onDemoBack && (
-              <button className="ad-website" onClick={onDemoBack}>
-                Thoát xem trước
-              </button>
-            )}
+            <NotificationBell user={user} navigate={navigate} />
+
             <button className="ad-website" onClick={onPublic}>
               Xem website <ExternalLink size={14} />
             </button>
@@ -824,7 +820,7 @@ export default function AdminDashboard({
               className="ad-account"
               onBlur={(event) => {
                 if (!event.currentTarget.contains(event.relatedTarget as Node))
-                  setAccountOpen(false);
+                  setAccountOpen(false)
               }}
             >
               <button
@@ -841,8 +837,8 @@ export default function AdminDashboard({
                   <span>{fullName}</span>
                   <button
                     onClick={() => {
-                      go("Cài đặt tài khoản");
-                      setAccountOpen(false);
+                      go("Cài đặt tài khoản")
+                      setAccountOpen(false)
                     }}
                   >
                     Cài đặt tài khoản
@@ -902,22 +898,11 @@ export default function AdminDashboard({
                   </button>
                 )}
               </div>
-              {demo && (
-                <div className="ad-note">
-                  <ShieldCheck size={18} />
-                  <p>
-                    Đăng nhập bằng tài khoản Admin để xem dữ liệu thật. Chế độ
-                    xem trước không cung cấp dữ liệu quản trị.
-                  </p>
-                </div>
-              )}
+
               {page === "Yêu cầu liên hệ" ? (
                 <SupportInbox />
               ) : page === "Thông báo" ? (
-                <NotificationPage
-                  user={demo ? null : user}
-                  navigate={navigate}
-                />
+                <NotificationPage user={user} navigate={navigate} />
               ) : page === "Tổng quan" ? (
                 <>
                   <div className="ad-kpis">
@@ -1001,7 +986,7 @@ export default function AdminDashboard({
                             <button
                               key={item.key}
                               onClick={() => {
-                                go("Quản lý dự án", undefined, item.key);
+                                go("Quản lý dự án", undefined, item.key)
                               }}
                             >
                               <span className="ad-task-icon">
@@ -1342,5 +1327,5 @@ export default function AdminDashboard({
         </div>
       </div>
     </div>
-  );
+  )
 }

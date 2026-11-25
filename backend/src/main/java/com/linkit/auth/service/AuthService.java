@@ -66,6 +66,7 @@ public class AuthService {
 
     @Transactional
     public TokenResponse register(RegisterRequest request) {
+
         if (request.role() == UserRole.Role.ADMIN)
             throw new ApiException(
                     HttpStatus.FORBIDDEN, "FORBIDDEN", "Không thể tự đăng ký vai trò ADMIN.");
@@ -76,6 +77,7 @@ public class AuthService {
                     "Mật khẩu tối đa 72 byte UTF-8.");
         if (users.existsByEmailIgnoreCase(request.email()))
             throw new ApiException(HttpStatus.CONFLICT, "EMAIL_EXISTS", "Email đã được sử dụng.");
+
         Instant now = now();
         User user = new User();
         user.setEmail(request.email());
@@ -85,17 +87,22 @@ public class AuthService {
         user.setCreatedAt(now);
         user.setUpdatedAt(now);
         users.saveAndFlush(user);
+
         UserRole role = new UserRole();
         role.setId(new UserRoleId(user.getId(), request.role()));
         role.setUser(user);
         role.setAssignedAt(now);
         user.getRoles().add(roles.save(role));
+
+
         if (request.role() == UserRole.Role.CLIENT) {
             ClientProfile profile = new ClientProfile();
             profile.setUser(user);
             profile.setUpdatedAt(now);
             clients.saveAndFlush(profile);
-        } else {
+        }
+
+        else {
             FreelancerProfile profile = new FreelancerProfile();
             profile.setUser(user);
             profile.setUpdatedAt(now);
@@ -103,10 +110,12 @@ public class AuthService {
             profile.setAvailabilityStatus(FreelancerProfile.AvailabilityStatus.AVAILABLE);
             freelancers.saveAndFlush(profile);
         }
+
         TokenResponse response = issue(user, now);
         audit(user, "USER_REGISTERED", now);
         return response;
     }
+
 
     @Transactional
     public TokenResponse login(LoginRequest request) {

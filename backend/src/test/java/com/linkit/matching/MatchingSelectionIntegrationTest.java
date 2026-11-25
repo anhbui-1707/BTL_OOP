@@ -48,9 +48,7 @@ import java.util.concurrent.*;
             "spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=LinkIT_V2;integratedSecurity=true;encrypt=true;trustServerCertificate=true",
             "spring.datasource.username=",
             "spring.datasource.password=",
-            "spring.jpa.hibernate.ddl-auto=validate",
-            "linkit.seed.enabled=false",
-            "debug=false"
+            "spring.jpa.hibernate.ddl-auto=validate",            "debug=false"
         })
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @EnabledIfEnvironmentVariable(named = "LINKIT_SELECTION_TEST", matches = "true")
@@ -114,11 +112,6 @@ class MatchingSelectionIntegrationTest {
                                 Object[] values = users.toArray();
                                 String owned =
                                         "SELECT id FROM dbo.jobs WHERE client_id IN (" + ids + ")";
-                                jdbc.update(
-                                        "DELETE FROM dbo.compatibility_scores WHERE job_id IN ("
-                                                + owned
-                                                + ")",
-                                        values);
                                 jdbc.update(
                                         "DELETE FROM dbo.assignments WHERE job_id IN ("
                                                 + owned
@@ -303,56 +296,19 @@ class MatchingSelectionIntegrationTest {
     }
 
     @Test
-    void currentRankingIsCorrectPagedPrivateAndGetDoesNotWriteSnapshots() throws Exception {
+    void applicantsWithoutReviewsArePagedByProposalIdAndRemainPrivate() throws Exception {
         var job = job(client, true);
-        availability(otherFreelancer, "BUSY");
-        experienced(freelancer);
-        var low = body();
-        low.put("proposedBudget", 40000000);
-        call(post("/api/jobs/" + job.id() + "/proposals"), otherFreelancer, low, null, 201);
-        var high = submit(job.id(), freelancer);
-        JsonNode page =
-                node(
-                        call(
-                                get("/api/jobs/" + job.id() + "/candidates").param("size", "1"),
-                                client,
-                                null,
-                                null,
-                                200));
+        var first = submit(job.id(), otherFreelancer);
+        submit(job.id(), freelancer);
+        JsonNode page = node(call(
+                get("/api/jobs/" + job.id() + "/candidates").param("size", "1"),
+                client, null, null, 200));
         assertThat(page.path("totalElements").asInt()).isEqualTo(2);
         assertThat(page.path("totalPages").asInt()).isEqualTo(2);
-        assertThat(page.path("content").get(0).path("proposalId").asLong()).isEqualTo(id(high));
-        assertThat(page.path("content").get(0).path("score").path("total").asInt()).isEqualTo(100);
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT COUNT(*) FROM dbo.compatibility_scores WHERE job_id=?",
-                                Integer.class,
-                                job.id()))
-                .isZero();
-        var saved =
-                node(
-                        call(
-                                post("/api/jobs/" + job.id() + "/matching-scores")
-                                        .param("page", "1")
-                                        .param("size", "1"),
-                                client,
-                                null,
-                                null,
-                                200));
-        assertThat(saved.path("content").get(0).path("score").path("total").asInt()).isEqualTo(5);
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT COUNT(*) FROM dbo.compatibility_scores WHERE job_id=? AND rules_version='matching-v1' AND ISJSON(breakdown_json)=1",
-                                Integer.class,
-                                job.id()))
-                .isEqualTo(2);
-        call(post("/api/jobs/" + job.id() + "/matching-scores"), client, null, null, 200);
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT COUNT(*) FROM dbo.compatibility_scores WHERE job_id=?",
-                                Integer.class,
-                                job.id()))
-                .isEqualTo(4);
+        var candidate = page.path("content").get(0);
+        assertThat(candidate.path("proposalId").asLong()).isEqualTo(id(first));
+        assertThat(candidate.path("averageRating").isNull()).isTrue();
+        assertThat(candidate.path("reviewCount").asInt()).isZero();
         call(get("/api/jobs/" + job.id() + "/candidates"), otherClient, null, null, 403);
         call(get("/api/jobs/" + job.id() + "/candidates"), freelancer, null, null, 403);
     }
@@ -414,18 +370,11 @@ class MatchingSelectionIntegrationTest {
                                 Integer.class,
                                 assignmentId))
                 .isZero();
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT COUNT(*) FROM dbo.compatibility_scores WHERE job_id=? AND freelancer_id=?",
-                                Integer.class,
-                                job.id(),
-                                freelancer.user().id()))
-                .isEqualTo(1);
         select(chosen, client, 409);
     }
 
     @Test
-    void busyLowScoreFreelancerCanBeSelectedWithoutThreshold() throws Exception {
+    void busyFreelancerCanBeSelectedWithoutRatingThreshold() throws Exception {
         var job = job(client, true);
         availability(freelancer, "BUSY");
         var low = body();
@@ -433,12 +382,6 @@ class MatchingSelectionIntegrationTest {
         var proposal =
                 call(post("/api/jobs/" + job.id() + "/proposals"), freelancer, low, null, 201);
         select(proposal, client, 201);
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT score FROM dbo.compatibility_scores WHERE job_id=?",
-                                java.math.BigDecimal.class,
-                                job.id()))
-                .isEqualByComparingTo("5");
     }
 
     @ParameterizedTest
@@ -461,12 +404,6 @@ class MatchingSelectionIntegrationTest {
         assertThat(
                         jdbc.queryForObject(
                                 "SELECT COUNT(*) FROM dbo.assignments WHERE job_id=?",
-                                Integer.class,
-                                job.id()))
-                .isZero();
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT COUNT(*) FROM dbo.compatibility_scores WHERE job_id=?",
                                 Integer.class,
                                 job.id()))
                 .isZero();
@@ -596,12 +533,6 @@ class MatchingSelectionIntegrationTest {
                                 Integer.class,
                                 job.id()))
                 .isZero();
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT COUNT(*) FROM dbo.compatibility_scores WHERE job_id=?",
-                                Integer.class,
-                                job.id()))
-                .isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT_BIG(*) FROM dbo.audit_logs", Long.class))
                 .isEqualTo(auditBefore);
     }
@@ -708,12 +639,6 @@ class MatchingSelectionIntegrationTest {
         assertThat(
                         jdbc.queryForObject(
                                 "SELECT COUNT(*) FROM dbo.assignments WHERE job_id=?",
-                                Integer.class,
-                                job.id()))
-                .isZero();
-        assertThat(
-                        jdbc.queryForObject(
-                                "SELECT COUNT(*) FROM dbo.compatibility_scores WHERE job_id=?",
                                 Integer.class,
                                 job.id()))
                 .isZero();

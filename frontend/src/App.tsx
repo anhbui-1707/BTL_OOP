@@ -1,29 +1,20 @@
 import {
   marketplaceStatsApi,
   type MarketplaceStats,
-} from "./api/marketplaceStats";
-import { supportApi } from "./api/support";
+} from "./api/marketplaceStats"
+import { supportApi } from "./api/support"
 import NotificationBell, {
   NotificationPage,
-} from "./features/notifications/Notifications";
-import AdminDashboard, { adminPages } from "./features/admin/AdminDashboard";
-import DashboardOverview from "./features/dashboard/Overview";
-import IntegratedWorkspace from "./features/workspace/IntegratedWorkspace";
+} from "./features/notifications/Notifications"
+import AdminDashboard, { adminPages } from "./features/admin/AdminDashboard"
+import DashboardOverview from "./features/dashboard/Overview"
+import IntegratedWorkspace from "./features/workspace/IntegratedWorkspace"
 import {
   workspaceId,
   openWorkspace,
-} from "./features/workspace/productionModel";
-import { workspacePages } from "./features/workspace/Workspace";
-import { RichDescription } from "./components/ui";
-import {
-  initialJobs,
-  initialProposals,
-  initialAssignments,
-  demoAccounts,
-  initialTalents,
-  initialUsers,
-  initialFreelancerProfile,
-} from "./data/legacyFixtures";
+} from "./features/workspace/productionModel"
+import { workspacePages } from "./features/workspace/navigation"
+import { RichDescription } from "./components/ui"
 import {
   createContext,
   useCallback,
@@ -35,16 +26,14 @@ import {
   type ChangeEvent,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
-} from "react";
-import { createPortal } from "react-dom";
+} from "react"
+import { createPortal } from "react-dom"
 import {
   AlertCircle,
   ArrowRight,
-  Bell,
   Bookmark,
   BookmarkCheck,
   BriefcaseBusiness,
-  Check,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -57,70 +46,59 @@ import {
   EyeOff,
   FileText,
   FolderKanban,
-  Heart,
   LayoutDashboard,
   Inbox,
   Link2,
   LoaderCircle,
-  LockKeyhole,
   LogOut,
   Mail,
   Menu,
-  MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
-  RotateCw,
   Search,
-  Send,
   Settings,
   ShieldCheck,
-  SlidersHorizontal,
-  Sparkles,
   Star,
   UserRound,
   UsersRound,
   X,
-} from "lucide-react";
-import { jobApi, type Job, type JobSummary } from "./api/jobs";
+} from "lucide-react"
+import { jobApi, type Job, type JobSummary } from "./api/jobs"
 import {
   publicFreelancersApi,
   type PublicFreelancer,
-} from "./api/publicFreelancers";
-import { clientCompanyApi } from "./api/clientCompany";
-import useSavedJobs from "./features/jobs/useSavedJobs";
-import type { SavedJobRecord } from "./api/savedJobs";
-import Jobs, { JobSnapshot } from "./features/jobs/Jobs";
-import { money } from "./features/jobs/model";
+} from "./api/publicFreelancers"
+import { clientCompanyApi } from "./api/clientCompany"
+import useSavedJobs from "./features/jobs/useSavedJobs"
+import type { SavedJobRecord } from "./api/savedJobs"
+import Jobs, { JobSnapshot } from "./features/jobs/Jobs"
+import { money } from "./features/jobs/model"
 import {
   clientJobQuery,
   navigateClientJobs,
   readClientJobRoute,
-} from "./features/jobs/navigation";
+} from "./features/jobs/navigation"
 import ProposalsScreen, {
   Assignments as AssignmentsScreen,
   SubmitProposal,
-} from "./features/recruitment/Recruitment";
+} from "./features/recruitment/Recruitment"
 import {
   adminApi,
-  assignmentApi,
   cvApi,
   freelancerApi,
   portfolioApi,
   resolveAvatarUrl,
-  reviewApi,
   skillApi,
   userApi,
   workExperienceApi,
-  type AssignmentDto,
-  type FreelancerProfileDto,
   type UserDto,
   type WorkExperienceDto,
   type WorkExperienceInput,
   type PortfolioDto,
   type PortfolioInput,
-} from "./api/platform";
-import { authApi, passwordError, type AuthUser } from "./api/auth";
+} from "./api/platform"
+import { authApi, passwordError, type AuthUser } from "./api/auth"
 import {
   getAccessToken,
   getSessionSnapshot,
@@ -129,82 +107,33 @@ import {
   uiRole,
   canUseDashboard,
   sessionGeneration,
-} from "./auth/session";
+} from "./auth/session"
 
 function toInitials(fullName?: string): string {
-  if (!fullName || !fullName.trim()) return "IT";
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  if (!fullName || !fullName.trim()) return "IT"
+  const parts = fullName.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
   return (
     (parts[0][0] || "I") + (parts[parts.length - 1][0] || "T")
-  ).toUpperCase();
-}
-
-function formatVnd(value?: number | string | null): string {
-  if (value == null) return "30.000.000đ";
-  const num =
-    typeof value === "number"
-      ? value
-      : Number(String(value).replace(/[^\d]/g, ""));
-  if (!Number.isFinite(num) || num <= 0) return String(value);
-  return `${num.toLocaleString("vi-VN")}đ`;
-}
-
-function parseVndInput(raw: string, fallback = 30000000): number {
-  const trimmed = raw.trim().toLowerCase();
-  const matchFirstNumber = trimmed.match(/\d+(?:[.,]\d+)*/);
-  if (!matchFirstNumber) return fallback;
-  const digitsOnly = Number(matchFirstNumber[0].replace(/[.,]/g, ""));
-  if (!Number.isFinite(digitsOnly) || digitsOnly <= 0) return fallback;
-  if (trimmed.includes("triệu") && digitsOnly < 10000)
-    return digitsOnly * 1_000_000;
-  if (digitsOnly < 1000) return digitsOnly * 1_000_000;
-  return digitsOnly;
+  ).toUpperCase()
 }
 
 function formatDateUi(iso?: string | null): string {
-  if (!iso) return "30/12/2026";
-  const d = iso.slice(0, 10);
-  const parts = d.split("-");
-  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  return iso;
-}
-
-function toFutureIsoDate(input: string): string {
-  const today = new Date();
-  const minFuture = new Date(today.getTime() + 30 * 86400000)
-    .toISOString()
-    .slice(0, 10);
-  const trimmed = input.trim();
-  if (!trimmed) return minFuture;
-  let candidate = trimmed;
-  if (trimmed.includes("/")) {
-    const parts = trimmed.split("/");
-    if (parts.length === 3)
-      candidate = `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
-  }
-  const parsed = new Date(candidate);
-  if (Number.isNaN(parsed.getTime()) || parsed <= today) return minFuture;
-  return candidate.slice(0, 10);
-}
-
-function parseEstimatedDays(duration: string): number {
-  const numMatch = duration.match(/\d+/);
-  const n = numMatch ? Number(numMatch[0]) : 30;
-  const lower = duration.toLowerCase();
-  if (lower.includes("tuần")) return Math.max(1, n * 7);
-  if (lower.includes("tháng")) return Math.max(1, n * 30);
-  return Math.max(1, n);
+  if (!iso) return "30/12/2026"
+  const d = iso.slice(0, 10)
+  const parts = d.split("-")
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`
+  return iso
 }
 
 function parseNumericId(id?: string | number | null): number | null {
-  if (typeof id === "number" && Number.isFinite(id)) return id;
-  if (!id) return null;
-  const str = String(id).trim();
-  if (/^\d+$/.test(str)) return Number(str);
-  const m = str.match(/^(?:job|pr|as|u|sk|ex|pf|cv)-(\d+)$/i);
-  if (m) return Number(m[1]);
-  return null;
+  if (typeof id === "number" && Number.isFinite(id)) return id
+  if (!id) return null
+  const str = String(id).trim()
+  if (/^\d+$/.test(str)) return Number(str)
+  const m = str.match(/^(?:job|pr|as|u|sk|ex|pf|cv)-(\d+)$/i)
+  if (m) return Number(m[1])
+  return null
 }
 
 const JOB_IMAGES = [
@@ -212,7 +141,7 @@ const JOB_IMAGES = [
   "https://images.unsplash.com/photo-1587620962725-abab7fe55159?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=82&w=1000&h=560",
   "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=82&w=1000&h=560",
   "https://images.unsplash.com/photo-1575089976121-8ed7b2a54265?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=82&w=1000&h=560",
-];
+]
 
 function mapJobDtoToItem(job: Job | JobSummary, index = 0): JobItem {
   const labels: Record<string, string> = {
@@ -223,7 +152,7 @@ function mapJobDtoToItem(job: Job | JobSummary, index = 0): JobItem {
     COMPLETED: "Đã hoàn thành",
     CLOSED: "Đã đóng",
     CANCELLED: "Đã hủy",
-  };
+  }
   return {
     id: String(job.id),
     title: job.title,
@@ -240,67 +169,7 @@ function mapJobDtoToItem(job: Job | JobSummary, index = 0): JobItem {
     proposals: 0,
     image: JOB_IMAGES[index % JOB_IMAGES.length],
     createdAt: job.createdAt,
-  };
-}
-
-function mapAssignmentDtoToItem(
-  a: AssignmentDto,
-  jobsList: JobItem[],
-): AssignmentItem {
-  const linkedJob = jobsList.find((j) => String(j.id) === String(a.jobId));
-  const statusMap: Record<
-    string,
-    "Đang thực hiện" | "Đã hoàn thành" | "Đã hủy"
-  > = {
-    IN_PROGRESS: "Đang thực hiện",
-    COMPLETED: "Đã hoàn thành",
-    CANCELLED: "Đã hủy",
-  };
-  return {
-    id: String(a.id),
-    code: `AS-${String(a.id).padStart(4, "0")}`,
-    jobId: String(a.jobId),
-    title: a.jobTitle || linkedJob?.title || `Dự án #${a.jobId}`,
-    company:
-      a.clientName?.trim() || linkedJob?.company || "Doanh nghiệp đối tác",
-    freelancerName: a.freelancerName?.trim() || "Chuyên gia Freelancer",
-    price: formatVnd(a.agreedPrice),
-    period: a.startDate
-      ? `Bắt đầu ${formatDateUi(a.startDate)}`
-      : "Đang triển khai",
-    status: statusMap[a.status] || "Đang thực hiện",
-    description:
-      a.jobDescription?.trim() ||
-      linkedJob?.description ||
-      "Triển khai dự án theo phạm vi công việc và tiêu chuẩn kỹ thuật đã thống nhất.",
-    review: null,
-    startDate: a.startDate,
-    completedAt: a.completedAt,
-  };
-}
-
-function mapFreelancerDtoToTalent(f: FreelancerProfileDto): TalentItem {
-  const skills = f.skills?.map((s) => s.name).filter(Boolean) || [];
-  const portfolios =
-    f.portfolioProjects?.map((p) => p.title).filter(Boolean) || [];
-  const roleTitle =
-    f.title?.trim() || f.workExperiences?.[0]?.position || "Chuyên gia IT";
-  return {
-    name: f.fullName,
-    role: roleTitle,
-    location: "Việt Nam",
-    hourlyRate: "700.000đ/giờ",
-    rating:
-      f.averageRating && f.averageRating > 0
-        ? f.averageRating.toFixed(1)
-        : "0/5",
-    jobs: `${f.completedJobs ?? 0} dự án`,
-    initials: toInitials(f.fullName),
-    category: "Developer",
-    bio: f.bio?.trim() || "",
-    skills: skills.length ? skills : ["Chưa cập nhật kỹ năng"],
-    portfolios: portfolios.length ? portfolios : ["Chưa cập nhật Portfolio"],
-  };
+  }
 }
 
 function mapUserDtoToItem(u: UserDto): UserItem {
@@ -308,7 +177,7 @@ function mapUserDtoToItem(u: UserDto): UserItem {
     FREELANCER: "Freelancer",
     CLIENT: "Client",
     ADMIN: "Admin",
-  };
+  }
   return {
     id: String(u.id),
     name: u.fullName,
@@ -318,92 +187,84 @@ function mapUserDtoToItem(u: UserDto): UserItem {
     initials: toInitials(u.fullName),
     joinedAt: formatDateUi(u.createdAt),
     status: u.status && u.status !== "ACTIVE" ? "Đã khóa" : "Đang hoạt động",
-  };
+  }
 }
 
-export type Role = "Freelancer" | "Client" | "Admin";
-type PublicPage =
-  | "home"
-  | "jobs"
-  | "talents"
-  | "profile"
-  | "about"
-  | "contact"
-  | "login"
-  | "register";
-type Theme = "light" | "dark";
+export type Role = "Freelancer" | "Client" | "Admin"
+type PublicPage = "home" | "jobs" | "talents" | "profile" | "about" | "contact" | "login" | "register"
+type Theme = "light" | "dark"
 
 export interface JobItem {
-  id: string;
-  title: string;
-  company: string;
-  budget: string;
-  time: string;
-  deadline: string;
-  status: string;
-  description: string;
-  skills: string[];
-  category?: string;
-  proposals: number;
-  image: string;
-  createdAt?: string;
+  id: string
+  title: string
+  company: string
+  budget: string
+  time: string
+  deadline: string
+  status: string
+  description: string
+  skills: string[]
+  category?: string
+  proposals: number
+  image: string
+  createdAt?: string
 }
 
 export interface ProposalItem {
-  id: string;
-  jobId: string;
-  jobTitle?: string;
-  clientName?: string;
-  freelancerId?: string;
-  freelancerName?: string;
-  freelancerAvatarUrl?: string;
-  freelancerRole?: string;
-  freelancerBio?: string;
-  freelancerInitials?: string;
-  freelancerRating?: string;
-  freelancerJobs?: string;
-  freelancerSkills?: string[];
-  cvId?: number | null;
-  cvFileUrl?: string | null;
-  cv: string;
-  price: string;
-  duration: string;
-  status: string;
-  statusKey: string;
-  cover: string;
-  createdAt?: string;
+  id: string
+  jobId: string
+  jobTitle?: string
+  clientName?: string
+  freelancerId?: string
+  freelancerName?: string
+  freelancerAvatarUrl?: string
+  freelancerRole?: string
+  freelancerBio?: string
+  freelancerInitials?: string
+  freelancerRating?: string
+  freelancerJobs?: string
+  freelancerSkills?: string[]
+  cvId?: number | null
+  cvFileUrl?: string | null
+  cv: string
+  price: string
+  duration: string
+  status: string
+  statusKey: string
+  cover: string
+  createdAt?: string
 }
 
 export interface AssignmentItem {
-  id: string;
-  code: string;
-  jobId: string;
-  title: string;
-  company: string;
-  freelancerName: string;
-  price: string;
-  period: string;
-  status: "Đang thực hiện" | "Đã hoàn thành" | "Đã hủy";
-  description: string;
-  review: { rating: number; comment: string } | null;
-  startDate?: string;
-  completedAt?: string | null;
+  id: string
+  code: string
+  jobId: string
+  title: string
+  company: string
+  freelancerName: string
+  price: string
+  period: string
+  status: "Đang thực hiện" | "Đã hoàn thành" | "Đã hủy"
+  description: string
+  review: { rating: number ; comment: string } | null
+  startDate?: string
+  completedAt?: string | null
 }
 
 export interface TalentItem {
-  id?: number;
-  avatarUrl?: string | null;
-  name: string;
-  role: string;
-  location: string;
-  hourlyRate: string;
-  rating: string;
-  jobs: string;
-  initials: string;
-  category: string;
-  bio: string;
-  skills: string[];
-  portfolios: string[];
+  id?: number
+  avatarUrl?: string | null
+  name: string
+  role: string
+  location: string
+  hourlyRate: string
+  rating: string
+  jobs: string
+  initials: string
+  category: string
+  bio: string
+  skills: string[]
+  portfolios: string[]
 }
 
 function publicTalent(f: PublicFreelancer): TalentItem {
@@ -424,87 +285,77 @@ function publicTalent(f: PublicFreelancer): TalentItem {
     bio: f.bio || "",
     skills: f.skills,
     portfolios: [],
-  };
+  }
 }
 
 export interface UserItem {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: Role;
-  initials: string;
-  joinedAt: string;
-  status: "Đang hoạt động" | "Đã khóa";
+  id: string
+  name: string
+  email: string
+  phone: string
+  role: Role
+  initials: string
+  joinedAt: string
+  status: "Đang hoạt động" | "Đã khóa"
 }
 
-export type AssignmentFilterTab =
-  | "Tất cả"
-  | "Đang thực hiện"
-  | "Đã hoàn thành"
-  | "Đã hủy";
-export type ProfileTab =
-  | "Thông tin cá nhân"
-  | "Kỹ năng"
-  | "Kinh nghiệm làm việc"
-  | "Portfolio"
-  | "CV"
-  | "Đánh giá";
+export type AssignmentFilterTab = "Tất cả" | "Đang thực hiện" | "Đã hoàn thành" | "Đã hủy"
+export type ProfileTab = "Thông tin cá nhân" | "Kỹ năng" | "Kinh nghiệm làm việc" | "Portfolio" | "CV" | "Đánh giá"
 
 export interface ProfileReviewItem {
-  id: string;
-  assignmentId: string;
-  jobTitle: string;
-  company: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
+  id: string
+  assignmentId: string
+  jobTitle: string
+  company: string
+  rating: number
+  comment: string
+  createdAt: string
 }
 
 export interface FreelancerProfileData {
-  completedJobs?: number;
-  name: string;
-  shortName: string;
-  initials: string;
-  title: string;
-  email: string;
-  phone: string;
-  bio: string;
-  avatarUrl?: string;
+  completedJobs?: number
+  name: string
+  shortName: string
+  initials: string
+  title: string
+  email: string
+  phone: string
+  bio: string
+  avatarUrl?: string
   skills: {
-    id: string;
-    title: string;
-    updatedAt: string;
-    proficiency?: number;
-    yearsExperience?: number | null;
-  }[];
+    id: string
+    title: string
+    updatedAt: string
+    proficiency?: number
+    yearsExperience?: number | null
+  }[]
   experiences: {
-    id: string;
-    title: string;
-    updatedAt: string;
-    work?: WorkExperienceDto;
-  }[];
+    id: string
+    title: string
+    updatedAt: string
+    work?: WorkExperienceDto
+  }[]
   portfolios: {
-    id: string;
-    title: string;
-    updatedAt: string;
-    portfolio?: PortfolioDto;
-  }[];
-  cvs: { id: string; title: string; updatedAt: string; fileUrl?: string }[];
-  reviews: ProfileReviewItem[];
-  averageRating?: number;
+    id: string
+    title: string
+    updatedAt: string
+    portfolio?: PortfolioDto
+  }[]
+  cvs: { id: string ; title: string ; updatedAt: string ; fileUrl?: string }[]
+  reviews: ProfileReviewItem[]
+  averageRating?: number
 }
 
 function createEmptyAuthenticatedProfile(meta?: {
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  title?: string;
-  bio?: string;
-  avatarUrl?: string | null;
+  fullName?: string
+  email?: string
+  phone?: string
+  title?: string
+  bio?: string
+  avatarUrl?: string | null
 }): FreelancerProfileData {
-  const fullName = (meta?.fullName || "Người dùng LinkIT").trim();
-  const parts = fullName.split(/\s+/);
+  const fullName = (meta?.fullName || "Người dùng LinkIT").trim()
+  const parts = fullName.split(/\s+/)
   return {
     name: fullName,
     shortName: parts.slice(-2).join(" "),
@@ -520,94 +371,23 @@ function createEmptyAuthenticatedProfile(meta?: {
     cvs: [],
     reviews: [],
     averageRating: 0,
-  };
-}
-
-function calculateProfileCompletion(
-  profile: FreelancerProfileData,
-  role: Role,
-): {
-  percent: number;
-  items: { label: string; done: boolean; weight: number }[];
-} {
-  if (role === "Client") {
-    const items = [
-      {
-        label: "Họ và tên tài khoản",
-        done: Boolean(profile.name?.trim()),
-        weight: 25,
-      },
-      {
-        label: "Ảnh đại diện",
-        done: Boolean(profile.avatarUrl?.trim()),
-        weight: 25,
-      },
-      {
-        label: "Chức danh / Vai trò",
-        done: Boolean(profile.title?.trim()),
-        weight: 25,
-      },
-      {
-        label: "Giới thiệu & nhu cầu tuyển dụng",
-        done: Boolean(profile.bio?.trim()),
-        weight: 25,
-      },
-    ];
-    const percent = items.reduce(
-      (sum, item) => sum + (item.done ? item.weight : 0),
-      0,
-    );
-    return { percent, items };
   }
-  const items = [
-    {
-      label: "Họ tên & Ảnh đại diện",
-      done: Boolean(profile.name?.trim() && profile.avatarUrl?.trim()),
-      weight: 20,
-    },
-    {
-      label: "Chức danh chuyên môn",
-      done: Boolean(profile.title?.trim()),
-      weight: 15,
-    },
-    {
-      label: "Giới thiệu bản thân",
-      done: Boolean(profile.bio?.trim()),
-      weight: 15,
-    },
-    {
-      label: "Kỹ năng chuyên môn",
-      done: profile.skills.length > 0,
-      weight: 20,
-    },
-    {
-      label: "Kinh nghiệm & Portfolio",
-      done: profile.experiences.length > 0 || profile.portfolios.length > 0,
-      weight: 15,
-    },
-    { label: "CV đính kèm (PDF)", done: profile.cvs.length > 0, weight: 15 },
-  ];
-  const percent = items.reduce(
-    (sum, item) => sum + (item.done ? item.weight : 0),
-    0,
-  );
-  return { percent, items };
 }
 
 function getFreelancerReviews(
   profile: FreelancerProfileData,
   assignments: AssignmentItem[],
 ): ProfileReviewItem[] {
-  const byAssignmentId = new Map<string, ProfileReviewItem>();
+  const byAssignmentId = new Map<string, ProfileReviewItem>()
   for (const rev of profile.reviews || []) {
     const matchedAsg = assignments.find(
       (a) => String(a.id) === String(rev.assignmentId),
-    );
+    )
     byAssignmentId.set(String(rev.assignmentId), {
       ...rev,
       jobTitle: matchedAsg?.title || rev.jobTitle,
       company: matchedAsg?.company || rev.company,
-    });
+    })
   }
   for (const asg of assignments) {
     if (asg.review && !byAssignmentId.has(String(asg.id))) {
@@ -619,10 +399,10 @@ function getFreelancerReviews(
         rating: asg.review.rating,
         comment: asg.review.comment,
         createdAt: asg.period,
-      });
+      })
     }
   }
-  return Array.from(byAssignmentId.values());
+  return Array.from(byAssignmentId.values())
 }
 
 const menus: Record<Role, string[]> = {
@@ -644,113 +424,113 @@ const menus: Record<Role, string[]> = {
     "Hỗ trợ",
   ],
   Admin: adminPages,
-};
+}
 
 interface AppStore {
-  loggedIn: boolean;
-  isDemoMode: boolean;
-  role: Role;
-  jobs: JobItem[];
-  clientJobs: JobItem[];
-  proposals: ProposalItem[];
-  assignments: AssignmentItem[];
-  talents: TalentItem[];
-  users: UserItem[];
-  profile: FreelancerProfileData;
-  assignmentFilter: AssignmentFilterTab;
-  setAssignmentFilter: (filter: AssignmentFilterTab) => void;
-  jobFilterStatus: string;
-  setJobFilterStatus: (status: string) => void;
-  profileTab: ProfileTab;
-  setProfileTab: (tab: ProfileTab) => void;
-  selectedTalent: TalentItem;
-  setSelectedTalent: (t: TalentItem) => void;
-  navigateToDashboard: (page: string) => void;
-  openApplyModal: (job: JobItem) => void;
+  loggedIn: boolean
+
+  role: Role
+  jobs: JobItem[]
+  clientJobs: JobItem[]
+  proposals: ProposalItem[]
+  assignments: AssignmentItem[]
+  talents: TalentItem[]
+  users: UserItem[]
+  profile: FreelancerProfileData
+  assignmentFilter: AssignmentFilterTab
+  setAssignmentFilter: (filter: AssignmentFilterTab) => void
+  jobFilterStatus: string
+  setJobFilterStatus: (status: string) => void
+  profileTab: ProfileTab
+  setProfileTab: (tab: ProfileTab) => void
+  selectedTalent: TalentItem
+  setSelectedTalent: (t: TalentItem) => void
+  navigateToDashboard: (page: string) => void
+  openApplyModal: (job: JobItem) => void
   submitProposal: (
     jobId: string,
     cv: string,
     price: string,
     duration: string,
     cover: string,
-  ) => Promise<boolean>;
-  withdrawProposal: (proposalId: string) => void;
+  ) => Promise<boolean>
+  withdrawProposal: (proposalId: string) => void
   acceptProposal: (
     jobId: string,
     proposalId: string,
     candidateName: string,
-  ) => void;
-  rejectProposal: (proposalId: string) => void;
+  ) => void
+  rejectProposal: (proposalId: string) => void
   saveJob: (data: {
-    id?: string;
-    title: string;
-    budget: string;
-    deadline: string;
-    skills: string[];
-    description: string;
-  }) => Promise<boolean>;
-  closeJob: (jobId: string) => void;
-  completeAssignment: (assignmentId: string) => void;
-  cancelAssignment: (assignmentId: string) => void;
+    id?: string
+    title: string
+    budget: string
+    deadline: string
+    skills: string[]
+    description: string
+  }) => Promise<boolean>
+  closeJob: (jobId: string) => void
+  completeAssignment: (assignmentId: string) => void
+  cancelAssignment: (assignmentId: string) => void
   rateAssignment: (
     assignmentId: string,
     rating: number,
     comment: string,
-  ) => void;
-  toggleUserLock: (userId: string) => void;
+  ) => void
+  toggleUserLock: (userId: string) => void
   updateProfileInfo: (
     patch: Partial<FreelancerProfileData> & {
-      newPassword?: string;
-      confirmPassword?: string;
+      newPassword?: string
+      confirmPassword?: string
     },
-  ) => Promise<boolean>;
-  uploadAvatarFile: (file: File) => Promise<boolean>;
-  uploadCvFile: (file: File) => Promise<{ id: string; title: string } | null>;
+  ) => Promise<boolean>
+  uploadAvatarFile: (file: File) => Promise<boolean>
+  uploadCvFile: (file: File) => Promise<{ id: string ; title: string } | null>
   openCvPreview: (
     cvId: string | number | null | undefined,
     fileName: string,
-  ) => Promise<void>;
+  ) => Promise<void>
   downloadCvFile: (
     cvId: string | number | null | undefined,
     fileName: string,
-  ) => Promise<void>;
+  ) => Promise<void>
   upsertProfileRecord: (
     tab: "Kỹ năng" | "Kinh nghiệm làm việc" | "Portfolio" | "CV",
     title: string,
     editId?: string,
     file?: File | null,
-    skillDetails?: { proficiency: number; yearsExperience: number },
-    recordDetails?: { work?: WorkExperienceInput; portfolio?: PortfolioInput },
-  ) => Promise<boolean | void>;
+    skillDetails?: { proficiency: number ; yearsExperience: number },
+    recordDetails?: { work?: WorkExperienceInput ; portfolio?: PortfolioInput },
+  ) => Promise<boolean | void>
   deleteProfileRecord: (
     tab: "Kỹ năng" | "Kinh nghiệm làm việc" | "Portfolio" | "CV",
     id: string,
-  ) => Promise<boolean>;
-  refreshJobs: () => Promise<void>;
-  refreshClientData: () => Promise<void>;
-  refreshFreelancerData: () => Promise<boolean>;
-  refreshAdminData: () => Promise<void>;
-  notify: (msg: string) => void;
-  savedJobIds: string[];
-  toggleSaveJob: (jobId: string) => void;
-  savedJobRecords: SavedJobRecord[];
-  savedJobsLoading: boolean;
-  savedJobsError: string;
-  savedJobsReady: boolean;
-  savedJobPendingIds: string[];
-  refreshSavedJobs: () => void;
-  isJobSaved: (jobId: string) => boolean;
+  ) => Promise<boolean>
+  refreshJobs: () => Promise<void>
+  refreshClientData: () => Promise<void>
+  refreshFreelancerData: () => Promise<boolean>
+  refreshAdminData: () => Promise<void>
+  notify: (msg: string) => void
+  savedJobIds: string[]
+  toggleSaveJob: (jobId: string) => void
+  savedJobRecords: SavedJobRecord[]
+  savedJobsLoading: boolean
+  savedJobsError: string
+  savedJobsReady: boolean
+  savedJobPendingIds: string[]
+  refreshSavedJobs: () => void
+  isJobSaved: (jobId: string) => boolean
   openChatWith: (partner: {
-    name: string;
-    role?: string;
-    avatarUrl?: string | null;
-    jobId?: string;
-    jobTitle?: string;
-  }) => void;
+    name: string
+    role?: string
+    avatarUrl?: string | null
+    jobId?: string
+    jobTitle?: string
+  }) => void
 }
 
-const StoreContext = createContext<AppStore>(null!);
-const useStore = () => useContext(StoreContext);
+const StoreContext = createContext<AppStore>(null!)
+const useStore = () => useContext(StoreContext)
 
 function UserAvatar({
   avatarUrl,
@@ -759,18 +539,18 @@ function UserAvatar({
   className = "talent-avatar",
   as = "div",
 }: {
-  avatarUrl?: string | null;
-  initials: string;
-  alt?: string;
-  className?: string;
-  as?: "div" | "span";
+  avatarUrl?: string | null
+  initials: string
+  alt?: string
+  className?: string
+  as?: "div" | "span"
 }) {
-  const [imgFailed, setImgFailed] = useState(false);
-  const resolved = resolveAvatarUrl(avatarUrl);
+  const [imgFailed, setImgFailed] = useState(false)
+  const resolved = resolveAvatarUrl(avatarUrl)
   useEffect(() => {
-    setImgFailed(false);
-  }, [resolved]);
-  const Tag = as;
+    setImgFailed(false)
+  }, [resolved])
+  const Tag = as
   return (
     <Tag
       className={className}
@@ -793,7 +573,7 @@ function UserAvatar({
         initials
       )}
     </Tag>
-  );
+  )
 }
 
 const ALLOWED_AVATAR_TYPES = new Set([
@@ -801,96 +581,96 @@ const ALLOWED_AVATAR_TYPES = new Set([
   "image/jpg",
   "image/png",
   "image/webp",
-]);
-const ALLOWED_AVATAR_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
-const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
+])
+const ALLOWED_AVATAR_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"])
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024
 
 function AvatarUploadControl({
   wrapperClassName,
   buttonLabel,
   compact = false,
 }: {
-  wrapperClassName: string;
-  buttonLabel: string;
-  compact?: boolean;
+  wrapperClassName: string
+  buttonLabel: string
+  compact?: boolean
 }) {
-  const { profile, uploadAvatarFile, notify } = useStore();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [avatarError, setAvatarError] = useState("");
+  const { profile, uploadAvatarFile, notify } = useStore()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [avatarError, setAvatarError] = useState("")
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+    }
+  }, [previewUrl])
 
   const handleSelectFile = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file) return
 
     const ext = file.name.includes(".")
       ? file.name.split(".").pop()?.trim().toLowerCase() || ""
-      : "";
-    const mime = (file.type || "").toLowerCase();
+      : ""
+    const mime = (file.type || "").toLowerCase()
 
     if (
       !ALLOWED_AVATAR_EXTENSIONS.has(ext) ||
       !ALLOWED_AVATAR_TYPES.has(mime)
     ) {
       const msg =
-        "Định dạng ảnh không hợp lệ. Vui lòng chọn ảnh JPG, JPEG, PNG hoặc WEBP.";
-      setAvatarError(msg);
-      notify(msg);
-      return;
+        "Định dạng ảnh không hợp lệ. Vui lòng chọn ảnh JPG, JPEG, PNG hoặc WEBP."
+      setAvatarError(msg)
+      notify(msg)
+      return
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
       const msg =
-        "Dung lượng ảnh vượt quá giới hạn 2MB. Vui lòng chọn ảnh nhỏ hơn.";
-      setAvatarError(msg);
-      notify(msg);
-      return;
+        "Dung lượng ảnh vượt quá giới hạn 2MB. Vui lòng chọn ảnh nhỏ hơn."
+      setAvatarError(msg)
+      notify(msg)
+      return
     }
 
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    const nextPreview = URL.createObjectURL(file);
-    setPendingFile(file);
-    setPreviewUrl(nextPreview);
-    setAvatarError("");
-  };
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
+    const nextPreview = URL.createObjectURL(file)
+    setPendingFile(file)
+    setPreviewUrl(nextPreview)
+    setAvatarError("")
+  }
 
   const handleCancelPreview = () => {
-    if (uploading) return;
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPendingFile(null);
-    setPreviewUrl(null);
-    setAvatarError("");
-  };
+    if (uploading) return
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
+    setPendingFile(null)
+    setPreviewUrl(null)
+    setAvatarError("")
+  }
 
   const handleConfirmUpload = async () => {
-    if (!pendingFile || uploading) return;
-    setUploading(true);
-    setAvatarError("");
-    const ok = await uploadAvatarFile(pendingFile);
-    setUploading(false);
+    if (!pendingFile || uploading) return
+    setUploading(true)
+    setAvatarError("")
+    const ok = await uploadAvatarFile(pendingFile)
+    setUploading(false)
     if (ok) {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setPendingFile(null);
-      setPreviewUrl(null);
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+      setPendingFile(null)
+      setPreviewUrl(null)
     } else if (compact) {
-      setAvatarError("Không thể lưu ảnh. Vui lòng thử lại.");
+      setAvatarError("Không thể lưu ảnh. Vui lòng thử lại.")
     }
-  };
+  }
 
   const sizeLabel = pendingFile
     ? pendingFile.size >= 1024 * 1024
       ? `${(pendingFile.size / (1024 * 1024)).toFixed(2)} MB`
       : `${Math.max(1, Math.round(pendingFile.size / 1024))} KB`
-    : "";
+    : ""
 
   return (
     <div
@@ -1027,19 +807,21 @@ function AvatarUploadControl({
         )}
       </div>
     </div>
-  );
+  )
 }
 
 function Logo({
   className = "",
   light = false,
 }: {
-  className?: string;
-  light?: boolean;
+  className?: string
+  light?: boolean
 }) {
   return (
     <div
-      className={`linkit-brand-logo-wrap ${light ? "light-mode-forced" : ""} ${className}`}
+      className={`linkit-brand-logo-wrap ${
+        light ? "light-mode-forced" : ""
+      } ${className}`}
       aria-label="LinkIT"
     >
       <img
@@ -1055,7 +837,7 @@ function Logo({
         loading="eager"
       />
     </div>
-  );
+  )
 }
 
 function AccountMenu({
@@ -1066,49 +848,49 @@ function AccountMenu({
   onSettings,
   onLogout,
 }: {
-  role: Role;
-  onDashboard: () => void;
-  onProfile: () => void;
-  onSavedJobs?: () => void;
-  onSettings: () => void;
-  onLogout: () => void;
+  role: Role
+  onDashboard: () => void
+  onProfile: () => void
+  onSavedJobs?: () => void
+  onSettings: () => void
+  onLogout: () => void
 }) {
-  const { profile, savedJobIds } = useStore();
-  const [open, setOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 12 });
-  const ref = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const { profile, savedJobIds } = useStore()
+  const [open, setOpen] = useState(false)
+  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 12 })
+  const ref = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
     const reposition = () => {
-      const rect = ref.current?.getBoundingClientRect();
-      if (!rect) return;
+      const rect = ref.current?.getBoundingClientRect()
+      if (!rect) return
       setMenuPosition({
         top: rect.bottom + 10,
         right: Math.max(12, window.innerWidth - rect.right),
-      });
-    };
+      })
+    }
     const close = (event: MouseEvent) => {
-      const target = event.target as Node;
+      const target = event.target as Node
       if (!ref.current?.contains(target) && !menuRef.current?.contains(target))
-        setOpen(false);
-    };
+        setOpen(false)
+    }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    reposition();
-    document.addEventListener("mousedown", close);
-    document.addEventListener("keydown", onKeyDown);
-    window.addEventListener("resize", reposition);
-    window.addEventListener("scroll", reposition, true);
+      if (event.key === "Escape") setOpen(false)
+    }
+    reposition()
+    document.addEventListener("mousedown", close)
+    document.addEventListener("keydown", onKeyDown)
+    window.addEventListener("resize", reposition)
+    window.addEventListener("scroll", reposition, true)
     return () => {
-      document.removeEventListener("mousedown", close);
-      document.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("resize", reposition);
-      window.removeEventListener("scroll", reposition, true);
-    };
-  }, [open]);
+      document.removeEventListener("mousedown", close)
+      document.removeEventListener("keydown", onKeyDown)
+      window.removeEventListener("resize", reposition)
+      window.removeEventListener("scroll", reposition, true)
+    }
+  }, [open])
 
   return (
     <div className="account-wrap" ref={ref}>
@@ -1156,8 +938,8 @@ function AccountMenu({
             <button
               role="menuitem"
               onClick={() => {
-                setOpen(false);
-                onDashboard();
+                setOpen(false)
+                onDashboard()
               }}
             >
               <LayoutDashboard />
@@ -1167,8 +949,8 @@ function AccountMenu({
               <button
                 role="menuitem"
                 onClick={() => {
-                  setOpen(false);
-                  onSavedJobs?.();
+                  setOpen(false)
+                  onSavedJobs?.()
                 }}
               >
                 <BookmarkCheck size={16} />
@@ -1178,8 +960,8 @@ function AccountMenu({
             <button
               role="menuitem"
               onClick={() => {
-                setOpen(false);
-                onProfile();
+                setOpen(false)
+                onProfile()
               }}
             >
               <UserRound />
@@ -1188,8 +970,8 @@ function AccountMenu({
             <button
               role="menuitem"
               onClick={() => {
-                setOpen(false);
-                onSettings();
+                setOpen(false)
+                onSettings()
               }}
             >
               <Settings />
@@ -1199,8 +981,8 @@ function AccountMenu({
               role="menuitem"
               className="logout"
               onClick={() => {
-                setOpen(false);
-                onLogout();
+                setOpen(false)
+                onLogout()
               }}
             >
               <LogOut />
@@ -1210,17 +992,17 @@ function AccountMenu({
           document.body,
         )}
     </div>
-  );
+  )
 }
 
 function NotificationButton({ role }: { role: Role }) {
-  const { isDemoMode, navigateToDashboard } = useStore();
+  const { navigateToDashboard } = useStore()
   return (
     <NotificationBell
-      user={isDemoMode ? null : getSessionSnapshot().user}
+      user={getSessionSnapshot().user}
       navigate={navigateToDashboard}
     />
-  );
+  )
 }
 
 function PublicHeader({
@@ -1233,18 +1015,18 @@ function PublicHeader({
   theme,
   toggleTheme,
 }: {
-  page: PublicPage;
-  go: (p: PublicPage) => void;
-  loggedIn: boolean;
-  role: Role;
-  openDashboard: (targetPage?: string) => void;
-  logout: () => void;
-  theme: Theme;
-  toggleTheme: () => void;
+  page: PublicPage
+  go: (p: PublicPage) => void
+  loggedIn: boolean
+  role: Role
+  openDashboard: (targetPage?: string) => void
+  logout: () => void
+  theme: Theme
+  toggleTheme: () => void
 }) {
-  const { savedJobIds } = useStore();
-  const [menuOpen, setMenuOpen] = useState(false);
-  useEffect(() => setMenuOpen(false), [page]);
+  const { savedJobIds } = useStore()
+  const [menuOpen, setMenuOpen] = useState(false)
+  useEffect(() => setMenuOpen(false), [page])
   return (
     <header className={`public-header ${menuOpen ? "public-menu-open" : ""}`}>
       <button className="logo-button" onClick={() => go("home")}>
@@ -1292,8 +1074,8 @@ function PublicHeader({
           className="icon-button header-saved-btn"
           onClick={() => {
             if (loggedIn && role === "Freelancer")
-              openDashboard("Việc làm đã lưu");
-            else go("jobs");
+              openDashboard("Việc làm đã lưu")
+            else go("jobs")
           }}
           title={`Việc làm đã lưu (${savedJobIds.length})`}
           aria-label={`Việc làm đã lưu (${savedJobIds.length})`}
@@ -1339,7 +1121,7 @@ function PublicHeader({
         </button>
       </div>
     </header>
-  );
+  )
 }
 
 function JobTitle({
@@ -1348,54 +1130,54 @@ function JobTitle({
   onOpen,
   previewEnabled = true,
 }: {
-  job: JobItem;
-  as?: "h2" | "h3";
-  onOpen?: () => void;
-  previewEnabled?: boolean;
+  job: JobItem
+  as?: "h2" | "h3"
+  onOpen?: () => void
+  previewEnabled?: boolean
 }) {
-  const Title = as;
+  const Title = as
   const [preview, setPreview] = useState<{
-    top: number;
-    left: number;
-    width: number;
-  } | null>(null);
-  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    top: number
+    left: number
+    width: number
+  } | null>(null)
+  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cancel = (ref: typeof openTimer) => {
-    if (ref.current) clearTimeout(ref.current);
-    ref.current = null;
-  };
+    if (ref.current) clearTimeout(ref.current)
+    ref.current = null
+  }
   const show = (element: HTMLElement) => {
-    if (!previewEnabled || !window.matchMedia("(hover: hover)").matches) return;
-    cancel(closeTimer);
-    cancel(openTimer);
+    if (!previewEnabled || !window.matchMedia("(hover: hover)").matches) return
+    cancel(closeTimer)
+    cancel(openTimer)
     openTimer.current = setTimeout(() => {
-      const rect = element.getBoundingClientRect();
-      const width = Math.min(500, window.innerWidth - 32);
-      const roomRight = window.innerWidth - rect.right - 18;
+      const rect = element.getBoundingClientRect()
+      const width = Math.min(500, window.innerWidth - 32)
+      const roomRight = window.innerWidth - rect.right - 18
       const left =
         roomRight >= width
           ? rect.right + 14
-          : Math.max(16, rect.left - width - 14);
+          : Math.max(16, rect.left - width - 14)
       const top = Math.max(
         16,
         Math.min(rect.top - 28, window.innerHeight - 550),
-      );
-      setPreview({ top, left, width });
-    }, 250);
-  };
+      )
+      setPreview({ top, left, width })
+    }, 250)
+  }
   const hide = () => {
-    cancel(openTimer);
-    cancel(closeTimer);
-    closeTimer.current = setTimeout(() => setPreview(null), 140);
-  };
+    cancel(openTimer)
+    cancel(closeTimer)
+    closeTimer.current = setTimeout(() => setPreview(null), 140)
+  }
   useEffect(
     () => () => {
-      cancel(openTimer);
-      cancel(closeTimer);
+      cancel(openTimer)
+      cancel(closeTimer)
     },
     [],
-  );
+  )
   return (
     <div
       className="job-title-wrap"
@@ -1418,7 +1200,13 @@ function JobTitle({
                 <p>{job.company}</p>
               </div>
               <b
-                className={`status ${job.status === "Đang mở" ? "state-open" : job.status === "Đã đóng" ? "state-closed" : "state-in_progress"}`}
+                className={`status ${
+                  job.status === "Đang mở"
+                    ? "state-open"
+                    : job.status === "Đã đóng"
+                      ? "state-closed"
+                      : "state-in_progress"
+                }`}
               >
                 {job.status}
               </b>
@@ -1445,9 +1233,9 @@ function JobTitle({
             <button
               className="primary-button"
               onClick={(e) => {
-                e.stopPropagation();
-                setPreview(null);
-                onOpen?.();
+                e.stopPropagation()
+                setPreview(null)
+                onOpen?.()
               }}
             >
               Xem chi tiết <ArrowRight size={16} />
@@ -1456,7 +1244,7 @@ function JobTitle({
           document.body,
         )}
     </div>
-  );
+  )
 }
 
 function JobCard({
@@ -1465,16 +1253,18 @@ function JobCard({
   compact = false,
   showcase = false,
 }: {
-  job: JobItem;
-  onOpen?: () => void;
-  compact?: boolean;
-  showcase?: boolean;
+  job: JobItem
+  onOpen?: () => void
+  compact?: boolean
+  showcase?: boolean
 }) {
-  const { toggleSaveJob, isJobSaved } = useStore();
-  const saved = isJobSaved(job.id);
+  const { toggleSaveJob, isJobSaved } = useStore()
+  const saved = isJobSaved(job.id)
   return (
     <article
-      className={`job-card ${compact ? "compact" : ""} ${showcase ? "showcase-card" : ""}`}
+      className={`job-card ${compact ? "compact" : ""} ${
+        showcase ? "showcase-card" : ""
+      }`}
       onClick={onOpen}
     >
       {showcase && (
@@ -1492,8 +1282,8 @@ function JobCard({
         className={`job-save-btn ${saved ? "saved" : ""}`}
         title={saved ? "Bỏ lưu việc làm" : "Lưu việc làm yêu thích"}
         onClick={(e) => {
-          e.stopPropagation();
-          toggleSaveJob(job.id);
+          e.stopPropagation()
+          toggleSaveJob(job.id)
         }}
       >
         {saved ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
@@ -1516,7 +1306,13 @@ function JobCard({
             </div>
           </div>
           <b
-            className={`status ${job.status === "Đang mở" ? "state-open" : job.status === "Đã đóng" ? "state-closed" : "state-in_progress"}`}
+            className={`status ${
+              job.status === "Đang mở"
+                ? "state-open"
+                : job.status === "Đã đóng"
+                  ? "state-closed"
+                  : "state-in_progress"
+            }`}
           >
             {job.status}
           </b>
@@ -1548,7 +1344,7 @@ function JobCard({
         </button>
       )}
     </article>
-  );
+  )
 }
 
 function Landing({
@@ -1557,93 +1353,92 @@ function Landing({
   onSearchJobs,
   onPostProject,
 }: {
-  go: (p: PublicPage) => void;
-  openJob: (id: string) => void;
-  onSearchJobs: (q: string) => void;
-  onPostProject: () => void;
+  go: (p: PublicPage) => void
+  openJob: (id: string) => void
+  onSearchJobs: (q: string) => void
+  onPostProject: () => void
 }) {
-  const { jobs, talents, setSelectedTalent, isDemoMode } = useStore();
-  const [publicJobs, setPublicJobs] = useState<JobItem[]>([]);
-  const [publicTalents, setPublicTalents] = useState<TalentItem[]>([]);
+  const { setSelectedTalent } = useStore()
+  const [publicJobs, setPublicJobs] = useState<JobItem[]>([])
+  const [publicTalents, setPublicTalents] = useState<TalentItem[]>([])
   const [jobState, setJobState] = useState<"loading" | "ready" | "error">(
     "loading",
-  );
+  )
   const [talentState, setTalentState] = useState<"loading" | "ready" | "error">(
     "loading",
-  );
+  )
   useEffect(() => {
-    if (isDemoMode) return;
-    let active = true;
+    let active = true
     jobApi
       .publicSearch({ page: 0, size: 6 })
       .then((data) => {
         if (active) {
-          setPublicJobs(data.content.map(mapJobDtoToItem));
-          setJobState("ready");
+          setPublicJobs(data.content.map(mapJobDtoToItem))
+          setJobState("ready")
         }
       })
       .catch(() => {
-        if (active) setJobState("error");
-      });
-    (async () => {
-      const first = await publicFreelancersApi.list("", 0, 100);
+        if (active) setJobState("error")
+      })
+    ;(async () => {
+      const first = await publicFreelancersApi.list("", 0, 100)
       if (first.totalPages > 20)
-        throw new Error("Danh sách Freelancer quá lớn để tải đầy đủ.");
-      const all = [...first.content];
+        throw new Error("Danh sách Freelancer quá lớn để tải đầy đủ.")
+      const all = [...first.content]
       for (let page = 1; page < first.totalPages; page++) {
-        all.push(...(await publicFreelancersApi.list("", page, 100)).content);
+        all.push(...(await publicFreelancersApi.list("", page, 100)).content)
       }
       if (active) {
-        setPublicTalents(all.map(publicTalent));
-        setTalentState("ready");
+        setPublicTalents(all.map(publicTalent))
+        setTalentState("ready")
       }
     })().catch(() => {
-      if (active) setTalentState("error");
-    });
+      if (active) setTalentState("error")
+    })
     return () => {
-      active = false;
-    };
-  }, [isDemoMode]);
-  const [liveStats, setLiveStats] = useState<MarketplaceStats | null>(null);
+      active = false
+    }
+  }, [])
+  const [liveStats, setLiveStats] = useState<MarketplaceStats | null>(null)
   const [statsState, setStatsState] = useState<"loading" | "ready" | "error">(
     "loading",
-  );
+  )
   useEffect(() => {
-    let active = true;
+    let active = true
     marketplaceStatsApi
       .get()
       .then((data) => {
         if (active) {
-          setLiveStats(data);
-          setStatsState("ready");
+          setLiveStats(data)
+          setStatsState("ready")
         }
       })
       .catch(() => {
-        if (active) setStatsState("error");
-      });
+        if (active) setStatsState("error")
+      })
     return () => {
-      active = false;
-    };
-  }, []);
+      active = false
+    }
+  }, [])
   const statCards = liveStats
-    ? ([
+    ? [
         [liveStats.freelancers, "Freelancer trên nền tảng"],
         [liveStats.jobs, "Công việc đã đăng"],
         [liveStats.completedJobs, "Dự án hoàn thành"],
         [liveStats.activeClients, "Client đang hoạt động"],
-      ] as const)
-    : [];
-  const [heroQuery, setHeroQuery] = useState("");
+      ] as const
+    : []
+  const [heroQuery, setHeroQuery] = useState("")
 
-  const topTalents = [...(isDemoMode ? talents : publicTalents)]
+  const topTalents = [...publicTalents]
     .sort((a, b) => {
       const score = (t: TalentItem) => {
-        const n = Number(t.rating);
-        return Number.isFinite(n) && n > 0 ? n : 0;
-      };
-      return score(b) - score(a) || a.name.localeCompare(b.name, "vi");
+        const n = Number(t.rating)
+        return Number.isFinite(n) && n > 0 ? n : 0
+      }
+      return score(b) - score(a) || a.name.localeCompare(b.name, "vi")
     })
-    .slice(0, 6);
+    .slice(0, 6)
 
   const trendingSkills = [
     "React",
@@ -1654,7 +1449,7 @@ function Landing({
     "Flutter",
     "UI/UX",
     "Data & AI",
-  ];
+  ]
 
   return (
     <div className="landing-home">
@@ -1706,8 +1501,8 @@ function Landing({
                     type="button"
                     className="tag-pill"
                     onClick={() => {
-                      setHeroQuery(skill);
-                      onSearchJobs(skill);
+                      setHeroQuery(skill)
+                      onSearchJobs(skill)
                     }}
                   >
                     {skill}
@@ -1763,16 +1558,14 @@ function Landing({
           text="Khám phá các cơ hội nghề nghiệp và dự án chất lượng được cập nhật liên tục mỗi ngày."
         />
         <div className="landing-jobs">
-          {(isDemoMode ? jobs : publicJobs).slice(0, 6).map((j) => (
+          {publicJobs.slice(0, 6).map((j) => (
             <JobCard showcase key={j.id} job={j} onOpen={() => openJob(j.id)} />
           ))}
-          {!isDemoMode && jobState === "loading" && (
-            <p role="status">Đang tải việc làm...</p>
-          )}
-          {!isDemoMode && jobState === "error" && (
+          {jobState === "loading" && <p role="status">Đang tải việc làm...</p>}
+          {jobState === "error" && (
             <p role="alert">Không thể tải việc làm. Vui lòng thử lại sau.</p>
           )}
-          {!isDemoMode && jobState === "ready" && !publicJobs.length && (
+          {jobState === "ready" && !publicJobs.length && (
             <p>Chưa có Job đang tuyển.</p>
           )}
         </div>
@@ -1796,18 +1589,18 @@ function Landing({
               key={t.id ?? t.name}
               talent={t}
               onClick={() => {
-                setSelectedTalent(t);
-                go("profile");
+                setSelectedTalent(t)
+                go("profile")
               }}
             />
           ))}
-          {!isDemoMode && talentState === "loading" && (
+          {talentState === "loading" && (
             <p role="status">Đang tải Freelancer...</p>
           )}
-          {!isDemoMode && talentState === "error" && (
+          {talentState === "error" && (
             <p role="alert">Không thể tải Freelancer. Vui lòng thử lại sau.</p>
           )}
-          {!isDemoMode && talentState === "ready" && !publicTalents.length && (
+          {talentState === "ready" && !publicTalents.length && (
             <p>Chưa có Freelancer công khai hồ sơ.</p>
           )}
         </div>
@@ -1893,7 +1686,7 @@ function Landing({
         </div>
       </section>
     </div>
-  );
+  )
 }
 
 function SectionTitle({
@@ -1901,9 +1694,9 @@ function SectionTitle({
   title,
   text,
 }: {
-  kicker: string;
-  title: string;
-  text: string;
+  kicker: string
+  title: string
+  text: string
 }) {
   return (
     <div className="section-title">
@@ -1911,17 +1704,16 @@ function SectionTitle({
       <h2>{title}</h2>
       <p>{text}</p>
     </div>
-  );
+  )
 }
 
 function TalentCard({
   talent: t,
   onClick,
 }: {
-  talent: TalentItem;
-  onClick: () => void;
+  talent: TalentItem
+  onClick: () => void
 }) {
-  const { openChatWith } = useStore();
   return (
     <article className="talent-card panel" onClick={onClick}>
       <div className="talent-avatar">
@@ -1936,7 +1728,9 @@ function TalentCard({
       <p>{t.role}</p>
       <div
         className="talent-rating-row"
-        aria-label={`Đánh giá ${t.rating === "0/5" || !Number(t.rating) ? "0/5" : t.rating + "/5"} · ${t.jobs || "0 dự án"}`}
+        aria-label={`Đánh giá ${
+          t.rating === "0/5" || !Number(t.rating) ? "0/5" : t.rating + "/5"
+        } · ${t.jobs || "0 dự án"}`}
       >
         <Star
           size={17}
@@ -1964,19 +1758,18 @@ function TalentCard({
         </button>
       </div>
     </article>
-  );
+  )
 }
 
 function PublicListing(props: {
-  type: "jobs" | "talents";
-  go: (p: PublicPage) => void;
-  loggedIn?: boolean;
-  requireLogin?: () => void;
-  selectedJobId?: string;
-  initialQuery?: string;
+  type: "jobs" | "talents"
+  go: (p: PublicPage) => void
+  loggedIn?: boolean
+  requireLogin?: () => void
+  selectedJobId?: string
+  initialQuery?: string
 }) {
   const {
-    isDemoMode,
     savedJobIds,
     toggleSaveJob,
     savedJobsLoading,
@@ -1984,17 +1777,17 @@ function PublicListing(props: {
     savedJobsReady,
     savedJobPendingIds,
     refreshSavedJobs,
-  } = useStore();
-  if (isDemoMode) return <LegacyPublicListing {...props} />;
-  if (props.type === "talents") return <PublicFreelancerListing {...props} />;
+  } = useStore()
+
+  if (props.type === "talents") return <PublicFreelancerListing {...props} />
   return (
     <Jobs
       key={getSessionSnapshot().user?.id ?? "anonymous"}
       user={getSessionSnapshot().user}
       authPending={getSessionSnapshot().status === "loading"}
       onLogin={() => {
-        props.requireLogin?.();
-        props.go("login");
+        props.requireLogin?.()
+        props.go("login")
       }}
       initialId={parseNumericId(props.selectedJobId) ?? undefined}
       initialQuery={props.initialQuery}
@@ -2007,360 +1800,41 @@ function PublicListing(props: {
       onToggleSave={(id) => toggleSaveJob(String(id))}
       renderDescription={(text) => <RichDescription text={text} />}
     />
-  );
+  )
 }
 
-function PublicFreelancerListing(props: {
-  type: "jobs" | "talents";
-  go: (p: PublicPage) => void;
-}) {
-  const [items, setItems] = useState<TalentItem[]>([]);
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      const first = await publicFreelancersApi.list("", 0, 100);
-      if (first.totalPages > 20)
-        throw new Error("Danh sách Freelancer quá lớn để tải đầy đủ.");
-      const all = [...first.content];
-      for (let page = 1; page < first.totalPages; page++)
-        all.push(...(await publicFreelancersApi.list("", page, 100)).content);
-      if (active) {
-        setItems(all.map(publicTalent));
-        setState("ready");
-      }
-    })().catch(() => {
-      if (active) setState("error");
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
-  if (state === "loading")
-    return (
-      <main className="listing-page" role="status">
-        Đang tải Freelancer...
-      </main>
-    );
-  if (state === "error")
-    return (
-      <main className="listing-page" role="alert">
-        Không thể tải danh sách Freelancer. Vui lòng thử lại sau.
-      </main>
-    );
-  if (!items.length)
-    return (
-      <main className="listing-page">Chưa có Freelancer công khai hồ sơ.</main>
-    );
-  return <LegacyPublicListing {...props} publicTalents={items} />;
-}
-
-function LegacyPublicListing({
-  type,
+function TalentCatalog({
   go,
-  loggedIn = false,
-  requireLogin,
-  selectedJobId,
   initialQuery = "",
   publicTalents,
 }: {
-  type: "jobs" | "talents";
-  go: (p: PublicPage) => void;
-  loggedIn?: boolean;
-  requireLogin?: () => void;
-  selectedJobId?: string;
-  initialQuery?: string;
-  publicTalents?: TalentItem[];
+  type: "jobs" | "talents"
+  go: (p: PublicPage) => void
+  loggedIn?: boolean
+  requireLogin?: () => void
+  selectedJobId?: string
+  initialQuery?: string
+  publicTalents: TalentItem[]
 }) {
-  const {
-    jobs,
-    talents: storedTalents,
-    setSelectedTalent,
-    openApplyModal,
-    refreshJobs,
-    savedJobIds,
-    isJobSaved,
-    toggleSaveJob,
-    openChatWith,
-  } = useStore();
-  const talents = publicTalents ?? storedTalents;
-  const [query, setQuery] = useState(initialQuery);
-  const [category, setCategory] = useState("Tất cả");
-  const [talentPage, setTalentPage] = useState(0);
-  const [budgetFilter, setBudgetFilter] = useState("Tất cả ngân sách");
-  const [sortBy, setSortBy] = useState("Mới nhất");
-  const initialIndex = Math.max(
-    0,
-    jobs.findIndex((job) => job.id === selectedJobId),
-  );
-  const [selected, setSelected] = useState(initialIndex);
-  const [mobileDetail, setMobileDetail] = useState(Boolean(selectedJobId));
-
+  const { setSelectedTalent } = useStore()
+  const talents = publicTalents
+  const [query, setQuery] = useState(initialQuery)
+  const [category, setCategory] = useState("Tất cả")
+  const [talentPage, setTalentPage] = useState(0)
   useEffect(() => {
-    setQuery(initialQuery);
-  }, [initialQuery]);
+    setQuery(initialQuery)
+  }, [initialQuery])
   useEffect(() => {
-    const index = jobs.findIndex((job) => job.id === selectedJobId);
-    if (index >= 0) setSelected(index);
-  }, [selectedJobId, jobs]);
-  useEffect(() => {
-    if (type === "jobs") {
-      void refreshJobs();
-    }
-  }, [type, refreshJobs]);
-
-  if (type === "jobs") {
-    let filteredJobs = jobs.filter((j) => {
-      const text =
-        `${j.title} ${j.company} ${j.skills.join(" ")} ${j.description}`.toLowerCase();
-      const matchQuery =
-        !query.trim() || text.includes(query.trim().toLowerCase());
-
-      let matchCat = true;
-      if (category === "Việc đã lưu") {
-        matchCat = savedJobIds.includes(j.id);
-      } else if (category !== "Tất cả") {
-        matchCat =
-          j.category === category ||
-          (category === "Lập trình Web" &&
-            j.skills.some((s) =>
-              ["React", "Next.js", "Node.js"].includes(s),
-            )) ||
-          (category === "Mobile" && j.skills.includes("Flutter")) ||
-          (category === "UI/UX" && j.skills.includes("Figma")) ||
-          (category === "Data & AI" && j.skills.includes("Go"));
-      }
-
-      let matchBudget = true;
-      const numBudget = parseVndInput(j.budget, 0);
-      if (budgetFilter === "Dưới 15 triệu") {
-        matchBudget = numBudget > 0 && numBudget < 15_000_000;
-      } else if (budgetFilter === "15 - 30 triệu") {
-        matchBudget = numBudget >= 15_000_000 && numBudget <= 30_000_000;
-      } else if (budgetFilter === "30 - 50 triệu") {
-        matchBudget = numBudget >= 30_000_000 && numBudget <= 50_000_000;
-      } else if (budgetFilter === "Trên 50 triệu") {
-        matchBudget = numBudget > 50_000_000;
-      }
-
-      return matchQuery && matchCat && matchBudget;
-    });
-
-    if (sortBy === "Ngân sách cao nhất") {
-      filteredJobs = [...filteredJobs].sort(
-        (a, b) => parseVndInput(b.budget, 0) - parseVndInput(a.budget, 0),
-      );
-    } else if (sortBy === "Sắp hết hạn") {
-      filteredJobs = [...filteredJobs].sort((a, b) =>
-        (a.deadline || "").localeCompare(b.deadline || ""),
-      );
-    }
-
-    const activeJob =
-      filteredJobs[Math.min(selected, Math.max(0, filteredJobs.length - 1))] ||
-      jobs[0];
-
-    return (
-      <main className="jobs-page">
-        {}
-        <div className="jobs-top-filter-panel">
-          <div className="listing-search job-search-primary">
-            <Search size={18} />
-            <input
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setSelected(0);
-              }}
-              placeholder="Tìm kiếm công việc theo chức danh, từ khóa, công nghệ..."
-            />
-            {query && (
-              <button
-                className="icon-button"
-                onClick={() => setQuery("")}
-                aria-label="Xóa"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-
-          <div className="advanced-filter-controls">
-            <div className="select-filter-group">
-              <SlidersHorizontal size={14} />
-              <select
-                value={budgetFilter}
-                onChange={(e) => {
-                  setBudgetFilter(e.target.value);
-                  setSelected(0);
-                }}
-              >
-                <option value="Tất cả ngân sách">Mọi mức ngân sách</option>
-                <option value="Dưới 15 triệu">Dưới 15 triệu</option>
-                <option value="15 - 30 triệu">15 - 30 triệu</option>
-                <option value="30 - 50 triệu">30 - 50 triệu</option>
-                <option value="Trên 50 triệu">Trên 50 triệu</option>
-              </select>
-            </div>
-
-            <div className="select-filter-group">
-              <span>Sắp xếp:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="Mới nhất">Mới nhất</option>
-                <option value="Ngân sách cao nhất">Ngân sách cao nhất</option>
-                <option value="Sắp hết hạn">Sắp hết hạn</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {}
-        <div className="filter-row job-category-filters">
-          {["Tất cả", "Lập trình Web", "Mobile", "UI/UX", "Data & AI"].map(
-            (x, i) => (
-              <button
-                className={`${category === x ? "selected " : ""}${i === 0 ? "filter-all" : x === "Data & AI" ? "filter-featured" : ""}`}
-                onClick={() => {
-                  setCategory(x);
-                  setSelected(0);
-                }}
-                key={x}
-              >
-                <Code2 size={14} />
-                {x}
-              </button>
-            ),
-          )}
-          <button
-            className={`saved-tab-pill ${category === "Việc đã lưu" ? "selected" : ""}`}
-            onClick={() => {
-              setCategory("Việc đã lưu");
-              setSelected(0);
-            }}
-          >
-            <BookmarkCheck size={14} />
-            Việc đã lưu ({savedJobIds.length})
-          </button>
-        </div>
-
-        {filteredJobs.length === 0 ? (
-          <div className="panel empty-state">
-            <Inbox />
-            <strong>Không tìm thấy công việc phù hợp</strong>
-            <span>
-              Thử thay đổi từ khóa, mức ngân sách hoặc xem lại danh mục.
-            </span>
-            <button
-              className="secondary-button"
-              onClick={() => {
-                setQuery("");
-                setCategory("Tất cả");
-                setBudgetFilter("Tất cả ngân sách");
-              }}
-            >
-              Xóa tất cả bộ lọc
-            </button>
-          </div>
-        ) : (
-          <div className={`job-split ${mobileDetail ? "show-detail" : ""}`}>
-            <section className="job-list-pane">
-              <div className="job-list-count-bar">
-                <span>
-                  Tìm thấy <strong>{filteredJobs.length}</strong> việc làm phù
-                  hợp
-                </span>
-              </div>
-              {filteredJobs.map((j, i) => {
-                const saved = isJobSaved(j.id);
-                return (
-                  <article
-                    key={j.id}
-                    className={`scan-job ${activeJob?.id === j.id ? "selected" : ""}`}
-                    onClick={() => {
-                      setSelected(i);
-                      setMobileDetail(true);
-                    }}
-                  >
-                    <button
-                      type="button"
-                      className={`scan-save-btn ${saved ? "saved" : ""}`}
-                      title={saved ? "Bỏ lưu" : "Lưu việc làm"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleSaveJob(j.id);
-                      }}
-                    >
-                      {saved ? (
-                        <BookmarkCheck size={16} />
-                      ) : (
-                        <Bookmark size={16} />
-                      )}
-                    </button>
-                    <div className="scan-title">
-                      <JobTitle job={j} as="h2" previewEnabled={false} />
-                      <b
-                        className={`status ${j.status === "Đang mở" ? "state-open" : j.status === "Đã đóng" ? "state-closed" : "state-in_progress"}`}
-                      >
-                        {j.status}
-                      </b>
-                    </div>
-                    <strong>{j.company}</strong>
-                    <div>
-                      <span>
-                        <CircleDollarSign size={14} />
-                        {j.budget}
-                      </span>
-                      <span>
-                        <Clock3 size={14} />
-                        Hạn {j.deadline}
-                      </span>
-                    </div>
-                    <div className="skill-list">
-                      {j.skills.map((s) => (
-                        <span key={s}>{s}</span>
-                      ))}
-                    </div>
-                    <small>Đăng {j.time}</small>
-                  </article>
-                );
-              })}
-            </section>
-            <section className="job-detail-pane">
-              <button
-                className="mobile-back"
-                onClick={() => setMobileDetail(false)}
-              >
-                ← Quay lại danh sách
-              </button>
-              {activeJob && (
-                <JobDetail
-                  job={activeJob}
-                  apply={() =>
-                    loggedIn ? openApplyModal(activeJob) : requireLogin?.()
-                  }
-                />
-              )}
-            </section>
-          </div>
-        )}
-      </main>
-    );
-  }
-
-  useEffect(() => {
-    setTalentPage(0);
-  }, [query, category, talents]);
-  const allTalents = talents;
+    setTalentPage(0)
+  }, [query, category, talents])
+  const allTalents = talents
   const filteredTalents = allTalents.filter((t) => {
-    const text = `${t.name} ${t.role} ${t.skills.join(" ")}`.toLowerCase();
+    const text = `${t.name} ${t.role} ${t.skills.join(" ")}`.toLowerCase()
     const matchQuery =
-      !query.trim() || text.includes(query.trim().toLowerCase());
-    const profileText = [t.role, ...t.skills].join(" ").toLocaleLowerCase("vi");
+      !query.trim() || text.includes(query.trim().toLowerCase())
+    const profileText = [t.role, ...t.skills].join(" ").toLocaleLowerCase("vi")
     const matches = (keywords: string[]) =>
-      keywords.some((keyword) => profileText.includes(keyword));
+      keywords.some((keyword) => profileText.includes(keyword))
     const matchCat =
       category === "Tất cả" ||
       (category === "Developer" &&
@@ -2430,27 +1904,27 @@ function LegacyPublicListing({
           "aws",
           "data engineer",
           "data scientist",
-        ]));
-    return matchQuery && matchCat;
-  });
+        ]))
+    return matchQuery && matchCat
+  })
 
   const sortedTalents = [...filteredTalents].sort((a, b) => {
     const score = (t: TalentItem) => {
-      const n = Number(t.rating);
-      return Number.isFinite(n) && n > 0 ? n : 0;
-    };
-    return score(b) - score(a) || a.name.localeCompare(b.name, "vi");
-  });
-  const talentPageSize = 9;
-  const talentTotalPages = Math.ceil(sortedTalents.length / talentPageSize);
+      const n = Number(t.rating)
+      return Number.isFinite(n) && n > 0 ? n : 0
+    }
+    return score(b) - score(a) || a.name.localeCompare(b.name, "vi")
+  })
+  const talentPageSize = 9
+  const talentTotalPages = Math.ceil(sortedTalents.length / talentPageSize)
   const currentTalentPage = Math.min(
     talentPage,
     Math.max(0, talentTotalPages - 1),
-  );
+  )
   const visibleTalents = sortedTalents.slice(
     currentTalentPage * talentPageSize,
     (currentTalentPage + 1) * talentPageSize,
-  );
+  )
   return (
     <main className="listing-page">
       <div className="listing-head">
@@ -2489,8 +1963,8 @@ function LegacyPublicListing({
             key={t.id ?? i}
             talent={t}
             onClick={() => {
-              setSelectedTalent(t);
-              go("profile");
+              setSelectedTalent(t)
+              go("profile")
             }}
           />
         ))}
@@ -2519,131 +1993,64 @@ function LegacyPublicListing({
         </nav>
       )}
     </main>
-  );
+  )
 }
 
-function JobDetail({ job, apply }: { job: JobItem; apply: () => void }) {
-  const {
-    loggedIn,
-    role,
-    proposals,
-    navigateToDashboard,
-    toggleSaveJob,
-    isJobSaved,
-    openChatWith,
-  } = useStore();
-  const alreadyApplied =
-    loggedIn &&
-    role === "Freelancer" &&
-    proposals.some(
-      (p) => String(p.jobId) === String(job.id) && p.statusKey !== "withdrawn",
-    );
-  const saved = isJobSaved(job.id);
-
-  return (
-    <div className="split-detail">
-      <div className="detail-title">
-        <div className="company-logo">{job.company[0]}</div>
-        <div>
-          <span
-            className={`status ${job.status === "Đang mở" ? "state-open" : job.status === "Đã đóng" ? "state-closed" : "state-in_progress"}`}
-          >
-            {job.status}
-          </span>
-          <h1>{job.title}</h1>
-          <p>{job.company} · Client đã xác thực</p>
-        </div>
-      </div>
-      <div className="detail-facts">
-        <div>
-          <CircleDollarSign size={16} />
-          <span>
-            Ngân sách<strong>{job.budget}</strong>
-          </span>
-        </div>
-        <div>
-          <Clock3 size={16} />
-          <span>
-            Deadline<strong>{job.deadline}</strong>
-          </span>
-        </div>
-        <div>
-          <BriefcaseBusiness size={16} />
-          <span>
-            Hình thức<strong>Làm việc từ xa</strong>
-          </span>
-        </div>
-      </div>
-
-      <div className="detail-action-buttons">
-        {loggedIn && role === "Client" ? (
-          <button
-            className="secondary-button proposal-cta"
-            onClick={() => navigateToDashboard("Quản lý công việc")}
-          >
-            Quản lý công việc
-          </button>
-        ) : loggedIn && role === "Admin" ? (
-          <button
-            className="secondary-button proposal-cta"
-            onClick={() => navigateToDashboard("Quản lý công việc")}
-          >
-            Kiểm duyệt công việc
-          </button>
-        ) : alreadyApplied ? (
-          <button
-            className="secondary-button proposal-cta"
-            onClick={() => navigateToDashboard("Đề xuất đã gửi")}
-          >
-            Đã ứng tuyển · Xem Proposal
-          </button>
-        ) : job.status === "Đang mở" ? (
-          <button className="primary-button proposal-cta" onClick={apply}>
-            Gửi Proposal ứng tuyển
-          </button>
-        ) : null}
-
-        <div className="detail-secondary-actions">
-          <button
-            type="button"
-            className={`secondary-button save-job-action ${saved ? "active-saved" : ""}`}
-            onClick={() => toggleSaveJob(job.id)}
-          >
-            {saved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-            <span>{saved ? "Đã lưu việc làm" : "Lưu việc làm"}</span>
-          </button>
-        </div>
-      </div>
-
-      <h2>Kỹ năng yêu cầu</h2>
-      <div className="skill-list big">
-        {job.skills.map((x) => (
-          <span key={x}>{x}</span>
-        ))}
-      </div>
-      <h2>Mô tả công việc</h2>
-      <RichDescription text={job.description} />
-      <h2>Trách nhiệm chính</h2>
-      <ul>
-        <li>Phát triển sản phẩm theo phạm vi và tiến độ đã thống nhất.</li>
-        <li>Phối hợp với Client để làm rõ yêu cầu và cập nhật kết quả.</li>
-        <li>Viết mã rõ ràng, có kiểm thử và tài liệu đầy đủ.</li>
-      </ul>
-    </div>
-  );
+function PublicFreelancerListing(props: {
+  type: "jobs" | "talents"
+  go: (p: PublicPage) => void
+}) {
+  const [items, setItems] = useState<TalentItem[]>([])
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading")
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      const first = await publicFreelancersApi.list("", 0, 100)
+      if (first.totalPages > 20)
+        throw new Error("Danh sách Freelancer quá lớn để tải đầy đủ.")
+      const all = [...first.content]
+      for (let page = 1; page < first.totalPages; page++)
+        all.push(...(await publicFreelancersApi.list("", page, 100)).content)
+      if (active) {
+        setItems(all.map(publicTalent))
+        setState("ready")
+      }
+    })().catch(() => {
+      if (active) setState("error")
+    })
+    return () => {
+      active = false
+    }
+  }, [])
+  if (state === "loading")
+    return (
+      <main className="listing-page" role="status">
+        Đang tải Freelancer...
+      </main>
+    )
+  if (state === "error")
+    return (
+      <main className="listing-page" role="alert">
+        Không thể tải danh sách Freelancer. Vui lòng thử lại sau.
+      </main>
+    )
+  if (!items.length)
+    return (
+      <main className="listing-page">Chưa có Freelancer công khai hồ sơ.</main>
+    )
+  return <TalentCatalog {...props} publicTalents={items} />
 }
 
-function JobModal({ job, close }: { job: JobItem; close: () => void }) {
-  const { isDemoMode } = useStore();
+function JobModal({ job, close }: { job: JobItem ; close: () => void }) {
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-    };
-    document.addEventListener("keydown", key);
-    return () => document.removeEventListener("keydown", key);
-  }, [close]);
-  if (isDemoMode) return <LegacyJobModal job={job} close={close} />;
-  const id = parseNumericId(job.id);
+      if (event.key === "Escape") close()
+    }
+    document.addEventListener("keydown", key)
+    return () => document.removeEventListener("keydown", key)
+  }, [close])
+
+  const id = parseNumericId(job.id)
   return createPortal(
     <div className="modal-backdrop job-modal-backdrop" onMouseDown={close}>
       <div className="job-modal" onMouseDown={(e) => e.stopPropagation()}>
@@ -2661,93 +2068,57 @@ function JobModal({ job, close }: { job: JobItem; close: () => void }) {
       </div>
     </div>,
     document.body,
-  );
-}
-
-function LegacyJobModal({ job, close }: { job: JobItem; close: () => void }) {
-  const { openApplyModal } = useStore();
-  useEffect(() => {
-    const key = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-    };
-    document.addEventListener("keydown", key);
-    return () => document.removeEventListener("keydown", key);
-  }, [close]);
-  return createPortal(
-    <div className="modal-backdrop job-modal-backdrop" onMouseDown={close}>
-      <div
-        className="job-modal"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button className="job-modal-close" onClick={close} aria-label="Đóng">
-          <X />
-        </button>
-        <JobDetail
-          job={job}
-          apply={() => {
-            close();
-            openApplyModal(job);
-          }}
-        />
-      </div>
-    </div>,
-    document.body,
-  );
+  )
 }
 
 function ProposalSubmitModal({
   job,
   close,
 }: {
-  job: JobItem;
-  close: () => void;
+  job: JobItem
+  close: () => void
 }) {
-  const { isDemoMode } = useStore();
-  return isDemoMode ? (
-    <LegacyProposalSubmitModal job={job} close={close} />
-  ) : (
-    <RealProposalModal id={Number(job.id)} close={close} />
-  );
+  return <RealProposalModal id={Number(job.id)} close={close} />
 }
-function RealProposalModal({ id, close }: { id: number; close: () => void }) {
-  const { profile, uploadCvFile, notify } = useStore();
-  const user = getSessionSnapshot().user;
-  const [job, setJob] = useState<Job | null>(null);
-  const [error, setError] = useState("");
-  const [retry, setRetry] = useState(0);
+function RealProposalModal({ id, close }: { id: number ; close: () => void }) {
+  const { profile, uploadCvFile, notify } = useStore()
+  const user = getSessionSnapshot().user
+  const [job, setJob] = useState<Job | null>(null)
+  const [error, setError] = useState("")
+  const [retry, setRetry] = useState(0)
   const eligible =
     !!job &&
     !!user &&
     job.status === "OPEN" &&
     job.clientId !== user.id &&
-    user.roles.includes("FREELANCER");
+    user.roles.includes("FREELANCER")
   useEffect(() => {
-    let alive = true;
-    setJob(null);
-    setError("");
+    let alive = true
+    setJob(null)
+    setError("")
     jobApi
       .detail(id)
       .then((value) => {
-        if (alive) setJob(value);
+        if (alive) setJob(value)
       })
       .catch((cause) => {
         if (alive)
           setError(
             cause instanceof Error ? cause.message : "Không thể tải Job.",
-          );
-      });
+          )
+      })
     return () => {
-      alive = false;
-    };
-  }, [id, retry]);
+      alive = false
+    }
+  }, [id, retry])
   useEffect(() => {
-    if (eligible) return;
+    if (eligible) return
     const key = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-    };
-    document.addEventListener("keydown", key);
-    return () => document.removeEventListener("keydown", key);
-  }, [eligible, close]);
+      if (event.key === "Escape") close()
+    }
+    document.addEventListener("keydown", key)
+    return () => document.removeEventListener("keydown", key)
+  }, [eligible, close])
   if (eligible && job && user)
     return (
       <SubmitProposal
@@ -2759,11 +2130,11 @@ function RealProposalModal({ id, close }: { id: number; close: () => void }) {
         cvs={profile.cvs.map((cv) => ({ id: cv.id, title: cv.title }))}
         uploadCvFile={uploadCvFile}
         onSubmitted={(proposal) => {
-          notify("Đã gửi Proposal #" + proposal.id + " thành công.");
-          close();
+          notify("Đã gửi Proposal #" + proposal.id + " thành công.")
+          close()
         }}
       />
-    );
+    )
   return createPortal(
     <div className="modal-backdrop">
       <section
@@ -2796,294 +2167,14 @@ function RealProposalModal({ id, close }: { id: number; close: () => void }) {
       </section>
     </div>,
     document.body,
-  );
-}
-function LegacyProposalSubmitModal({
-  job,
-  close,
-}: {
-  job: JobItem;
-  close: () => void;
-}) {
-  const {
-    profile,
-    isDemoMode,
-    submitProposal,
-    uploadCvFile,
-    navigateToDashboard,
-  } = useStore();
-  const [cv, setCv] = useState(
-    profile.cvs[0]?.title || (isDemoMode ? "CV_Frontend_2025.pdf" : ""),
-  );
-  const [price, setPrice] = useState("38.000.000đ");
-  const [duration, setDuration] = useState("8 tuần");
-  const [cover, setCover] = useState(
-    "Tôi có kinh nghiệm phát triển các dự án tương tự với kỹ năng " +
-      job.skills.join(", ") +
-      ". Cam kết bàn giao đúng hạn và đảm bảo chất lượng mã nguồn.",
-  );
-  const [submitting, setSubmitting] = useState(false);
-  const [uploadingCv, setUploadingCv] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!cv && profile.cvs.length > 0) {
-      setCv(profile.cvs[0].title);
-    }
-  }, [profile.cvs, cv]);
-
-  const handleUploadNewCv = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingCv(true);
-    setFormError("");
-    const uploaded = await uploadCvFile(file);
-    setUploadingCv(false);
-    if (uploaded) {
-      setCv(uploaded.title);
-    }
-    e.target.value = "";
-  };
-
-  const handleSubmit = async () => {
-    if (submitting || uploadingCv) return;
-    if (!isDemoMode && (!cv.trim() || profile.cvs.length === 0)) {
-      setFormError(
-        "Vui lòng tải lên và chọn một tệp CV PDF trước khi gửi Proposal.",
-      );
-      return;
-    }
-    if (!price.trim()) {
-      setFormError("Vui lòng nhập giá đề xuất.");
-      return;
-    }
-    if (parseVndInput(price, 0) <= 0) {
-      setFormError("Giá đề xuất phải là số dương hợp lệ.");
-      return;
-    }
-    if (!duration.trim()) {
-      setFormError("Vui lòng nhập thời gian dự kiến.");
-      return;
-    }
-    if (!cover.trim() || cover.trim().length < 10) {
-      setFormError("Vui lòng nhập thư giới thiệu (ít nhất 10 ký tự).");
-      return;
-    }
-    setFormError("");
-    setSubmitting(true);
-    const ok = await submitProposal(job.id, cv, price, duration, cover);
-    setSubmitting(false);
-    if (ok) {
-      setIsSuccess(true);
-    }
-  };
-
-  if (isSuccess) {
-    return createPortal(
-      <div className="modal-backdrop" onMouseDown={close}>
-        <div
-          className="panel function-panel submit-success-modal"
-          style={{
-            width: "min(460px, 92vw)",
-            textAlign: "center",
-            padding: "36px 24px",
-          }}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <div
-            style={{
-              display: "inline-flex",
-              padding: "16px",
-              borderRadius: "50%",
-              background: "#e8f7ee",
-              color: "#00b14f",
-              marginBottom: "16px",
-            }}
-          >
-            <CheckCircle2 size={46} />
-          </div>
-          <h2
-            style={{
-              fontSize: "22px",
-              fontWeight: "800",
-              color: "#0f172a",
-              marginBottom: "8px",
-            }}
-          >
-            Gửi Proposal thành công!
-          </h2>
-          <p
-            style={{
-              color: "#64748b",
-              fontSize: "14px",
-              lineHeight: "1.6",
-              marginBottom: "24px",
-            }}
-          >
-            Đề xuất của bạn đã được chuyển đến <strong>{job.company}</strong>.
-            Nhà tuyển dụng sẽ xem xét hồ sơ và phản hồi cho bạn trong thời gian
-            sớm nhất.
-          </p>
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-          >
-            <button
-              className="primary-button"
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                padding: "12px",
-              }}
-              onClick={() => {
-                close();
-                navigateToDashboard("Đề xuất đã gửi");
-              }}
-            >
-              Xem danh sách Đề xuất đã gửi
-            </button>
-            <button
-              className="secondary-button"
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                padding: "12px",
-              }}
-              onClick={close}
-            >
-              Tiếp tục tìm việc khác
-            </button>
-          </div>
-        </div>
-      </div>,
-      document.body,
-    );
-  }
-
-  return createPortal(
-    <div className="modal-backdrop" onMouseDown={() => !submitting && close()}>
-      <div
-        className="panel function-panel"
-        style={{ width: "min(560px, 100%)", minHeight: "auto" }}
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <div className="record-header">
-          <div>
-            <h2>Gửi Proposal ứng tuyển</h2>
-            <p>
-              {job.title} · {job.company}
-            </p>
-          </div>
-          <button
-            className="icon-button"
-            disabled={submitting}
-            onClick={close}
-            aria-label="Đóng"
-          >
-            <X size={18} />
-          </button>
-        </div>
-        <div className="form-grid">
-          <label className="full">
-            Chọn CV đính kèm *
-            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-              <select
-                style={{ flex: 1 }}
-                value={cv}
-                onChange={(e) => setCv(e.target.value)}
-              >
-                {profile.cvs.length > 0 ? (
-                  profile.cvs.map((c) => (
-                    <option key={c.id} value={c.title}>
-                      {c.title}
-                    </option>
-                  ))
-                ) : (
-                  <option value="">
-                    {isDemoMode
-                      ? "CV_Frontend_2025.pdf"
-                      : "-- Chưa có CV PDF (Nhấn + Tải CV PDF) --"}
-                  </option>
-                )}
-              </select>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,application/pdf"
-                style={{ display: "none" }}
-                onChange={handleUploadNewCv}
-              />
-              <button
-                type="button"
-                className="secondary-button"
-                disabled={uploadingCv}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {uploadingCv ? "Đang tải..." : "+ Tải CV PDF"}
-              </button>
-            </div>
-          </label>
-          <label>
-            Giá đề xuất *
-            <input
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="Ví dụ: 35.000.000đ"
-            />
-          </label>
-          <label>
-            Thời gian dự kiến *
-            <input
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              placeholder="Ví dụ: 8 tuần"
-            />
-          </label>
-          <label className="full">
-            Thư giới thiệu (Cover Letter) *
-            <textarea
-              rows={5}
-              value={cover}
-              onChange={(e) => setCover(e.target.value)}
-              placeholder="Trình bày kinh nghiệm và giải pháp của bạn cho dự án này..."
-            />
-          </label>
-        </div>
-        {formError && (
-          <p className="auth-error">
-            <AlertCircle size={16} />
-            {formError}
-          </p>
-        )}
-        <div className="form-actions">
-          <button
-            className="secondary-button"
-            disabled={submitting}
-            onClick={close}
-          >
-            Hủy
-          </button>
-          <button
-            className="primary-button"
-            disabled={submitting || uploadingCv}
-            onClick={handleSubmit}
-          >
-            {submitting ? "Đang gửi..." : "Gửi Proposal"}
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body,
-  );
+  )
 }
 
 function DashboardJobSearch(props: {
-  query: string;
-  onQueryChange: (value: string) => void;
+  query: string
+  onQueryChange: (value: string) => void
 }) {
   const {
-    isDemoMode,
     notify,
     savedJobIds,
     toggleSaveJob,
@@ -3092,15 +2183,15 @@ function DashboardJobSearch(props: {
     savedJobsReady,
     savedJobPendingIds,
     refreshSavedJobs,
-  } = useStore();
+  } = useStore()
   const rawId = new URLSearchParams(
     window.location.hash.split("?")[1] || "",
-  ).get("jobId");
+  ).get("jobId")
   const initialId =
     rawId && /^[1-9]\d*$/.test(rawId) && Number.isSafeInteger(Number(rawId))
       ? Number(rawId)
-      : undefined;
-  if (isDemoMode) return <LegacyDashboardJobSearch {...props} />;
+      : undefined
+
   return (
     <Jobs
       key={getSessionSnapshot().user?.id ?? "anonymous"}
@@ -3118,259 +2209,15 @@ function DashboardJobSearch(props: {
       onToggleSave={(id) => toggleSaveJob(String(id))}
       renderDescription={(text) => <RichDescription text={text} />}
     />
-  );
-}
-
-function LegacyDashboardJobSearch({
-  query,
-  onQueryChange,
-}: {
-  query: string;
-  onQueryChange: (value: string) => void;
-}) {
-  const { jobs, openApplyModal, refreshJobs } = useStore();
-  const [skill, setSkill] = useState("Tất cả kỹ năng");
-  const [budget, setBudget] = useState("Mọi ngân sách");
-  const [deadline, setDeadline] = useState("Mọi deadline");
-  const [status, setStatus] = useState("Đang mở");
-  const [selectedId, setSelectedId] = useState(jobs[0]?.id || "");
-  const [mobileDetail, setMobileDetail] = useState(false);
-  useEffect(() => {
-    void refreshJobs();
-  }, [refreshJobs]);
-
-  const allJobSkills = Array.from(
-    new Set([
-      "React",
-      "Flutter",
-      "Go",
-      "Figma",
-      ...jobs.flatMap((j) => j.skills),
-    ]),
-  );
-
-  const filtered = jobs.filter((job) => {
-    const searchable = (
-      job.title +
-      " " +
-      job.company +
-      " " +
-      job.skills.join(" ")
-    ).toLowerCase();
-    const budgetVnd = parseVndInput(job.budget, 0);
-
-    let matchDeadline = true;
-    if (deadline !== "Mọi deadline") {
-      const parts = job.deadline.split("/").map(Number);
-      let deadlineDate: Date | null = null;
-      if (parts.length === 3 && !parts.some(Number.isNaN)) {
-        deadlineDate = new Date(parts[2], parts[1] - 1, parts[0], 23, 59, 59);
-      } else {
-        const parsed = new Date(job.deadline);
-        if (!Number.isNaN(parsed.getTime())) deadlineDate = parsed;
-      }
-      if (!deadlineDate) {
-        matchDeadline = false;
-      } else {
-        const now = new Date();
-        const todayStart = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-        ).getTime();
-        const diffDays = Math.ceil(
-          (deadlineDate.getTime() - todayStart) / 86_400_000,
-        );
-        if (deadline === "Trong 7 ngày tới") {
-          matchDeadline = diffDays >= 0 && diffDays <= 7;
-        } else if (deadline === "Trong 30 ngày tới") {
-          matchDeadline = diffDays >= 0 && diffDays <= 30;
-        } else if (deadline === "Trên 30 ngày") {
-          matchDeadline = diffDays > 30;
-        }
-      }
-    }
-
-    const matchBudget =
-      budget === "Mọi ngân sách" ||
-      (budget === "Dưới 30 triệu"
-        ? budgetVnd > 0 && budgetVnd < 30_000_000
-        : budgetVnd >= 30_000_000);
-
-    return (
-      searchable.includes(query.toLowerCase()) &&
-      (skill === "Tất cả kỹ năng" ||
-        job.skills.some((value) =>
-          value.toLowerCase().includes(skill.toLowerCase()),
-        )) &&
-      matchBudget &&
-      matchDeadline &&
-      (status === "Tất cả trạng thái" || job.status === status)
-    );
-  });
-
-  useEffect(() => {
-    if (filtered.length && !filtered.some((job) => job.id === selectedId))
-      setSelectedId(filtered[0].id);
-  }, [query, skill, budget, deadline, status, jobs]);
-
-  const selected = filtered.find((job) => job.id === selectedId) || filtered[0];
-  return (
-    <section className="dashboard-jobs">
-      <div className="dashboard-job-tools">
-        <div className="dashboard-search-box">
-          <Search />
-          <input
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="Tìm công việc, kỹ năng..."
-          />
-          {query && (
-            <button
-              onClick={() => onQueryChange("")}
-              aria-label="Xóa nội dung tìm kiếm"
-            >
-              <X />
-            </button>
-          )}
-        </div>
-        <div className="dashboard-filters">
-          <select
-            value={skill}
-            onChange={(event) => setSkill(event.target.value)}
-            aria-label="Lọc theo kỹ năng"
-          >
-            <option>Tất cả kỹ năng</option>
-            {allJobSkills.map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-          <select
-            value={budget}
-            onChange={(event) => setBudget(event.target.value)}
-            aria-label="Lọc theo ngân sách"
-          >
-            <option>Mọi ngân sách</option>
-            <option>Dưới 30 triệu</option>
-            <option>Từ 30 triệu</option>
-          </select>
-          <select
-            value={deadline}
-            onChange={(event) => setDeadline(event.target.value)}
-            aria-label="Lọc theo deadline"
-          >
-            <option>Mọi deadline</option>
-            <option>Trong 7 ngày tới</option>
-            <option>Trong 30 ngày tới</option>
-            <option>Trên 30 ngày</option>
-          </select>
-          <select
-            value={status}
-            onChange={(event) => setStatus(event.target.value)}
-            aria-label="Lọc theo trạng thái"
-          >
-            <option>Đang mở</option>
-            <option>Đang thực hiện</option>
-            <option>Đã đóng</option>
-            <option>Tất cả trạng thái</option>
-          </select>
-        </div>
-      </div>
-      {filtered.length === 0 ? (
-        <div className="panel empty-state">
-          <Inbox />
-          <strong>Không tìm thấy công việc</strong>
-          <span>Thử thay đổi từ khóa hoặc bộ lọc để xem kết quả khác.</span>
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              marginTop: "12px",
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
-            <button
-              className="secondary-button"
-              onClick={() => {
-                onQueryChange("");
-                setSkill("Tất cả kỹ năng");
-                setBudget("Mọi ngân sách");
-                setDeadline("Mọi deadline");
-                setStatus("Đang mở");
-              }}
-            >
-              Xóa bộ lọc
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className={`job-split ${mobileDetail ? "show-detail" : ""}`}>
-          <section className="job-list-pane">
-            {filtered.map((job) => (
-              <article
-                key={job.id}
-                className={`scan-job ${selected?.id === job.id ? "selected" : ""}`}
-                onClick={() => {
-                  setSelectedId(job.id);
-                  setMobileDetail(true);
-                }}
-              >
-                <div className="scan-title">
-                  <JobTitle job={job} as="h2" previewEnabled={false} />
-                  <b
-                    className={`status ${job.status === "Đang mở" ? "state-open" : job.status === "Đã đóng" ? "state-closed" : "state-in_progress"}`}
-                  >
-                    {job.status}
-                  </b>
-                </div>
-                <strong>{job.company}</strong>
-                <div>
-                  <span>
-                    <CircleDollarSign />
-                    {job.budget}
-                  </span>
-                  <span>
-                    <Clock3 />
-                    Hạn {job.deadline}
-                  </span>
-                </div>
-                <div className="skill-list">
-                  {job.skills.map((value) => (
-                    <span key={value}>{value}</span>
-                  ))}
-                </div>
-                <small>Đăng {job.time}</small>
-              </article>
-            ))}
-          </section>
-          <section className="job-detail-pane">
-            <button
-              className="mobile-back"
-              onClick={() => setMobileDetail(false)}
-            >
-              ← Quay lại danh sách
-            </button>
-            {selected && (
-              <JobDetail
-                job={selected}
-                apply={() => openApplyModal(selected)}
-              />
-            )}
-          </section>
-        </div>
-      )}
-    </section>
-  );
+  )
 }
 
 function SavedJobsManager({
   navigateDashboard,
 }: {
-  navigateDashboard?: (page: string) => void;
+  navigateDashboard?: (page: string) => void
 }) {
   const {
-    jobs,
     savedJobIds,
     savedJobRecords,
     savedJobsLoading,
@@ -3379,42 +2226,36 @@ function SavedJobsManager({
     savedJobPendingIds,
     refreshSavedJobs,
     toggleSaveJob,
-    isDemoMode,
+
     openApplyModal,
     proposals,
-  } = useStore();
-  const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const saved = isDemoMode
-    ? jobs
-        .filter((job) => savedJobIds.includes(job.id))
-        .map((job) => ({ job, publishedAt: null as string | null }))
-    : savedJobRecords.flatMap((record) =>
-        record.job
-          ? [
-              {
-                job: mapJobDtoToItem(record.job),
-                publishedAt: record.publishedAt,
-              },
-            ]
-          : [],
-      );
-  const unavailable = isDemoMode
-    ? []
-    : savedJobRecords.filter((record) => !record.job);
+  } = useStore()
+  const [query, setQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const saved = savedJobRecords.flatMap((record) =>
+    record.job
+      ? [
+          {
+            job: mapJobDtoToItem(record.job),
+            publishedAt: record.publishedAt,
+          },
+        ]
+      : [],
+  )
+  const unavailable = savedJobRecords.filter((record) => !record.job)
   const filtered = saved.filter(({ job }) => {
     const text = [job.title, job.company, ...job.skills]
       .join(" ")
-      .toLocaleLowerCase("vi");
+      .toLocaleLowerCase("vi")
     return (
       text.includes(query.trim().toLocaleLowerCase("vi")) &&
       (!statusFilter || job.status === statusFilter)
-    );
-  });
-  const statuses = Array.from(new Set(saved.map(({ job }) => job.status)));
-  const discover = () => navigateDashboard?.("Tìm việc");
+    )
+  })
+  const statuses = Array.from(new Set(saved.map(({ job }) => job.status)))
+  const discover = () => navigateDashboard?.("Tìm việc")
   const openJob = (job: JobItem) => {
-    navigateDashboard?.("Tìm việc");
+    navigateDashboard?.("Tìm việc")
     window.history.pushState(
       null,
       "",
@@ -3422,11 +2263,11 @@ function SavedJobsManager({
         encodeURIComponent("Tìm việc") +
         "?jobId=" +
         encodeURIComponent(job.id),
-    );
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  };
-  const loading = !isDemoMode && savedJobsLoading;
-  const ready = isDemoMode || savedJobsReady;
+    )
+    window.dispatchEvent(new PopStateEvent("popstate"))
+  }
+  const loading = savedJobsLoading
+  const ready = savedJobsReady
 
   return (
     <section
@@ -3452,7 +2293,7 @@ function SavedJobsManager({
           Khám phá việc làm
         </button>
       </div>
-      {savedJobsError && !isDemoMode && (
+      {savedJobsError && (
         <div className="saved-feedback" role="alert">
           <AlertCircle size={17} />
           <span>{savedJobsError}</span>
@@ -3522,12 +2363,12 @@ function SavedJobsManager({
       ) : (
         <div className="saved-rows">
           {filtered.map(({ job, publishedAt }) => {
-            const pending = savedJobPendingIds.includes(job.id);
+            const pending = savedJobPendingIds.includes(job.id)
             const applied = proposals.some(
               (proposal) =>
                 String(proposal.jobId) === job.id &&
                 proposal.statusKey !== "withdrawn",
-            );
+            )
             return (
               <article key={job.id} className="saved-row" aria-busy={pending}>
                 <div className="saved-row-avatar" aria-hidden="true">
@@ -3615,7 +2456,7 @@ function SavedJobsManager({
                   )}
                 </div>
               </article>
-            );
+            )
           })}
           {unavailable.map((record) => (
             <article
@@ -3653,8 +2494,8 @@ function SavedJobsManager({
                   type="button"
                   className="secondary-button"
                   onClick={() => {
-                    setQuery("");
-                    setStatusFilter("");
+                    setQuery("")
+                    setStatusFilter("")
                   }}
                 >
                   Xóa bộ lọc
@@ -3664,54 +2505,54 @@ function SavedJobsManager({
         </div>
       )}
     </section>
-  );
+  )
 }
 
 function AboutPage({ contact }: { contact?: boolean }) {
-  const { notify } = useStore();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
+  const { notify } = useStore()
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [subject, setSubject] = useState("")
+  const [message, setMessage] = useState("")
   const canSubmitContact = Boolean(
     name.trim() && email.trim() && subject.trim() && message.trim(),
-  );
-  const [sendingContact, setSendingContact] = useState(false);
-  const [contactResult, setContactResult] = useState("");
+  )
+  const [sendingContact, setSendingContact] = useState(false)
+  const [contactResult, setContactResult] = useState("")
   const handleSendContact = async () => {
     if (!canSubmitContact || sendingContact) {
-      notify("Vui lòng điền đầy đủ thông tin liên hệ.");
-      return;
+      notify("Vui lòng điền đầy đủ thông tin liên hệ.")
+      return
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      notify("Email không hợp lệ.");
-      return;
+      notify("Email không hợp lệ.")
+      return
     }
-    setSendingContact(true);
-    setContactResult("");
+    setSendingContact(true)
+    setContactResult("")
     try {
       await supportApi.submit({
         name: name.trim(),
         email: email.trim(),
         subject: subject.trim(),
         message: message.trim(),
-      });
-      setName("");
-      setEmail("");
-      setSubject("");
-      setMessage("");
-      setContactResult("Yêu cầu đã được gửi đến Admin. Cảm ơn bạn đã liên hệ!");
-      notify("Đã gửi yêu cầu hỗ trợ đến Admin.");
+      })
+      setName("")
+      setEmail("")
+      setSubject("")
+      setMessage("")
+      setContactResult("Yêu cầu đã được gửi đến Admin. Cảm ơn bạn đã liên hệ!")
+      notify("Đã gửi yêu cầu hỗ trợ đến Admin.")
     } catch (error) {
       notify(
         error instanceof Error
           ? error.message
           : "Không thể gửi yêu cầu. Vui lòng thử lại.",
-      );
+      )
     } finally {
-      setSendingContact(false);
+      setSendingContact(false)
     }
-  };
+  }
   if (contact)
     return (
       <main className="contact-page">
@@ -3785,7 +2626,7 @@ function AboutPage({ contact }: { contact?: boolean }) {
           </aside>
         </div>
       </main>
-    );
+    )
   return (
     <main className="about-page">
       <section className="about-hero">
@@ -3917,174 +2758,7 @@ function AboutPage({ contact }: { contact?: boolean }) {
         </div>
       </section>
     </main>
-  );
-}
-
-function DetailPage({
-  profile,
-  go,
-}: {
-  profile?: boolean;
-  go: (p: PublicPage) => void;
-}) {
-  const {
-    loggedIn,
-    role,
-    selectedTalent,
-    jobs,
-    openApplyModal,
-    navigateToDashboard,
-    notify,
-  } = useStore();
-  if (profile) {
-    const t = selectedTalent;
-    const handleInviteTalent = () => {
-      if (!loggedIn) {
-        notify(
-          "Vui lòng đăng nhập tài khoản Client để mời chuyên gia tham gia dự án.",
-        );
-        go("login");
-        return;
-      }
-      if (role === "Freelancer") {
-        notify(
-          "Chỉ tài khoản Client mới có thể mời Freelancer tham gia dự án.",
-        );
-        return;
-      }
-      navigateToDashboard("Quản lý công việc");
-      if (t.id == null) notify(`Đã gửi lời mời hợp tác dự án tới ${t.name}!`);
-    };
-    return (
-      <main className="detail-page">
-        <button className="back-link" onClick={() => go("talents")}>
-          ← Quay lại danh sách
-        </button>
-        <div className="detail-grid">
-          <section className="panel detail-main">
-            <div className="profile-hero">
-              <div className="talent-avatar large">{t.initials}</div>
-              <div>
-                <h1>{t.name}</h1>
-                <p>
-                  {t.role} · {t.location}
-                </p>
-                <div className="rating">
-                  <Star size={15} fill="currentColor" /> {t.rating} · {t.jobs}{" "}
-                  hoàn thành
-                </div>
-              </div>
-            </div>
-            <h2>Giới thiệu</h2>
-            <p
-              style={
-                !t.bio?.trim()
-                  ? { color: "var(--muted)", fontStyle: "italic" }
-                  : undefined
-              }
-            >
-              {t.bio?.trim() ? t.bio : "Chưa có thông tin giới thiệu"}
-            </p>
-            <h2>Kỹ năng chuyên môn</h2>
-            <div className="skill-list big">
-              {t.skills.map((x) => (
-                <span key={x}>{x}</span>
-              ))}
-            </div>
-            <h2>Portfolio nổi bật</h2>
-            <div className="portfolio-grid">
-              {t.portfolios.map((p) => (
-                <div key={p}>{p}</div>
-              ))}
-            </div>
-          </section>
-          <aside className="panel hire-card">
-            <span>Mức giá theo giờ</span>
-            <strong>{t.hourlyRate}</strong>
-            <button className="primary-button" onClick={handleInviteTalent}>
-              Mời tham gia dự án
-            </button>
-          </aside>
-        </div>
-      </main>
-    );
-  }
-  return (
-    <main className="detail-page">
-      <button className="back-link" onClick={() => go("jobs")}>
-        ← Quay lại việc làm
-      </button>
-      <div className="detail-grid">
-        <section className="panel detail-main">
-          <div className="detail-title">
-            <div className="company-logo">N</div>
-            <div>
-              <h1>{jobs[0].title}</h1>
-              <p>NovaTech Solutions · Đã xác thực · Đăng 2 giờ trước</p>
-            </div>
-          </div>
-          <div className="job-meta big-meta">
-            <span>
-              <CircleDollarSign />
-              35–50 triệu
-            </span>
-            <span>
-              <Clock3 />
-              2–3 tháng
-            </span>
-            <span>
-              <BriefcaseBusiness />
-              Làm việc từ xa
-            </span>
-          </div>
-          <h2>Mô tả công việc</h2>
-          <p>
-            Chúng tôi đang tìm kiếm một Full-stack Developer giàu kinh nghiệm để
-            cùng phát triển nền tảng quản lý bán hàng thế hệ mới cho doanh
-            nghiệp vừa và nhỏ.
-          </p>
-          <h2>Yêu cầu</h2>
-          <ul>
-            <li>Tối thiểu 3 năm kinh nghiệm với React và Node.js.</li>
-            <li>Có kinh nghiệm thiết kế REST API và PostgreSQL.</li>
-            <li>Chủ động giao tiếp và đảm bảo tiến độ.</li>
-          </ul>
-          <h2>Kỹ năng cần thiết</h2>
-          <div className="skill-list big">
-            {jobs[0].skills.map((x) => (
-              <span key={x}>{x}</span>
-            ))}
-          </div>
-        </section>
-        <aside className="panel hire-card">
-          <span>Ngân sách dự án</span>
-          <strong>35–50 triệu</strong>
-          {loggedIn && role !== "Freelancer" ? (
-            <button
-              className="secondary-button"
-              onClick={() => navigateToDashboard("Quản lý công việc")}
-            >
-              Quản lý công việc
-            </button>
-          ) : (
-            <button
-              className="primary-button"
-              onClick={() => (loggedIn ? openApplyModal(jobs[0]) : go("login"))}
-            >
-              Gửi Proposal
-            </button>
-          )}
-          <button
-            className="secondary-button"
-            onClick={() => notify("Đã lưu công việc vào danh sách yêu thích.")}
-          >
-            Lưu công việc
-          </button>
-          <small>8 freelancer đã ứng tuyển</small>
-        </aside>
-      </div>
-    </main>
-  );
+  )
 }
 
 function PublicFreelancerDetail({ go }: { go: (p: PublicPage) => void }) {
@@ -4095,55 +2769,55 @@ function PublicFreelancerDetail({ go }: { go: (p: PublicPage) => void }) {
     role,
     navigateToDashboard,
     notify,
-  } = useStore();
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [experience, setExperience] = useState<number | null>(null);
+  } = useStore()
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading")
+  const [experience, setExperience] = useState<number | null>(null)
   const [publicHistory, setPublicHistory] = useState<{
-    workExperiences: PublicFreelancer["workExperiences"];
-    portfolioProjects: PublicFreelancer["portfolioProjects"];
-  }>({ workExperiences: [], portfolioProjects: [] });
-  const [publicHistorySupported, setPublicHistorySupported] = useState(true);
+    workExperiences: PublicFreelancer["workExperiences"]
+    portfolioProjects: PublicFreelancer["portfolioProjects"]
+  }>({ workExperiences: [], portfolioProjects: [] })
+  const [publicHistorySupported, setPublicHistorySupported] = useState(true)
   useEffect(() => {
     if (!selectedTalent.id) {
-      setState("error");
-      return;
+      setState("error")
+      return
     }
-    const talentId = selectedTalent.id;
-    let active = true;
-    setState("loading");
+    const talentId = selectedTalent.id
+    let active = true
+    setState("loading")
     publicFreelancersApi
       .detail(Number(talentId))
       .then((item) => {
         if (active) {
-          setSelectedTalent(publicTalent(item));
-          setExperience(item.yearsExperience ?? null);
+          setSelectedTalent(publicTalent(item))
+          setExperience(item.yearsExperience ?? null)
           setPublicHistory({
             workExperiences: item.workExperiences ?? [],
             portfolioProjects: item.portfolioProjects ?? [],
-          });
+          })
           setPublicHistorySupported(
             Array.isArray(item.workExperiences) &&
               Array.isArray(item.portfolioProjects),
-          );
-          setState("ready");
+          )
+          setState("ready")
         }
       })
       .catch((err) => {
         if (active) {
-          setState("error");
-          console.error("Không tải được hồ sơ Freelancer:", err);
+          setState("error")
+          console.error("Không tải được hồ sơ Freelancer:", err)
         }
-      });
+      })
     return () => {
-      active = false;
-    };
-  }, [selectedTalent.id]);
+      active = false
+    }
+  }, [selectedTalent.id])
   if (state === "loading")
     return (
       <main className="detail-page public-talent-detail" role="status">
         Đang tải hồ sơ...
       </main>
-    );
+    )
   if (state === "error")
     return (
       <main className="detail-page public-talent-detail" role="alert">
@@ -4159,27 +2833,27 @@ function PublicFreelancerDetail({ go }: { go: (p: PublicPage) => void }) {
           Quay lại danh sách Freelancer
         </button>
       </main>
-    );
-  const rating = Number(selectedTalent.rating);
-  const hasRating = Number.isFinite(rating) && rating > 0;
+    )
+  const rating = Number(selectedTalent.rating)
+  const hasRating = Number.isFinite(rating) && rating > 0
   const contact = () => {
     if (!loggedIn) {
-      go("login");
-      return;
+      go("login")
+      return
     }
     if (role === "Client") {
-      navigateToDashboard("Quản lý công việc");
+      navigateToDashboard("Quản lý công việc")
       notify(
         "Bạn có thể xem công việc và đề xuất của Freelancer trong khu vực Client.",
-      );
-      return;
+      )
+      return
     }
     notify(
       role === "Admin"
         ? "Đây là hồ sơ công khai. Hãy sử dụng các chức năng quản trị để quản lý tài khoản."
         : "Để liên hệ Freelancer, vui lòng sử dụng tài khoản Client.",
-    );
-  };
+    )
+  }
   return (
     <main className="detail-page public-talent-detail">
       <button type="button" className="back-link" onClick={() => go("talents")}>
@@ -4368,76 +3042,76 @@ function PublicFreelancerDetail({ go }: { go: (p: PublicPage) => void }) {
         </aside>
       </div>
     </main>
-  );
+  )
 }
 
 function PasswordResetPage({
   initialEmail,
   back,
 }: {
-  initialEmail: string;
-  back: () => void;
+  initialEmail: string
+  back: () => void
 }) {
-  const [email, setEmail] = useState(initialEmail);
-  const [code, setCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [step, setStep] = useState<"request" | "confirm" | "done">("request");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  const [email, setEmail] = useState(initialEmail)
+  const [code, setCode] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [step, setStep] = useState<"request" | "confirm" | "done">("request")
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState("")
+  const [notice, setNotice] = useState("")
   const requestCode = async () => {
-    if (busy) return;
+    if (busy) return
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError("Email không hợp lệ.");
-      return;
+      setError("Email không hợp lệ.")
+      return
     }
-    setBusy(true);
-    setError("");
+    setBusy(true)
+    setError("")
     try {
-      const result = await authApi.requestPasswordCode(email.trim());
-      setNotice(result.message);
-      setStep("confirm");
+      const result = await authApi.requestPasswordCode(email.trim())
+      setNotice(result.message)
+      setStep("confirm")
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Không thể gửi mã.");
+      setError(e instanceof Error ? e.message : "Không thể gửi mã.")
     } finally {
-      setBusy(false);
+      setBusy(false)
     }
-  };
+  }
   const confirm = async () => {
-    if (busy) return;
-    const invalid = passwordError(newPassword);
+    if (busy) return
+    const invalid = passwordError(newPassword)
     if (!/^\d{6}$/.test(code)) {
-      setError("Nhập mã gồm 6 chữ số.");
-      return;
+      setError("Nhập mã gồm 6 chữ số.")
+      return
     }
     if (invalid) {
-      setError(invalid);
-      return;
+      setError(invalid)
+      return
     }
     if (newPassword !== confirmPassword) {
-      setError("Hai mật khẩu không khớp.");
-      return;
+      setError("Hai mật khẩu không khớp.")
+      return
     }
-    setBusy(true);
-    setError("");
+    setBusy(true)
+    setError("")
     try {
       const result = await authApi.resetPassword(
         email.trim(),
         code,
         newPassword,
-      );
-      setNotice(result.message);
-      setStep("done");
-      setNewPassword("");
-      setConfirmPassword("");
-      setCode("");
+      )
+      setNotice(result.message)
+      setStep("done")
+      setNewPassword("")
+      setConfirmPassword("")
+      setCode("")
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Không thể đổi mật khẩu.");
+      setError(e instanceof Error ? e.message : "Không thể đổi mật khẩu.")
     } finally {
-      setBusy(false);
+      setBusy(false)
     }
-  };
+  }
   return (
     <main className="auth-page">
       <section className="auth-card panel login-card password-reset-card">
@@ -4540,9 +3214,9 @@ function PasswordResetPage({
             className="password-reset-secondary"
             disabled={busy}
             onClick={() => {
-              setStep("request");
-              setNotice("");
-              setCode("");
+              setStep("request")
+              setNotice("")
+              setCode("")
             }}
           >
             Đổi email hoặc gửi lại mã
@@ -4557,7 +3231,7 @@ function PasswordResetPage({
         </button>
       </section>
     </main>
-  );
+  )
 }
 
 function AuthPage({
@@ -4565,75 +3239,75 @@ function AuthPage({
   go,
   openDashboard,
 }: {
-  register?: boolean;
-  go: (p: PublicPage) => void;
-  openDashboard: (user: AuthUser) => void;
+  register?: boolean
+  go: (p: PublicPage) => void
+  openDashboard: (user: AuthUser) => void
 }) {
-  const { notify } = useStore();
-  const [resetMode, setResetMode] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role>("Freelancer");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [emailSuggestion, setEmailSuggestion] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const submittingRef = useRef(false);
+  const { notify } = useStore()
+  const [resetMode, setResetMode] = useState(false)
+  const [selectedRole, setSelectedRole] = useState<Role>("Freelancer")
+  const [fullName, setFullName] = useState("")
+  const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [emailError, setEmailError] = useState("")
+  const [emailSuggestion, setEmailSuggestion] = useState("")
+  const [error, setError] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const submittingRef = useRef(false)
   useEffect(() => {
-    setError("");
-    setEmailError("");
-    setEmailSuggestion("");
-  }, [register]);
+    setError("")
+    setEmailError("")
+    setEmailSuggestion("")
+  }, [register])
   const validEmail = (value: string) =>
-    value.length <= 254 && /^[^\s@]+@[^\s@]+$/.test(value);
+    value.length <= 254 && /^[^\s@]+@[^\s@]+$/.test(value)
   const handleEmailChange = (value: string) => {
-    setEmail(value);
-    setEmailError("");
-    setError("");
-  };
+    setEmail(value)
+    setEmailError("")
+    setError("")
+  }
   const handleEmailBlur = () => {
     if (email.trim() && !validEmail(email.trim()))
-      setEmailError("Địa chỉ email không hợp lệ.");
-  };
+      setEmailError("Địa chỉ email không hợp lệ.")
+  }
   const submit = async () => {
-    if (submittingRef.current) return;
-    const normalizedEmail = email.trim().toLowerCase();
+    if (submittingRef.current) return
+    const normalizedEmail = email.trim().toLowerCase()
     if (!validEmail(normalizedEmail)) {
-      setError("Vui lòng nhập email hợp lệ.");
-      return;
+      setError("Vui lòng nhập email hợp lệ.")
+      return
     }
     if (!password || password.length > 72) {
-      setError("Vui lòng nhập mật khẩu hợp lệ (tối đa 72 ký tự).");
-      return;
+      setError("Vui lòng nhập mật khẩu hợp lệ (tối đa 72 ký tự).")
+      return
     }
     if (register) {
       if (!fullName.trim() || fullName.trim().length > 150) {
-        setError("Họ và tên cần 1–150 ký tự.");
-        return;
+        setError("Họ và tên cần 1–150 ký tự.")
+        return
       }
-      const invalid = passwordError(password);
+      const invalid = passwordError(password)
       if (invalid) {
-        setError(invalid);
-        return;
+        setError(invalid)
+        return
       }
       if (password !== confirmPassword) {
-        setError("Mật khẩu xác nhận không khớp.");
-        return;
+        setError("Mật khẩu xác nhận không khớp.")
+        return
       }
       if (selectedRole !== "Client" && selectedRole !== "Freelancer") {
-        setError("Chỉ được đăng ký CLIENT hoặc FREELANCER.");
-        return;
+        setError("Chỉ được đăng ký CLIENT hoặc FREELANCER.")
+        return
       }
     }
-    submittingRef.current = true;
-    setSubmitting(true);
-    setError("");
-    setEmailError("");
+    submittingRef.current = true
+    setSubmitting(true)
+    setError("")
+    setEmailError("")
     try {
       const user = register
         ? await authApi.register({
@@ -4642,34 +3316,34 @@ function AuthPage({
             fullName: fullName.trim(),
             role: selectedRole === "Client" ? "CLIENT" : "FREELANCER",
           })
-        : await authApi.login({ email: normalizedEmail, password });
-      setPassword("");
-      setConfirmPassword("");
-      openDashboard(user);
+        : await authApi.login({ email: normalizedEmail, password })
+      setPassword("")
+      setConfirmPassword("")
+      openDashboard(user)
       notify(
         register
           ? phone.trim()
             ? "Tài khoản đã được tạo. Số điện thoại chưa được lưu."
             : "Đăng ký thành công!"
           : "Đăng nhập thành công!",
-      );
+      )
     } catch (cause) {
       setError(
         cause instanceof Error
           ? cause.message
           : "Không thể xác thực. Vui lòng thử lại.",
-      );
+      )
       if (cause && typeof cause === "object" && "errors" in cause) {
-        const fields = (cause as { errors: Record<string, string> }).errors;
-        if (fields.email) setEmailError(fields.email);
+        const fields = (cause as { errors: Record<string, string> }).errors
+        if (fields.email) setEmailError(fields.email)
         if (Object.keys(fields).length)
-          setError(Object.values(fields).join(" "));
+          setError(Object.values(fields).join(" "))
       }
     } finally {
-      submittingRef.current = false;
-      setSubmitting(false);
+      submittingRef.current = false
+      setSubmitting(false)
     }
-  };
+  }
 
   if (resetMode && !register)
     return (
@@ -4677,11 +3351,13 @@ function AuthPage({
         initialEmail={email}
         back={() => setResetMode(false)}
       />
-    );
+    )
   return (
     <main className="auth-page">
       <div
-        className={`auth-card panel ${register ? "register-card" : "login-card"}`}
+        className={`auth-card panel ${
+          register ? "register-card" : "login-card"
+        }`}
       >
         <div className="auth-brand">
           <Logo />
@@ -4788,10 +3464,10 @@ function AuthPage({
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail(emailSuggestion);
-                    setEmailError("");
-                    setEmailSuggestion("");
-                    setError("");
+                    setEmail(emailSuggestion)
+                    setEmailError("")
+                    setEmailSuggestion("")
+                    setError("")
                   }}
                   style={{
                     fontSize: "0.8rem",
@@ -4861,8 +3537,8 @@ function AuthPage({
             <button
               type="button"
               onClick={() => {
-                setResetMode(true);
-                setError("");
+                setResetMode(true)
+                setError("")
               }}
             >
               Quên mật khẩu?
@@ -4897,20 +3573,20 @@ function AuthPage({
         </p>
       </div>
     </main>
-  );
+  )
 }
 
 function MenuIcon({ label }: { label: string }) {
-  if (label === "Tổng quan") return <LayoutDashboard size={18} />;
-  if (label === "Hồ sơ của tôi") return <UserRound size={18} />;
-  if (label === "Tìm việc") return <Search size={18} />;
-  if (label === "Việc làm đã lưu") return <BookmarkCheck size={18} />;
-  if (label === "Đề xuất đã gửi") return <FileText size={18} />;
-  if (label === "Công việc của tôi") return <FolderKanban size={18} />;
-  if (label === "Công việc đang thực hiện") return <CheckCircle2 size={18} />;
-  if (label === "Quản lý người dùng") return <UsersRound size={18} />;
-  if (label === "Hỗ trợ") return <CircleHelp size={18} />;
-  return <BriefcaseBusiness size={18} />;
+  if (label === "Tổng quan") return <LayoutDashboard size={18} />
+  if (label === "Hồ sơ của tôi") return <UserRound size={18} />
+  if (label === "Tìm việc") return <Search size={18} />
+  if (label === "Việc làm đã lưu") return <BookmarkCheck size={18} />
+  if (label === "Đề xuất đã gửi") return <FileText size={18} />
+  if (label === "Công việc của tôi") return <FolderKanban size={18} />
+  if (label === "Công việc đang thực hiện") return <CheckCircle2 size={18} />
+  if (label === "Quản lý người dùng") return <UsersRound size={18} />
+  if (label === "Hỗ trợ") return <CircleHelp size={18} />
+  return <BriefcaseBusiness size={18} />
 }
 
 function Sidebar({
@@ -4925,39 +3601,41 @@ function Sidebar({
   setWidth,
   onPublic,
 }: {
-  role: Role;
-  page: string;
-  select: (x: string) => void;
-  close: () => void;
-  open: boolean;
-  collapsed: boolean;
-  toggle: () => void;
-  width: number;
-  setWidth: (width: number) => void;
-  onPublic: () => void;
+  role: Role
+  page: string
+  select: (x: string) => void
+  close: () => void
+  open: boolean
+  collapsed: boolean
+  toggle: () => void
+  width: number
+  setWidth: (width: number) => void
+  onPublic: () => void
 }) {
-  const { profile, savedJobIds } = useStore();
+  const { profile, savedJobIds } = useStore()
   const startResize = (event: ReactPointerEvent) => {
-    if (collapsed) return;
-    event.preventDefault();
-    const startX = event.clientX;
-    const startWidth = width;
+    if (collapsed) return
+    event.preventDefault()
+    const startX = event.clientX
+    const startWidth = width
     const move = (pointer: PointerEvent) =>
       setWidth(
         Math.min(240, Math.max(216, startWidth + pointer.clientX - startX)),
-      );
+      )
     const stop = () => {
-      document.removeEventListener("pointermove", move);
-      document.removeEventListener("pointerup", stop);
-    };
-    document.addEventListener("pointermove", move);
-    document.addEventListener("pointerup", stop);
-  };
+      document.removeEventListener("pointermove", move)
+      document.removeEventListener("pointerup", stop)
+    }
+    document.addEventListener("pointermove", move)
+    document.addEventListener("pointerup", stop)
+  }
   return (
     <>
       <div className={open ? "overlay" : ""} onClick={close} />
       <aside
-        className={`sidebar role-${role.toLowerCase()} ${open ? "open" : ""} ${collapsed ? "collapsed" : ""}`}
+        className={`sidebar role-${role.toLowerCase()} ${open ? "open" : ""} ${
+          collapsed ? "collapsed" : ""
+        }`}
       >
         <button
           className="icon-button sidebar-edge-toggle"
@@ -4990,8 +3668,8 @@ function Sidebar({
               key={x}
               className={`nav-item ${page === x ? "active" : ""}`}
               onClick={() => {
-                select(x);
-                close();
+                select(x)
+                close()
               }}
             >
               <MenuIcon label={x} />
@@ -5029,7 +3707,7 @@ function Sidebar({
             tabIndex={0}
             onKeyDown={(event) => {
               if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-                event.preventDefault();
+                event.preventDefault()
                 setWidth(
                   Math.min(
                     240,
@@ -5038,14 +3716,14 @@ function Sidebar({
                       width + (event.key === "ArrowRight" ? 8 : -8),
                     ),
                   ),
-                );
+                )
               }
             }}
           />
         )}
       </aside>
     </>
-  );
+  )
 }
 
 function DashboardHeader({
@@ -5058,26 +3736,26 @@ function DashboardHeader({
   onLogout,
   query,
   onQueryChange,
-  onDemoBack,
+
   theme,
   toggleTheme,
   hideSearch = false,
 }: {
-  role: Role;
-  onMenu: () => void;
-  onPublic: () => void;
-  onDashboard: () => void;
-  onProfile: () => void;
-  onSettings: () => void;
-  onLogout: () => void;
-  query: string;
-  onQueryChange: (value: string) => void;
-  onDemoBack?: () => void;
-  theme: Theme;
-  toggleTheme: () => void;
-  hideSearch?: boolean;
+  role: Role
+  onMenu: () => void
+  onPublic: () => void
+  onDashboard: () => void
+  onProfile: () => void
+  onSettings: () => void
+  onLogout: () => void
+  query: string
+  onQueryChange: (value: string) => void
+
+  theme: Theme
+  toggleTheme: () => void
+  hideSearch?: boolean
 }) {
-  const { isDemoMode, navigateToDashboard } = useStore();
+  const { navigateToDashboard } = useStore()
   return (
     <header>
       <button className="icon-button menu-button" onClick={onMenu}>
@@ -5102,16 +3780,11 @@ function DashboardHeader({
         </div>
       )}
       <div className="header-actions">
-        {onDemoBack && (
-          <button className="secondary-button demo-back" onClick={onDemoBack}>
-            Developer Demo
-          </button>
-        )}
         <button className="login-link desktop-site-link" onClick={onPublic}>
           Xem website
         </button>
         <NotificationBell
-          user={isDemoMode ? null : getSessionSnapshot().user}
+          user={getSessionSnapshot().user}
           navigate={navigateToDashboard}
         />
         <AccountMenu
@@ -5123,549 +3796,26 @@ function DashboardHeader({
         />
       </div>
     </header>
-  );
-}
-
-function FreelancerCharts() {
-  const { assignments, proposals, isDemoMode } = useStore();
-  const completedCount = assignments.filter(
-    (a) => a.status === "Đã hoàn thành",
-  ).length;
-  const inProgressCount = assignments.filter(
-    (a) => a.status === "Đang thực hiện",
-  ).length;
-  const cancelledCount = assignments.filter(
-    (a) => a.status === "Đã hủy",
-  ).length;
-  const pendingProposals = proposals.filter(
-    (p) => p.statusKey === "pending",
-  ).length;
-  const acceptedProposals = proposals.filter(
-    (p) => p.statusKey === "accepted",
-  ).length;
-  const rejectedProposals = proposals.filter(
-    (p) => p.statusKey === "rejected",
-  ).length;
-
-  const totalPropChart =
-    pendingProposals + acceptedProposals + rejectedProposals;
-  const pendingDeg =
-    totalPropChart > 0 ? (pendingProposals / totalPropChart) * 100 : 0;
-  const acceptedDeg =
-    totalPropChart > 0
-      ? pendingDeg + (acceptedProposals / totalPropChart) * 100
-      : 0;
-  const proposalDonutBg =
-    totalPropChart > 0
-      ? `conic-gradient(#3b82f6 0 ${pendingDeg.toFixed(1)}%, #22c55e ${pendingDeg.toFixed(1)}% ${acceptedDeg.toFixed(1)}%, #ef4444 ${acceptedDeg.toFixed(1)}% 100%)`
-      : "conic-gradient(#d1d5db 0 100%)";
-
-  const totalAsg = Math.max(1, assignments.length);
-  const completedPct =
-    assignments.length > 0 ? Math.round((completedCount / totalAsg) * 100) : 0;
-  const inProgressPct =
-    assignments.length > 0 ? Math.round((inProgressCount / totalAsg) * 100) : 0;
-  const cancelledPct =
-    assignments.length > 0 ? Math.round((cancelledCount / totalAsg) * 100) : 0;
-
-  const now = new Date();
-  const monthLabels: string[] = [];
-  const monthCounts = [0, 0, 0, 0, 0, 0];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    monthLabels.push(`T${d.getMonth() + 1}`);
-  }
-  for (const asg of assignments) {
-    if (asg.status === "Đã hoàn thành") {
-      const dateStr = asg.completedAt || asg.startDate;
-      if (dateStr) {
-        const d = new Date(dateStr);
-        if (!Number.isNaN(d.getTime())) {
-          const diffMonths =
-            (now.getFullYear() - d.getFullYear()) * 12 +
-            (now.getMonth() - d.getMonth());
-          if (diffMonths >= 0 && diffMonths < 6) {
-            monthCounts[5 - diffMonths]++;
-          }
-        }
-      }
-    }
-  }
-  if (
-    !isDemoMode &&
-    completedCount > 0 &&
-    monthCounts.every((v): boolean => v === 0)
-  ) {
-    monthCounts[5] = completedCount;
-  }
-  const monthValues =
-    isDemoMode && completedCount === 0
-      ? [1, 2, 2, 3, 2, Math.max(1, completedCount)]
-      : monthCounts;
-  const maxMonthVal = Math.max(1, ...monthValues);
-  const months = monthLabels.map((m, idx) => {
-    const val = monthValues[idx];
-    const pct =
-      val === 0 ? 12 : Math.max(20, Math.round((val / maxMonthVal) * 100));
-    return { month: m, value: String(val), pct };
-  });
-
-  const totalActivity = assignments.length + proposals.length;
-  const growthLabel =
-    completedCount > 0 ? `${completedPct}% hoàn tất` : "0% hoàn tất";
-
-  return (
-    <section className="activity-dashboard">
-      <div className="chart-section-heading">
-        <div>
-          <h2>Phân tích hoạt động</h2>
-          <p>Dữ liệu hoạt động công việc thực tế trong 6 tháng gần nhất</p>
-        </div>
-        <span>6 tháng</span>
-      </div>
-      <div className="chart-grid">
-        <article className="panel chart-card completed-chart">
-          <div className="chart-heading">
-            <div>
-              <h3>Công việc hoàn thành theo tháng</h3>
-              <p>{completedCount} Assignment đã hoàn thành</p>
-            </div>
-            <strong>{growthLabel}</strong>
-          </div>
-          <div
-            className="bar-chart"
-            aria-label="Biểu đồ công việc hoàn thành theo tháng"
-          >
-            {months.map(({ month, value, pct }) => (
-              <div key={month}>
-                <button
-                  className="chart-bar"
-                  style={{
-                    height: `${pct}%`,
-                    opacity: value === "0" ? 0.35 : 1,
-                  }}
-                  data-tooltip={`${value} công việc`}
-                  aria-label={`${month}: ${value} công việc`}
-                />
-                <span>{month}</span>
-              </div>
-            ))}
-          </div>
-        </article>
-        <article className="panel chart-card activity-line-card">
-          <div className="chart-heading">
-            <div>
-              <h3>Hoạt động công việc</h3>
-              <p>Tổng số Proposal & Assignment</p>
-            </div>
-            <strong>{totalActivity}</strong>
-          </div>
-          <svg
-            className="activity-line-chart"
-            viewBox="0 0 300 115"
-            role="img"
-            aria-label="Biểu đồ hoạt động công việc theo thời gian"
-          >
-            <path
-              className="chart-grid-line"
-              d="M15 20H290M15 55H290M15 90H290"
-            />
-            <polyline
-              points={
-                totalActivity > 0
-                  ? "18,82 70,68 123,72 176,48 229,42 282,22"
-                  : "18,88 70,88 123,88 176,88 229,88 282,88"
-              }
-            />
-            {(totalActivity > 0
-              ? [
-                  ["18", "82", "1"],
-                  ["70", "68", "2"],
-                  ["123", "72", "2"],
-                  ["176", "48", String(Math.max(1, proposals.length))],
-                  ["229", "42", String(Math.max(1, assignments.length))],
-                  ["282", "22", String(totalActivity)],
-                ]
-              : [
-                  ["18", "88", "0"],
-                  ["70", "88", "0"],
-                  ["123", "88", "0"],
-                  ["176", "88", "0"],
-                  ["229", "88", "0"],
-                  ["282", "88", "0"],
-                ]
-            ).map(([cx, cy, value], index) => (
-              <circle key={index} cx={cx} cy={cy} r="5">
-                <title>
-                  Mốc {index + 1}: {value} hoạt động
-                </title>
-              </circle>
-            ))}
-          </svg>
-          <div className="line-labels">
-            {["T1", "T2", "T3", "T4", "T5", "T6"].map((value) => (
-              <span key={value}>{value}</span>
-            ))}
-          </div>
-        </article>
-        <article className="panel chart-card distribution-card">
-          <div className="chart-heading">
-            <div>
-              <h3>Trạng thái Proposal</h3>
-              <p>{proposals.length} Proposal đã gửi</p>
-            </div>
-          </div>
-          <div className="donut-wrap">
-            <div
-              className="proposal-donut"
-              style={{ background: proposalDonutBg }}
-            >
-              <div>
-                <strong>{proposals.length}</strong>
-                <span>Tổng</span>
-              </div>
-            </div>
-            <div className="chart-legend">
-              <span>
-                <i className="legend-pending" />
-                Chờ phản hồi <b>{pendingProposals}</b>
-              </span>
-              <span>
-                <i className="legend-accepted" />
-                Đã chấp nhận <b>{acceptedProposals}</b>
-              </span>
-              <span>
-                <i className="legend-rejected" />
-                Đã từ chối <b>{rejectedProposals}</b>
-              </span>
-            </div>
-          </div>
-        </article>
-        <article className="panel chart-card assignment-chart">
-          <div className="chart-heading">
-            <div>
-              <h3>Trạng thái Assignment</h3>
-              <p>{assignments.length} công việc được giao</p>
-            </div>
-          </div>
-          {[
-            [
-              "Đã hoàn thành",
-              String(completedCount),
-              "status-completed",
-              completedPct,
-            ],
-            [
-              "Đang thực hiện",
-              String(inProgressCount),
-              "status-progress",
-              inProgressPct,
-            ],
-            [
-              "Đã hủy",
-              String(cancelledCount),
-              "status-cancelled",
-              cancelledPct,
-            ],
-          ].map(([label, value, className, pct]) => (
-            <div className="status-chart-row" key={String(label)}>
-              <div>
-                <span>{label}</span>
-                <b>{value}</b>
-              </div>
-              <div>
-                <i
-                  className={String(className)}
-                  style={{
-                    width: `${Number(value) > 0 ? Math.max(8, Number(pct)) : 0}%`,
-                    minWidth: Number(value) > 0 ? "12px" : "0px",
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </article>
-      </div>
-    </section>
-  );
-}
-
-function ClientCharts() {
-  const { clientJobs, jobs, proposals, assignments, isDemoMode } = useStore();
-  const sourceJobs = isDemoMode && clientJobs.length === 0 ? jobs : clientJobs;
-  const openCount = sourceJobs.filter((j) => j.status === "Đang mở").length;
-  const inProgressJobsCount = sourceJobs.filter(
-    (j) => j.status === "Đang thực hiện",
-  ).length;
-  const closedCount = sourceJobs.filter((j) => j.status === "Đã đóng").length;
-  const pendingProps = proposals.filter(
-    (p) => p.statusKey === "pending",
-  ).length;
-  const acceptedProps = proposals.filter(
-    (p) => p.statusKey === "accepted",
-  ).length;
-  const rejectedProps = proposals.filter(
-    (p) => p.statusKey === "rejected",
-  ).length;
-  const completedAsg = assignments.filter(
-    (a) => a.status === "Đã hoàn thành",
-  ).length;
-  const inProgressAsg = assignments.filter(
-    (a) => a.status === "Đang thực hiện",
-  ).length;
-  const cancelledAsg = assignments.filter((a) => a.status === "Đã hủy").length;
-  const completionRate =
-    assignments.length > 0
-      ? Math.round((completedAsg / assignments.length) * 100)
-      : 0;
-
-  const totalJobChart = openCount + inProgressJobsCount + closedCount;
-  const openDeg = totalJobChart > 0 ? (openCount / totalJobChart) * 100 : 0;
-  const inProgDeg =
-    totalJobChart > 0
-      ? openDeg + (inProgressJobsCount / totalJobChart) * 100
-      : 0;
-  const clientDonutBg =
-    totalJobChart > 0
-      ? `conic-gradient(#22c55e 0 ${openDeg.toFixed(1)}%, #3b82f6 ${openDeg.toFixed(1)}% ${inProgDeg.toFixed(1)}%, #14b8a6 ${inProgDeg.toFixed(1)}% 100%)`
-      : "conic-gradient(#d1d5db 0 100%)";
-
-  const totalProps = Math.max(1, pendingProps + acceptedProps + rejectedProps);
-  const pendingPropPct =
-    proposals.length > 0 ? Math.round((pendingProps / totalProps) * 100) : 0;
-  const acceptedPropPct =
-    proposals.length > 0 ? Math.round((acceptedProps / totalProps) * 100) : 0;
-  const rejectedPropPct =
-    proposals.length > 0 ? Math.round((rejectedProps / totalProps) * 100) : 0;
-
-  const totalAsg = Math.max(1, assignments.length);
-  const completedAsgPct =
-    assignments.length > 0 ? Math.round((completedAsg / totalAsg) * 100) : 0;
-  const inProgressAsgPct =
-    assignments.length > 0 ? Math.round((inProgressAsg / totalAsg) * 100) : 0;
-  const cancelledAsgPct =
-    assignments.length > 0 ? Math.round((cancelledAsg / totalAsg) * 100) : 0;
-
-  const now = new Date();
-  const monthLabels: string[] = [];
-  const monthCounts = [0, 0, 0, 0, 0, 0];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    monthLabels.push(`T${d.getMonth() + 1}`);
-  }
-  for (const job of sourceJobs) {
-    if (job.createdAt) {
-      const d = new Date(job.createdAt);
-      if (!Number.isNaN(d.getTime())) {
-        const diffMonths =
-          (now.getFullYear() - d.getFullYear()) * 12 +
-          (now.getMonth() - d.getMonth());
-        if (diffMonths >= 0 && diffMonths < 6) {
-          monthCounts[5 - diffMonths]++;
-        }
-      }
-    }
-  }
-  if (
-    !isDemoMode &&
-    sourceJobs.length > 0 &&
-    monthCounts.every((v): boolean => v === 0)
-  ) {
-    monthCounts[5] = sourceJobs.length;
-  }
-  const monthValues =
-    isDemoMode && sourceJobs.length === 0
-      ? [2, 3, 2, 4, 3, Math.max(1, sourceJobs.length)]
-      : monthCounts;
-  const maxMonthVal = Math.max(1, ...monthValues);
-  const monthly = monthLabels.map((m, idx) => {
-    const val = monthValues[idx];
-    const pct =
-      val === 0 ? 12 : Math.max(20, Math.round((val / maxMonthVal) * 100));
-    return { month: m, value: String(val), pct };
-  });
-
-  return (
-    <section className="activity-dashboard client-analytics">
-      <div className="chart-section-heading">
-        <div>
-          <h2>Phân tích tuyển dụng và dự án</h2>
-          <p>Dữ liệu tổng hợp thực tế trong 6 tháng gần nhất</p>
-        </div>
-        <span>6 tháng</span>
-      </div>
-      <div className="chart-grid">
-        <article className="panel chart-card">
-          <div className="chart-heading">
-            <div>
-              <h3>Phân bố trạng thái Job</h3>
-              <p>{sourceJobs.length} Job đã đăng</p>
-            </div>
-            <strong>{sourceJobs.length}</strong>
-          </div>
-          <div className="donut-wrap">
-            <div
-              className="client-job-donut"
-              style={{ background: clientDonutBg }}
-            >
-              <div>
-                <strong>{sourceJobs.length}</strong>
-                <span>Tổng Job</span>
-              </div>
-            </div>
-            <div className="chart-legend">
-              <span>
-                <i className="legend-open" />
-                Đang mở <b>{openCount}</b>
-              </span>
-              <span>
-                <i className="legend-progress" />
-                Đang thực hiện <b>{inProgressJobsCount}</b>
-              </span>
-              <span>
-                <i className="legend-completed" />
-                Đã đóng <b>{closedCount}</b>
-              </span>
-            </div>
-          </div>
-        </article>
-        <article className="panel chart-card completed-chart">
-          <div className="chart-heading">
-            <div>
-              <h3>Job đăng theo tháng</h3>
-              <p>{sourceJobs.length} Job đang quản lý</p>
-            </div>
-            <strong>{openCount} đang mở</strong>
-          </div>
-          <div className="bar-chart" aria-label="Biểu đồ Job đăng theo tháng">
-            {monthly.map(({ month, value, pct }) => (
-              <div key={month}>
-                <button
-                  className="chart-bar"
-                  style={{
-                    height: `${pct}%`,
-                    opacity: value === "0" ? 0.35 : 1,
-                  }}
-                  data-tooltip={`${value} Job`}
-                  aria-label={`${month}: ${value} Job`}
-                />
-                <span>{month}</span>
-              </div>
-            ))}
-          </div>
-        </article>
-        <article className="panel chart-card assignment-chart">
-          <div className="chart-heading">
-            <div>
-              <h3>Trạng thái Proposal</h3>
-              <p>{proposals.length} Proposal đã nhận</p>
-            </div>
-          </div>
-          {[
-            [
-              "Chờ xét duyệt",
-              String(pendingProps),
-              "proposal-pending",
-              pendingPropPct,
-            ],
-            [
-              "Đã chấp nhận",
-              String(acceptedProps),
-              "proposal-accepted",
-              acceptedPropPct,
-            ],
-            [
-              "Đã từ chối",
-              String(rejectedProps),
-              "proposal-rejected",
-              rejectedPropPct,
-            ],
-          ].map(([label, value, className, pct]) => (
-            <div className="status-chart-row" key={String(label)}>
-              <div>
-                <span>{label}</span>
-                <b>{value}</b>
-              </div>
-              <div>
-                <i
-                  className={String(className)}
-                  style={{
-                    width: `${Number(value) > 0 ? Math.max(8, Number(pct)) : 0}%`,
-                    minWidth: Number(value) > 0 ? "12px" : "0px",
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </article>
-        <article className="panel chart-card assignment-chart">
-          <div className="chart-heading">
-            <div>
-              <h3>Tiến độ Assignment</h3>
-              <p>{assignments.length} Assignment đã tạo</p>
-            </div>
-            <strong>{completionRate}% hoàn tất</strong>
-          </div>
-          {[
-            [
-              "Đã hoàn thành",
-              String(completedAsg),
-              "client-assignment-completed",
-              completedAsgPct,
-            ],
-            [
-              "Đang thực hiện",
-              String(inProgressAsg),
-              "client-assignment-progress",
-              inProgressAsgPct,
-            ],
-            [
-              "Đã hủy",
-              String(cancelledAsg),
-              "client-assignment-cancelled",
-              cancelledAsgPct,
-            ],
-          ].map(([label, value, className, pct]) => (
-            <div className="status-chart-row" key={String(label)}>
-              <div>
-                <span>{label}</span>
-                <b>{value}</b>
-              </div>
-              <div>
-                <i
-                  className={String(className)}
-                  style={{
-                    width: `${Number(value) > 0 ? Math.max(8, Number(pct)) : 0}%`,
-                    minWidth: Number(value) > 0 ? "12px" : "0px",
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </article>
-      </div>
-    </section>
-  );
+  )
 }
 
 function Overview(props: {
-  role: Role;
-  openJobs: () => void;
-  openAssignments: () => void;
-  navigateDashboard: (page: string) => void;
-  onCreateJob?: () => void;
-  onOpenJob?: (id: number | undefined, panel: "details" | "proposals") => void;
+  role: Role
+  openJobs: () => void
+  openAssignments: () => void
+  navigateDashboard: (page: string) => void
+  onCreateJob?: () => void
+  onOpenJob?: (id: number | undefined, panel: "details" | "proposals") => void
 }) {
-  const { isDemoMode } = useStore();
-  const user = getSessionSnapshot().user;
-  const [selected, setSelected] = useState<JobItem | null>(null);
-  if (isDemoMode) return <LegacyOverview {...props} />;
+  const user = getSessionSnapshot().user
+  const [selected, setSelected] = useState<JobItem | null>(null)
+
   if (!user)
     return (
       <div className="panel" role="status">
         Đang xác nhận phiên đăng nhập…
       </div>
-    );
+    )
   return (
     <>
       <DashboardOverview
@@ -5687,963 +3837,7 @@ function Overview(props: {
       />
       {selected && <JobModal job={selected} close={() => setSelected(null)} />}
     </>
-  );
-}
-function LegacyOverview({
-  role,
-  openJobs,
-  openAssignments,
-  navigateDashboard,
-}: {
-  role: Role;
-  openJobs: () => void;
-  openAssignments: () => void;
-  navigateDashboard: (page: string) => void;
-}) {
-  const {
-    jobs,
-    clientJobs,
-    proposals,
-    assignments,
-    users,
-    profile,
-    isDemoMode,
-    setAssignmentFilter,
-    setJobFilterStatus,
-    setProfileTab,
-    savedJobIds,
-  } = useStore();
-  const [selectedJob, setSelectedJob] = useState<JobItem | null>(null);
-
-  if (role === "Freelancer") {
-    const inProgressAssignments = assignments.filter(
-      (a) => a.status === "Đang thực hiện",
-    );
-    const completedAssignments = assignments.filter(
-      (a) => a.status === "Đã hoàn thành",
-    );
-    const cancelledAssignments = assignments.filter(
-      (a) => a.status === "Đã hủy",
-    );
-    const reviewsList = getFreelancerReviews(profile, assignments);
-    const avgScore =
-      reviewsList.length > 0
-        ? (
-            reviewsList.reduce((sum, r) => sum + r.rating, 0) /
-            reviewsList.length
-          ).toFixed(1)
-        : profile.averageRating && profile.averageRating > 0
-          ? profile.averageRating.toFixed(1)
-          : "0.0";
-
-    const profileCompletion = calculateProfileCompletion(profile, "Freelancer");
-    const nonWithdrawnProposals = proposals.filter(
-      (p) => p.statusKey !== "withdrawn",
-    );
-    const respondedProposals = nonWithdrawnProposals.filter(
-      (p) => p.statusKey === "accepted" || p.statusKey === "rejected",
-    );
-    const proposalProgressPct =
-      nonWithdrawnProposals.length > 0
-        ? Math.round(
-            (respondedProposals.length / nonWithdrawnProposals.length) * 100,
-          )
-        : 0;
-    const assignmentProgressPct =
-      assignments.length > 0
-        ? Math.round((completedAssignments.length / assignments.length) * 100)
-        : 0;
-
-    const freelancerCards = [
-      {
-        label: "Tổng công việc",
-        value: String(assignments.length),
-        color: "green",
-        icon: <BriefcaseBusiness />,
-        onClick: () => {
-          setAssignmentFilter("Tất cả");
-          navigateDashboard("Công việc của tôi");
-        },
-      },
-      {
-        label: "Đang thực hiện",
-        value: String(inProgressAssignments.length),
-        color: "blue",
-        icon: <FolderKanban />,
-        onClick: () => {
-          setAssignmentFilter("Đang thực hiện");
-          navigateDashboard("Công việc của tôi");
-        },
-      },
-      {
-        label: "Đã hoàn thành",
-        value: String(completedAssignments.length),
-        color: "green",
-        icon: <CheckCircle2 />,
-        onClick: () => {
-          setAssignmentFilter("Đã hoàn thành");
-          navigateDashboard("Công việc của tôi");
-        },
-      },
-      {
-        label: "Đã hủy",
-        value: String(cancelledAssignments.length),
-        color: "violet",
-        icon: <X />,
-        onClick: () => {
-          setAssignmentFilter("Đã hủy");
-          navigateDashboard("Công việc của tôi");
-        },
-      },
-      {
-        label: "Proposal đã gửi",
-        value: String(proposals.length),
-        color: "blue",
-        icon: <FileText />,
-        onClick: () => {
-          navigateDashboard("Đề xuất đã gửi");
-        },
-      },
-      {
-        label: "Việc đã lưu",
-        value: String(savedJobIds.length),
-        color: "green",
-        icon: <BookmarkCheck />,
-        onClick: () => {
-          navigateDashboard("Việc làm đã lưu");
-        },
-      },
-      {
-        label: "Điểm trung bình",
-        value: `${avgScore}/5`,
-        color: "amber",
-        icon: <Star />,
-        onClick: () => {
-          setProfileTab("Đánh giá");
-          navigateDashboard("Hồ sơ của tôi");
-        },
-      },
-    ];
-
-    const progressRows = [
-      {
-        title: "Hoàn thiện hồ sơ",
-        status:
-          profileCompletion.percent === 100 ? "Đã hoàn thành" : "Đang cập nhật",
-        value: `${profileCompletion.percent}%`,
-        done: profileCompletion.percent === 100,
-      },
-      {
-        title: "Phản hồi Proposal",
-        status:
-          nonWithdrawnProposals.length === 0
-            ? "Chưa gửi Proposal"
-            : proposalProgressPct === 100
-              ? "Đã phản hồi"
-              : "Đang chờ duyệt",
-        value: `${proposalProgressPct}%`,
-        done: nonWithdrawnProposals.length > 0 && proposalProgressPct === 100,
-      },
-      {
-        title: "Hoàn thành Assignment",
-        status:
-          assignments.length === 0
-            ? "Chưa có Assignment"
-            : assignmentProgressPct === 100
-              ? "Đã hoàn thành"
-              : "Đang thực hiện",
-        value: `${assignmentProgressPct}%`,
-        done: assignments.length > 0 && assignmentProgressPct === 100,
-      },
-    ];
-
-    return (
-      <>
-        <div className="metrics freelancer-metrics">
-          {freelancerCards.map((card) => (
-            <button
-              type="button"
-              className="metric-card clickable-metric"
-              key={card.label}
-              onClick={card.onClick}
-              aria-label={`${card.label}: ${card.value}`}
-            >
-              <div className={`metric-icon ${card.color}`}>{card.icon}</div>
-              <div className="metric-copy">
-                <span>{card.label}</span>
-                <strong>{card.value}</strong>
-              </div>
-            </button>
-          ))}
-        </div>
-        <FreelancerCharts />
-        <div className="overview-grid">
-          <section className="panel current-work">
-            <div className="panel-heading">
-              <div>
-                <h2>Công việc đang thực hiện</h2>
-                <p>Theo dõi tiến độ các Assignment hiện tại</p>
-              </div>
-              <button
-                className="text-button"
-                onClick={() => {
-                  setAssignmentFilter("Đang thực hiện");
-                  openAssignments();
-                }}
-              >
-                Quản lý <ChevronRight />
-              </button>
-            </div>
-            {inProgressAssignments.length > 0 ? (
-              inProgressAssignments.slice(0, 2).map((asg, index) => (
-                <button
-                  key={asg.id}
-                  onClick={() => {
-                    setAssignmentFilter("Đang thực hiện");
-                    openAssignments();
-                  }}
-                >
-                  <div>
-                    <strong>{asg.title}</strong>
-                    <span>
-                      {asg.company} · {asg.period}
-                    </span>
-                  </div>
-                  <div className="work-progress">
-                    <span>
-                      <i
-                        className={index === 0 ? "progress-72" : "progress-48"}
-                      />
-                    </span>
-                    <b>{index === 0 ? "72%" : "48%"}</b>
-                  </div>
-                </button>
-              ))
-            ) : (
-              <button
-                onClick={() => {
-                  setAssignmentFilter("Tất cả");
-                  openAssignments();
-                }}
-              >
-                <div>
-                  <strong>Chưa có công việc đang thực hiện</strong>
-                  <span>Xem tất cả công việc trong danh sách của bạn</span>
-                </div>
-                <ChevronRight size={16} />
-              </button>
-            )}
-          </section>
-          <section className="panel profile-progress monthly-progress">
-            <div className="panel-heading">
-              <div>
-                <h2>Tiến độ hồ sơ & công việc</h2>
-                <p>Tính toán theo dữ liệu thực tế của bạn</p>
-              </div>
-              <strong>{profileCompletion.percent}%</strong>
-            </div>
-            <div className="progress">
-              <span style={{ width: `${profileCompletion.percent}%` }} />
-            </div>
-            {progressRows.map((row) => (
-              <div className="check-row" key={row.title}>
-                <div className={`check ${row.done ? "done" : ""}`}>
-                  {row.done ? <Check size={18} /> : <Clock3 size={18} />}
-                </div>
-                <div>
-                  <strong>{row.title}</strong>
-                  <span>
-                    {row.status} · {row.value}
-                  </span>
-                </div>
-                <b>{row.value}</b>
-              </div>
-            ))}
-          </section>
-          <section className="panel recent-activity">
-            <div className="panel-heading">
-              <div>
-                <h2>Hoạt động gần đây</h2>
-                <p>Cập nhật từ Proposal và Assignment</p>
-              </div>
-            </div>
-            {proposals.length > 0 ? (
-              proposals.slice(0, 3).map((proposal, index) => {
-                const job = jobs.find((item) => item.id === proposal.jobId);
-                return (
-                  <div className="activity-row" key={proposal.id}>
-                    <div
-                      className={`activity-icon ${index === 1 ? "green" : "blue"}`}
-                    >
-                      <FileText />
-                    </div>
-                    <div>
-                      <strong>
-                        {job?.title || `Công việc #${proposal.jobId}`}
-                      </strong>
-                      <span>
-                        Proposal {proposal.status.toLowerCase()} ·{" "}
-                        {job?.time || "Gần đây"}
-                      </span>
-                    </div>
-                    <b className={`status state-${proposal.statusKey}`}>
-                      {proposal.status}
-                    </b>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="activity-row">
-                <div className="activity-icon blue">
-                  <FileText />
-                </div>
-                <div>
-                  <strong>Chưa có hoạt động Proposal mới</strong>
-                  <span>
-                    Khám phá việc làm và gửi Proposal đầu tiên của bạn
-                  </span>
-                </div>
-              </div>
-            )}
-          </section>
-        </div>
-      </>
-    );
-  }
-
-  if (role === "Client") {
-    const sourceJobs =
-      isDemoMode && clientJobs.length === 0 ? jobs : clientJobs;
-    const openClientJobs = sourceJobs.filter((j) => j.status === "Đang mở");
-    const inProgressClientJobs = sourceJobs.filter(
-      (j) => j.status === "Đang thực hiện",
-    );
-    const completedClientAsg = assignments.filter(
-      (a) => a.status === "Đã hoàn thành",
-    );
-    const clientProfileCompletion = calculateProfileCompletion(
-      profile,
-      "Client",
-    );
-    const hiringEfficiency =
-      sourceJobs.length > 0
-        ? Math.min(
-            100,
-            Math.round(
-              ((inProgressClientJobs.length +
-                completedClientAsg.length +
-                (proposals.length > 0 ? 1 : 0)) /
-                Math.max(1, sourceJobs.length)) *
-                100,
-            ),
-          )
-        : clientProfileCompletion.percent;
-
-    const clientCards = [
-      {
-        label: "Tổng Job đã đăng",
-        value: String(sourceJobs.length),
-        color: "green",
-        icon: <BriefcaseBusiness />,
-        onClick: () => {
-          setJobFilterStatus("Tất cả trạng thái");
-          navigateDashboard("Quản lý công việc");
-        },
-      },
-      {
-        label: "Đang mở",
-        value: String(openClientJobs.length),
-        color: "blue",
-        icon: <Search />,
-        onClick: () => {
-          setJobFilterStatus("Đang mở");
-          navigateDashboard("Quản lý công việc");
-        },
-      },
-      {
-        label: "Đang thực hiện",
-        value: String(inProgressClientJobs.length),
-        color: "violet",
-        icon: <FolderKanban />,
-        onClick: () => {
-          setJobFilterStatus("Đang thực hiện");
-          navigateDashboard("Quản lý công việc");
-        },
-      },
-      {
-        label: "Đã hoàn thành",
-        value: String(completedClientAsg.length),
-        color: "green",
-        icon: <CheckCircle2 />,
-        onClick: () => {
-          setAssignmentFilter("Đã hoàn thành");
-          navigateDashboard("Không gian dự án");
-        },
-      },
-      {
-        label: "Tổng Proposal",
-        value: String(proposals.length),
-        color: "amber",
-        icon: <FileText />,
-        onClick: () => {
-          setJobFilterStatus("Tất cả trạng thái");
-          navigateDashboard("Quản lý công việc");
-        },
-      },
-      {
-        label: "Tổng Assignment",
-        value: String(assignments.length),
-        color: "blue",
-        icon: <UsersRound />,
-        onClick: () => {
-          setAssignmentFilter("Tất cả");
-          navigateDashboard("Không gian dự án");
-        },
-      },
-    ];
-    return (
-      <>
-        <div className="metrics client-metrics">
-          {clientCards.map((card) => (
-            <button
-              type="button"
-              className="metric-card clickable-metric"
-              key={card.label}
-              onClick={card.onClick}
-              aria-label={`${card.label}: ${card.value}`}
-            >
-              <div className={`metric-icon ${card.color}`}>{card.icon}</div>
-              <div className="metric-copy">
-                <span>{card.label}</span>
-                <strong>{card.value}</strong>
-              </div>
-            </button>
-          ))}
-        </div>
-        <ClientCharts />
-        <div className="content-grid client-overview-content">
-          <section className="panel jobs-panel">
-            <div className="panel-heading">
-              <div>
-                <h2>Công việc đang tuyển</h2>
-                <p>Cập nhật mới nhất</p>
-              </div>
-              <button className="text-button" onClick={openJobs}>
-                Xem tất cả <ChevronRight />
-              </button>
-            </div>
-            {sourceJobs.length > 0 ? (
-              <div className="jobs-list">
-                {sourceJobs.slice(0, 3).map((job) => (
-                  <JobCard
-                    compact
-                    key={job.id}
-                    job={job}
-                    onOpen={() => setSelectedJob(job)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="proposal-empty" style={{ minHeight: "160px" }}>
-                <Inbox />
-                <strong>Bạn chưa đăng công việc nào</strong>
-                <span>
-                  Nhấn vào Quản lý công việc để đăng dự án tuyển dụng đầu tiên.
-                </span>
-              </div>
-            )}
-          </section>
-          <aside className="right-column">
-            <section className="panel profile-progress monthly-progress">
-              <div className="panel-heading">
-                <div>
-                  <h2>Hoàn thiện hồ sơ Client</h2>
-                  <p>Mức độ đầy đủ thông tin nhà tuyển dụng</p>
-                </div>
-                <strong>{clientProfileCompletion.percent}%</strong>
-              </div>
-              <div className="progress client-progress">
-                <span
-                  style={{ width: `${clientProfileCompletion.percent}%` }}
-                />
-              </div>
-              {clientProfileCompletion.items.map((item) => (
-                <div className="check-row" key={item.label}>
-                  <div className={`check ${item.done ? "done" : ""}`}>
-                    {item.done ? <Check size={18} /> : <Clock3 size={18} />}
-                  </div>
-                  <div>
-                    <strong>{item.label}</strong>
-                    <span>{item.done ? "Đã cập nhật" : "Chưa cập nhật"}</span>
-                  </div>
-                  <b>{item.done ? `${item.weight}%` : "0%"}</b>
-                </div>
-              ))}
-              <div
-                style={{
-                  marginTop: "14px",
-                  paddingTop: "12px",
-                  borderTop: "1px solid var(--border, #e5e7eb)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  fontSize: "12px",
-                }}
-              >
-                <span>Hiệu quả tuyển dụng dự án</span>
-                <strong style={{ color: "#16a34a" }}>
-                  {hiringEfficiency}%
-                </strong>
-              </div>
-            </section>
-          </aside>
-        </div>
-        {selectedJob && (
-          <JobModal job={selectedJob} close={() => setSelectedJob(null)} />
-        )}
-      </>
-    );
-  }
-
-  const openSystemJobsCount = jobs.filter(
-    (j) => j.status === "Đang mở" || j.status === "Đang thực hiện",
-  ).length;
-  const adminProgressPct =
-    jobs.length > 0 ? Math.round((openSystemJobsCount / jobs.length) * 100) : 0;
-
-  const adminCards = [
-    {
-      label: "Job đang mở",
-      value: String(jobs.filter((j) => j.status === "Đang mở").length),
-      color: "green",
-      icon: <BriefcaseBusiness />,
-      onClick: () => {
-        setJobFilterStatus("Đang mở");
-        navigateDashboard("Quản lý công việc");
-      },
-    },
-    {
-      label: "Tổng người dùng",
-      value: String(users.length),
-      color: "blue",
-      icon: <UsersRound />,
-      onClick: () => navigateDashboard("Quản lý người dùng"),
-    },
-    {
-      label: "Tổng Job hệ thống",
-      value: String(jobs.length),
-      color: "violet",
-      icon: <FolderKanban />,
-      onClick: () => {
-        setJobFilterStatus("Tất cả trạng thái");
-        navigateDashboard("Quản lý công việc");
-      },
-    },
-    {
-      label: "Tài khoản hoạt động",
-      value: String(users.filter((u) => u.status === "Đang hoạt động").length),
-      color: "amber",
-      icon: <ShieldCheck />,
-      onClick: () => navigateDashboard("Quản lý người dùng"),
-    },
-  ];
-  return (
-    <>
-      <div className="metrics">
-        {adminCards.map((card) => (
-          <button
-            type="button"
-            className="metric-card clickable-metric"
-            key={card.label}
-            onClick={card.onClick}
-            aria-label={`${card.label}: ${card.value}`}
-          >
-            <div className={`metric-icon ${card.color}`}>{card.icon}</div>
-            <div className="metric-copy">
-              <span>{card.label}</span>
-              <strong>{card.value}</strong>
-            </div>
-          </button>
-        ))}
-      </div>
-      <div className="content-grid">
-        <section className="panel jobs-panel">
-          <div className="panel-heading">
-            <div>
-              <h2>Job mới trên hệ thống</h2>
-              <p>Cập nhật mới nhất</p>
-            </div>
-            <button className="text-button" onClick={openJobs}>
-              Xem tất cả <ChevronRight />
-            </button>
-          </div>
-          <div className="jobs-list">
-            {jobs.slice(0, 3).map((job) => (
-              <JobCard
-                compact
-                key={job.id}
-                job={job}
-                onOpen={() => setSelectedJob(job)}
-              />
-            ))}
-          </div>
-        </section>
-        <aside className="right-column">
-          <section className="panel profile-progress">
-            <div className="panel-heading">
-              <div>
-                <h2>Tiến độ hệ thống</h2>
-                <p>Tỷ lệ Job đang mở và hoạt động</p>
-              </div>
-              <strong>{adminProgressPct}%</strong>
-            </div>
-            <div className="progress">
-              <span style={{ width: `${adminProgressPct}%` }} />
-            </div>
-          </section>
-        </aside>
-      </div>
-      {selectedJob && (
-        <JobModal job={selectedJob} close={() => setSelectedJob(null)} />
-      )}
-    </>
-  );
-}
-
-const statusLabels = {
-  job: [
-    ["OPEN", "Đang mở"],
-    ["IN_PROGRESS", "Đang thực hiện"],
-    ["COMPLETED", "Đã hoàn thành"],
-    ["CLOSED", "Đã đóng"],
-  ],
-  proposal: [
-    ["PENDING", "Chờ phản hồi"],
-    ["ACCEPTED", "Đã chấp nhận"],
-    ["REJECTED", "Đã từ chối"],
-    ["WITHDRAWN", "Đã rút"],
-  ],
-  assignment: [
-    ["IN_PROGRESS", "Đang thực hiện"],
-    ["COMPLETED", "Đã hoàn thành"],
-    ["CANCELLED", "Đã hủy"],
-  ],
-  user: [
-    ["ACTIVE", "Đang hoạt động"],
-    ["BLOCKED", "Đã khóa"],
-  ],
-};
-
-function FunctionalPage({ title, role }: { title: string; role: Role }) {
-  const { jobs } = useStore();
-  const [modal, setModal] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [demoState, setDemoState] = useState<"content" | "loading" | "empty">(
-    "content",
-  );
-  const isForm =
-    title.includes("Tạo") ||
-    title.includes("Chỉnh sửa") ||
-    title.includes("Cài đặt") ||
-    title.includes("Hồ sơ");
-  const isDetail = title.includes("Chi tiết");
-  const isAssignment =
-    title.includes("Assignment") || title.includes("Công việc được giao");
-  const isProposal = title.includes("Proposal");
-  const isUsers = title.includes("người dùng");
-  const type = isAssignment
-    ? "assignment"
-    : isProposal
-      ? "proposal"
-      : isUsers
-        ? "user"
-        : "job";
-  const labels = statusLabels[type];
-  if (isForm)
-    return (
-      <>
-        <section className="panel function-panel">
-          <div className="panel-heading">
-            <div>
-              <h2>{title}</h2>
-              <p>Cập nhật thông tin chính xác để tăng độ tin cậy.</p>
-            </div>
-          </div>
-          <div className="form-grid">
-            <label>
-              Tiêu đề
-              <input
-                defaultValue={
-                  title.includes("Job") ? "Senior React Developer" : ""
-                }
-                placeholder="Nhập tiêu đề"
-              />
-            </label>
-            <label>
-              Danh mục
-              <select>
-                <option>Phát triển phần mềm</option>
-                <option>Thiết kế UI/UX</option>
-              </select>
-            </label>
-            <label className="full">
-              Mô tả
-              <textarea rows={6} placeholder="Nhập nội dung chi tiết..." />
-            </label>
-            <label className="field-error">
-              Ngân sách
-              <input placeholder="Ví dụ: 20.000.000đ" />
-              <small>
-                <AlertCircle size={12} />
-                Vui lòng nhập ngân sách hợp lệ
-              </small>
-            </label>
-            <label>
-              Thời hạn
-              <input type="date" />
-            </label>
-          </div>
-          <div className="form-actions">
-            <button className="secondary-button">Hủy</button>
-            <button className="primary-button" onClick={() => setSuccess(true)}>
-              Lưu thay đổi
-            </button>
-          </div>
-        </section>
-        {success && (
-          <Toast
-            close={() => setSuccess(false)}
-            text="Đã lưu thông tin thành công."
-          />
-        )}
-      </>
-    );
-  if (isDetail)
-    return (
-      <>
-        <section className="panel function-panel">
-          <div className="record-header">
-            <div className="avatar large">NH</div>
-            <div>
-              <h2>
-                {title.includes("Assignment")
-                  ? "Phát triển ứng dụng quản lý bán hàng"
-                  : "Nguyễn Hoàng Nam"}
-              </h2>
-              <p>
-                {title.includes("Assignment")
-                  ? "Assignment #AS-0248 · NovaTech Solutions"
-                  : "Full-stack Developer · nam.nguyen@email.com"}
-              </p>
-            </div>
-            <span className="status active">
-              {title.includes("Assignment")
-                ? "Đang thực hiện"
-                : "Đang hoạt động"}
-            </span>
-          </div>
-          <div className="detail-stats">
-            <div>
-              <span>Ngày bắt đầu</span>
-              <strong>12/06/2025</strong>
-            </div>
-            <div>
-              <span>Hạn hoàn thành</span>
-              <strong>30/08/2025</strong>
-            </div>
-            <div>
-              <span>
-                {title.includes("Assignment")
-                  ? "Trạng thái đánh giá"
-                  : "Dự án hoàn thành"}
-              </span>
-              <strong>
-                {title.includes("Assignment") ? "Chưa đánh giá" : "27"}
-              </strong>
-            </div>
-          </div>
-          {title.includes("Assignment") && (
-            <div className="business-note">
-              <ShieldCheck size={18} />
-              <div>
-                <strong>Điều kiện đánh giá</strong>
-                <p>
-                  Client chỉ có thể đánh giá một lần sau khi Assignment chuyển
-                  sang “Đã hoàn thành”.
-                </p>
-              </div>
-            </div>
-          )}
-          <div className="danger-zone">
-            <div>
-              <strong>
-                {title.includes("Assignment")
-                  ? "Xác nhận hoàn thành"
-                  : "Kiểm soát tài khoản"}
-              </strong>
-              <p>
-                {title.includes("Assignment")
-                  ? "Hành động này sẽ cho phép Client viết đánh giá."
-                  : "Khóa tài khoản nếu phát hiện hành vi vi phạm điều khoản."}
-              </p>
-            </div>
-            <button onClick={() => setModal(true)}>
-              <LockKeyhole size={16} />
-              {title.includes("Assignment") ? "Xác nhận" : "Khóa tài khoản"}
-            </button>
-          </div>
-        </section>
-        {modal && (
-          <ConfirmModal
-            title={
-              title.includes("Assignment")
-                ? "Xác nhận hoàn thành Assignment?"
-                : "Khóa tài khoản này?"
-            }
-            text={
-              title.includes("Assignment")
-                ? "Sau khi xác nhận, Assignment sẽ chuyển sang Đã hoàn thành và có thể được đánh giá một lần."
-                : "Người dùng sẽ không thể đăng nhập cho đến khi được mở khóa."
-            }
-            close={() => setModal(false)}
-            confirm={() => {
-              setModal(false);
-              setSuccess(true);
-            }}
-          />
-        )}
-        {success && (
-          <Toast
-            close={() => setSuccess(false)}
-            text="Thao tác đã được cập nhật thành công."
-          />
-        )}
-      </>
-    );
-  return (
-    <section className="panel function-panel">
-      <div className="state-tabs">
-        <button
-          className={demoState === "content" ? "active" : ""}
-          onClick={() => setDemoState("content")}
-        >
-          Có dữ liệu
-        </button>
-        <button
-          className={demoState === "loading" ? "active" : ""}
-          onClick={() => setDemoState("loading")}
-        >
-          Loading
-        </button>
-        <button
-          className={demoState === "empty" ? "active" : ""}
-          onClick={() => setDemoState("empty")}
-        >
-          Trống
-        </button>
-      </div>
-      <div className="table-toolbar">
-        <div className="table-search">
-          <Search size={17} />
-          <input placeholder={`Tìm trong ${title.toLowerCase()}...`} />
-        </div>
-        <button className="secondary-button">Bộ lọc</button>
-        {role !== "Admin" && !isProposal && (
-          <button className="primary-button">
-            <Plus size={16} />
-            Thêm mới
-          </button>
-        )}
-      </div>
-      {demoState === "loading" ? (
-        <div className="loading-state">
-          <LoaderCircle />
-          <strong>Đang tải dữ liệu...</strong>
-          <span>Vui lòng chờ trong giây lát</span>
-        </div>
-      ) : demoState === "empty" ? (
-        <div className="empty-state">
-          <Inbox />
-          <strong>Chưa có dữ liệu</strong>
-          <span>
-            {isProposal
-              ? "Bạn chưa gửi Proposal nào. Hãy tìm một công việc phù hợp."
-              : "Dữ liệu sẽ xuất hiện tại đây khi được tạo."}
-          </span>
-          <button className="primary-button">Khám phá ngay</button>
-        </div>
-      ) : (
-        <>
-          <div className="data-table">
-            <div className="table-row table-head">
-              <span>Tên / Tiêu đề</span>
-              <span>Ngày cập nhật</span>
-              <span>Trạng thái</span>
-              <span>Thao tác</span>
-            </div>
-            {jobs.map((j, i) => (
-              <div className="table-row" key={j.title}>
-                <span>
-                  <strong>
-                    {title.includes("CV")
-                      ? `CV_Fullstack_202${i + 3}.pdf`
-                      : j.title}
-                  </strong>
-                  <small>{j.company}</small>
-                </span>
-                <span>{12 + i}/06/2025</span>
-                <span>
-                  <b
-                    className={`status state-${labels[i % labels.length][0].toLowerCase()}`}
-                  >
-                    {labels[i % labels.length][1]}
-                  </b>
-                </span>
-                <span>
-                  {isProposal && role === "Client" && i === 0 ? (
-                    <button
-                      className="text-button"
-                      onClick={() => setModal(true)}
-                    >
-                      Xét duyệt
-                    </button>
-                  ) : (
-                    <button className="text-button">Xem chi tiết</button>
-                  )}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="pagination">
-            <span>Hiển thị 1–3 trong 12 kết quả</span>
-            <div>
-              <button>‹</button>
-              <button className="active">1</button>
-              <button>2</button>
-              <button>›</button>
-            </div>
-          </div>
-        </>
-      )}
-      {modal && (
-        <ConfirmModal
-          title="Chấp nhận Proposal này?"
-          text="Hệ thống sẽ tạo duy nhất một Assignment cho Job. Các Proposal còn lại sẽ được chuyển sang Đã từ chối."
-          close={() => setModal(false)}
-          confirm={() => {
-            setModal(false);
-            setSuccess(true);
-          }}
-        />
-      )}
-      {success && (
-        <Toast
-          close={() => setSuccess(false)}
-          text="Đã chấp nhận Proposal và tạo Assignment."
-        />
-      )}
-    </section>
-  );
+  )
 }
 
 function ConfirmModal({
@@ -6652,85 +3846,85 @@ function ConfirmModal({
   close,
   confirm,
 }: {
-  title: string;
-  text: string;
-  close: () => void;
-  confirm: () => void | boolean | Promise<void | boolean>;
+  title: string
+  text: string
+  close: () => void
+  confirm: () => void | boolean | Promise<void | boolean>
 }) {
-  const dialog = useRef<HTMLDivElement>(null);
-  const flight = useRef(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const dialog = useRef<HTMLDivElement>(null)
+  const flight = useRef(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState("")
   const dismiss = () => {
-    if (!flight.current) close();
-  };
+    if (!flight.current) close()
+  }
   useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
-    const root = document.getElementById("root");
-    const wasInert = root?.inert;
-    document.body.style.overflow = "hidden";
-    if (root) root.inert = true;
-    dialog.current?.focus();
+    const previous = document.activeElement as HTMLElement | null
+    const overflow = document.body.style.overflow
+    const root = document.getElementById("root")
+    const wasInert = root?.inert
+    document.body.style.overflow = "hidden"
+    if (root) root.inert = true
+    dialog.current?.focus()
     const keys = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        event.preventDefault();
-        dismiss();
+        event.preventDefault()
+        dismiss()
       }
-      if (event.key !== "Tab") return;
+      if (event.key !== "Tab") return
       const nodes = Array.from(
         dialog.current?.querySelectorAll<HTMLElement>(
           "button:not(:disabled)",
         ) || [],
-      );
+      )
       const first = nodes[0],
-        last = nodes[nodes.length - 1];
+        last = nodes[nodes.length - 1]
       if (!first) {
-        event.preventDefault();
-        return;
+        event.preventDefault()
+        return
       }
       if (
         event.shiftKey &&
         (document.activeElement === first ||
           document.activeElement === dialog.current)
       ) {
-        event.preventDefault();
-        last.focus();
+        event.preventDefault()
+        last.focus()
       } else if (
         !event.shiftKey &&
         (document.activeElement === last ||
           document.activeElement === dialog.current)
       ) {
-        event.preventDefault();
-        first.focus();
+        event.preventDefault()
+        first.focus()
       }
-    };
-    document.addEventListener("keydown", keys);
+    }
+    document.addEventListener("keydown", keys)
     return () => {
-      document.removeEventListener("keydown", keys);
-      document.body.style.overflow = overflow;
-      if (root) root.inert = wasInert ?? false;
-      if (previous?.isConnected) previous.focus();
-    };
-  }, []);
+      document.removeEventListener("keydown", keys)
+      document.body.style.overflow = overflow
+      if (root) root.inert = wasInert ?? false
+      if (previous?.isConnected) previous.focus()
+    }
+  }, [])
   const submit = async () => {
-    if (flight.current) return;
-    flight.current = true;
-    setBusy(true);
-    setError("");
+    if (flight.current) return
+    flight.current = true
+    setBusy(true)
+    setError("")
     try {
-      if ((await confirm()) !== false) close();
+      if ((await confirm()) !== false) close()
     } catch (cause) {
       setError(
         cause instanceof Error
           ? cause.message
           : "Không thể thực hiện thao tác.",
-      );
+      )
     } finally {
-      flight.current = false;
-      setBusy(false);
+      flight.current = false
+      setBusy(false)
     }
-  };
+  }
   return createPortal(
     <div className="modal-backdrop" onClick={dismiss}>
       <div
@@ -6767,13 +3961,13 @@ function ConfirmModal({
       </div>
     </div>,
     document.body,
-  );
+  )
 }
 
-type ToastKind = "success" | "error" | "warning";
+type ToastKind = "success" | "error" | "warning"
 
 function getToastKind(text: string): ToastKind {
-  const lower = text.toLowerCase();
+  const lower = text.toLowerCase()
   if (
     lower.includes("không có quyền") ||
     lower.includes("truy cập bị từ chối") ||
@@ -6790,7 +3984,7 @@ function getToastKind(text: string): ToastKind {
     lower.includes("không tồn tại") ||
     lower.includes("tối đa")
   ) {
-    return "error";
+    return "error"
   }
   if (
     lower.includes("vui lòng") ||
@@ -6800,59 +3994,61 @@ function getToastKind(text: string): ToastKind {
     lower.includes("chưa có") ||
     lower.includes("cảnh báo")
   ) {
-    return "warning";
+    return "warning"
   }
-  return "success";
+  return "success"
 }
 
-function Toast({ text, close }: { text: string; close: () => void }) {
-  const [closing, setClosing] = useState(false);
-  const closeRef = useRef(close);
-  closeRef.current = close;
-  const kind = getToastKind(text);
+function Toast({ text, close }: { text: string ; close: () => void }) {
+  const [closing, setClosing] = useState(false)
+  const closeRef = useRef(close)
+  closeRef.current = close
+  const kind = getToastKind(text)
 
   useEffect(() => {
-    setClosing(false);
+    setClosing(false)
     const displayDuration =
-      kind === "error" ? 5000 : kind === "warning" ? 4000 : 3000;
-    let removeTimer: ReturnType<typeof setTimeout> | null = null;
+      kind === "error" ? 5000 : kind === "warning" ? 4000 : 3000
+    let removeTimer: ReturnType<typeof setTimeout> | null = null
     const autoHideTimer = setTimeout(() => {
-      setClosing(true);
+      setClosing(true)
       removeTimer = setTimeout(() => {
-        closeRef.current();
-      }, 200);
-    }, displayDuration);
+        closeRef.current()
+      }, 200)
+    }, displayDuration)
 
     return () => {
-      clearTimeout(autoHideTimer);
-      if (removeTimer) clearTimeout(removeTimer);
-    };
-  }, [text, kind]);
+      clearTimeout(autoHideTimer)
+      if (removeTimer) clearTimeout(removeTimer)
+    }
+  }, [text, kind])
 
   const handleManualClose = () => {
-    if (closing) return;
-    setClosing(true);
+    if (closing) return
+    setClosing(true)
     setTimeout(() => {
-      closeRef.current();
-    }, 180);
-  };
+      closeRef.current()
+    }, 180)
+  }
 
   const titleText =
     kind === "error"
       ? "Thông báo lỗi"
       : kind === "warning"
         ? "Cảnh báo"
-        : "Thành công";
+        : "Thành công"
   const variantClass =
     kind === "error"
       ? " toast-error"
       : kind === "warning"
         ? " toast-warning"
-        : "";
+        : ""
 
   return (
     <div
-      className={`success-toast${variantClass}${closing ? " toast-closing" : ""}`}
+      className={`success-toast${variantClass}${
+        closing ? " toast-closing" : ""
+      }`}
     >
       {kind === "success" ? <CheckCircle2 /> : <AlertCircle />}
       <div>
@@ -6863,7 +4059,7 @@ function Toast({ text, close }: { text: string; close: () => void }) {
         <X size={16} />
       </button>
     </div>
-  );
+  )
 }
 
 function normalizePublicSkills(skills: string[]): string[] {
@@ -6881,29 +4077,29 @@ function normalizePublicSkills(skills: string[]): string[] {
     sqlserver: "SQL Server",
     nextjs: "Next.js",
     vuejs: "Vue.js",
-  };
-  const unique = new Set<string>();
-  const result: string[] = [];
+  }
+  const unique = new Set<string>()
+  const result: string[] = []
   for (const raw of skills) {
     for (const part of raw.split(/[,;]+/)) {
-      const trimmed = part.trim();
-      if (!trimmed) continue;
-      const key = trimmed.toLowerCase().replace(/[\\s._-]+/g, "");
-      const display = aliases[key] || trimmed;
-      const normalized = display.toLowerCase();
-      if (unique.has(normalized)) continue;
-      unique.add(normalized);
-      result.push(display);
+      const trimmed = part.trim()
+      if (!trimmed) continue
+      const key = trimmed.toLowerCase().replace(/[\\s._-]+/g, "")
+      const display = aliases[key] || trimmed
+      const normalized = display.toLowerCase()
+      if (unique.has(normalized)) continue
+      unique.add(normalized)
+      result.push(display)
     }
   }
-  return result;
+  return result
 }
 
 function ProfileManager() {
   const {
     profile,
     assignments,
-    isDemoMode,
+
     profileTab,
     setProfileTab,
     updateProfileInfo,
@@ -6913,9 +4109,9 @@ function ProfileManager() {
     deleteProfileRecord,
     refreshFreelancerData,
     notify,
-  } = useStore();
-  const tab = profileTab;
-  const setTab = setProfileTab;
+  } = useStore()
+  const tab = profileTab
+  const setTab = setProfileTab
   const tabs: ProfileTab[] = [
     "Thông tin cá nhân",
     "Kỹ năng",
@@ -6923,23 +4119,23 @@ function ProfileManager() {
     "Portfolio",
     "CV",
     "Đánh giá",
-  ];
-  const [title, setTitle] = useState(profile.title || "");
-  const [bio, setBio] = useState(profile.bio || "");
-  const [savingProfile, setSavingProfile] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [savingRecord, setSavingRecord] = useState(false);
+  ]
+  const [title, setTitle] = useState(profile.title || "")
+  const [bio, setBio] = useState(profile.bio || "")
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [savingRecord, setSavingRecord] = useState(false)
   const [editingItem, setEditingItem] = useState<{
-    id: string;
-    title: string;
-    proficiency?: number;
-    yearsExperience?: number | null;
-  } | null>(null);
-  const [proficiency, setProficiency] = useState(1);
-  const [yearsExperience, setYearsExperience] = useState("0");
-  const [skillSearch, setSkillSearch] = useState("");
-  const [skillSelected, setSkillSelected] = useState<string[]>([]);
-  const [skillPickerOpen, setSkillPickerOpen] = useState(false);
+    id: string
+    title: string
+    proficiency?: number
+    yearsExperience?: number | null
+  } | null>(null)
+  const [proficiency, setProficiency] = useState(1)
+  const [yearsExperience, setYearsExperience] = useState("0")
+  const [skillSearch, setSkillSearch] = useState("")
+  const [skillSelected, setSkillSelected] = useState<string[]>([])
+  const [skillPickerOpen, setSkillPickerOpen] = useState(false)
   const skillSuggestions = [
     "React",
     "Java",
@@ -6961,17 +4157,16 @@ function ProfileManager() {
     "AWS",
     "Figma",
     "C#",
-  ];
-  const [loadedSkills, setLoadedSkills] = useState<
-    FreelancerProfileData["skills"]
-  >([]);
-  const [skillsLoading, setSkillsLoading] = useState(false);
-  const [skillsError, setSkillsError] = useState("");
+  ]
+  const [loadedSkills, setLoadedSkills] =
+    useState<FreelancerProfileData["skills"]>([])
+  const [skillsLoading, setSkillsLoading] = useState(false)
+  const [skillsError, setSkillsError] = useState("")
   useEffect(() => {
-    if (isDemoMode || tab !== "Kỹ năng") return;
-    let active = true;
-    setSkillsLoading(true);
-    setSkillsError("");
+    if (tab !== "Kỹ năng") return
+    let active = true
+    setSkillsLoading(true)
+    setSkillsError("")
     skillApi
       .mine()
       .then((skills) => {
@@ -6984,23 +4179,23 @@ function ProfileManager() {
               yearsExperience: s.yearsExperience,
               updatedAt: "Đã đồng bộ",
             })),
-          );
+          )
       })
       .catch((error) => {
         if (active)
           setSkillsError(
             error instanceof Error ? error.message : "Không thể tải kỹ năng.",
-          );
+          )
       })
       .finally(() => {
-        if (active) setSkillsLoading(false);
-      });
+        if (active) setSkillsLoading(false)
+      })
     return () => {
-      active = false;
-    };
-  }, [isDemoMode, tab, profile.skills]);
-  const [inputValue, setInputValue] = useState("");
-  const [selectedCvFile, setSelectedCvFile] = useState<File | null>(null);
+      active = false
+    }
+  }, [tab, profile.skills])
+  const [inputValue, setInputValue] = useState("")
+  const [selectedCvFile, setSelectedCvFile] = useState<File | null>(null)
   const [workForm, setWorkForm] = useState<WorkExperienceInput>({
     companyName: "",
     position: "",
@@ -7009,7 +4204,7 @@ function ProfileManager() {
     isCurrent: false,
     description: "",
     achievements: "",
-  });
+  })
   const [portfolioForm, setPortfolioForm] = useState<PortfolioInput>({
     title: "",
     description: "",
@@ -7019,13 +4214,12 @@ function ProfileManager() {
     githubUrl: "",
     startDate: null,
     endDate: null,
-  });
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [historyError, setHistoryError] = useState("");
-  const [historyRetry, setHistoryRetry] = useState(0);
+  })
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyError, setHistoryError] = useState("")
+  const [historyRetry, setHistoryRetry] = useState(0)
   useEffect(() => {
     if (
-      isDemoMode ||
       ![
         "Thông tin cá nhân",
         "CV",
@@ -7034,72 +4228,70 @@ function ProfileManager() {
         "Đánh giá",
       ].includes(tab)
     )
-      return;
-    let active = true;
-    setHistoryLoading(true);
-    setHistoryError("");
+      return
+    let active = true
+    setHistoryLoading(true)
+    setHistoryError("")
     refreshFreelancerData()
       .then((ok) => {
         if (active && !ok)
-          setHistoryError("Không thể tải dữ liệu hồ sơ. Vui lòng thử lại.");
+          setHistoryError("Không thể tải dữ liệu hồ sơ. Vui lòng thử lại.")
       })
       .catch(() => {
-        if (active) setHistoryError("Không thể tải dữ liệu hồ sơ.");
+        if (active) setHistoryError("Không thể tải dữ liệu hồ sơ.")
       })
       .finally(() => {
-        if (active) setHistoryLoading(false);
-      });
+        if (active) setHistoryLoading(false)
+      })
     return () => {
-      active = false;
-    };
-  }, [isDemoMode, tab, historyRetry, refreshFreelancerData]);
+      active = false
+    }
+  }, [tab, historyRetry, refreshFreelancerData])
   const [deletingRecord, setDeletingRecord] = useState<{
-    id: string;
-    title: string;
-  } | null>(null);
-  const reviewsRef = useRef<HTMLDivElement>(null);
+    id: string
+    title: string
+  } | null>(null)
+  const reviewsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setTitle(profile.title || "");
-    setBio(profile.bio || "");
-  }, [profile.title, profile.bio]);
+    setTitle(profile.title || "")
+    setBio(profile.bio || "")
+  }, [profile.title, profile.bio])
 
   useEffect(() => {
     if (tab === "Đánh giá" && reviewsRef.current) {
       reviewsRef.current.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
-      });
+      })
     }
-  }, [tab]);
+  }, [tab])
 
   const records =
     tab === "CV"
       ? profile.cvs
       : tab === "Kỹ năng"
-        ? isDemoMode
-          ? profile.skills
-          : loadedSkills
+        ? loadedSkills
         : tab === "Kinh nghiệm làm việc"
           ? profile.experiences
-          : profile.portfolios;
+          : profile.portfolios
   const sortedExperiences = [...profile.experiences].sort((a, b) => {
     const toTimestamp = (value?: string | null) => {
-      if (!value) return 0;
-      const match = value.match(/^(\\d{2})\/(\\d{2})\/(\\d{4})$/);
+      if (!value) return 0
+      const match = value.match(/^(\\d{2})\/(\\d{2})\/(\\d{4})$/)
       const timestamp = Date.parse(
         match ? `${match[3]}-${match[2]}-${match[1]}` : value,
-      );
-      return Number.isNaN(timestamp) ? 0 : timestamp;
-    };
-    return toTimestamp(b.work?.startDate) - toTimestamp(a.work?.startDate);
-  });
-  const skillItems = isDemoMode ? profile.skills : loadedSkills;
+      )
+      return Number.isNaN(timestamp) ? 0 : timestamp
+    }
+    return toTimestamp(b.work?.startDate) - toTimestamp(a.work?.startDate)
+  })
+  const skillItems = loadedSkills
   const normalizeSkill = (name: string) => {
     const key = name
       .trim()
       .toLowerCase()
-      .replace(/[\s._-]+/g, "");
+      .replace(/[\s._-]+/g, "")
     const aliases: Record<string, string> = {
       javascript: "JavaScript",
       javascripts: "JavaScript",
@@ -7115,26 +4307,26 @@ function ProfileManager() {
       sqlserver: "SQL Server",
       nextjs: "Next.js",
       vuejs: "Vue.js",
-    };
-    return aliases[key] || name.trim();
-  };
+    }
+    return aliases[key] || name.trim()
+  }
   const skillEntries = skillItems
     .flatMap((item) =>
       item.title
         .split(/[,;]+/)
         .map((name) => ({ name: normalizeSkill(name), item })),
     )
-    .filter((entry) => entry.name);
+    .filter((entry) => entry.name)
   const uniqueSkills = skillEntries.filter(
     (entry, index, all) =>
       all.findIndex(
         (candidate) =>
           candidate.name.toLowerCase() === entry.name.toLowerCase(),
       ) === index,
-  );
+  )
   const selectedSkillNames = new Set(
     uniqueSkills.map((entry) => entry.name.toLowerCase()),
-  );
+  )
   const visibleSuggestions = [
     ...new Set(
       [...skillSuggestions, ...uniqueSkills.map((entry) => entry.name)].map(
@@ -7143,17 +4335,17 @@ function ProfileManager() {
     ),
   ].filter((name) =>
     name.toLowerCase().includes(skillSearch.trim().toLowerCase()),
-  );
+  )
   const addSelectedSkills = async () => {
     const names = [...new Set(skillSelected.map(normalizeSkill))].filter(
       (name) => !selectedSkillNames.has(name.toLowerCase()),
-    );
+    )
     if (!names.length) {
-      notify("Hãy chọn ít nhất một kỹ năng chưa có.");
-      return;
+      notify("Hãy chọn ít nhất một kỹ năng chưa có.")
+      return
     }
-    setSavingRecord(true);
-    let count = 0;
+    setSavingRecord(true)
+    let count = 0
     for (const name of names) {
       try {
         const saved = await upsertProfileRecord(
@@ -7162,21 +4354,21 @@ function ProfileManager() {
           undefined,
           null,
           { proficiency: 3, yearsExperience: 0 },
-        );
-        if (saved === false) break;
-        count++;
+        )
+        if (saved === false) break
+        count++
       } catch {
-        break;
+        break
       }
     }
-    setSavingRecord(false);
+    setSavingRecord(false)
     if (count) {
-      setSkillSelected([]);
-      setSkillSearch("");
-      setSkillPickerOpen(false);
-      if (!isDemoMode) {
+      setSkillSelected([])
+      setSkillSearch("")
+      setSkillPickerOpen(false)
+      {
         try {
-          const skills = await skillApi.mine();
+          const skills = await skillApi.mine()
           setLoadedSkills(
             skills.map((skill) => ({
               id: String(skill.id),
@@ -7185,23 +4377,19 @@ function ProfileManager() {
               yearsExperience: skill.yearsExperience,
               updatedAt: "Đã đồng bộ",
             })),
-          );
+          )
         } catch {
-          notify(
-            "Đã lưu nhưng không thể tải lại kỹ năng. Vui lòng mở lại tab.",
-          );
+          notify("Đã lưu nhưng không thể tải lại kỹ năng. Vui lòng mở lại tab.")
         }
       }
     }
     if (count < names.length)
       notify(
         `Đã lưu ${count}/${names.length} kỹ năng. Hãy kiểm tra và thử lại các mục còn thiếu.`,
-      );
-  };
-  const reviewsList = getFreelancerReviews(profile, assignments);
-  const completedCount = isDemoMode
-    ? assignments.filter((a) => a.status === "Đã hoàn thành").length
-    : (profile.completedJobs ?? 0);
+      )
+  }
+  const reviewsList = getFreelancerReviews(profile, assignments)
+  const completedCount = profile.completedJobs ?? 0
   const avgScore =
     reviewsList.length > 0
       ? (
@@ -7209,17 +4397,17 @@ function ProfileManager() {
         ).toFixed(1)
       : profile.averageRating && profile.averageRating > 0
         ? profile.averageRating.toFixed(1)
-        : "0.0";
+        : "0.0"
 
   const openAdd = () => {
     if (tab === "Thông tin cá nhân" || tab === "Đánh giá") {
-      setTab("Kỹ năng");
+      setTab("Kỹ năng")
     }
-    setEditingItem(null);
-    setProficiency(1);
-    setYearsExperience("0");
-    setInputValue("");
-    setSelectedCvFile(null);
+    setEditingItem(null)
+    setProficiency(1)
+    setYearsExperience("0")
+    setInputValue("")
+    setSelectedCvFile(null)
     setWorkForm({
       companyName: "",
       position: "",
@@ -7228,7 +4416,7 @@ function ProfileManager() {
       isCurrent: false,
       description: "",
       achievements: "",
-    });
+    })
     setPortfolioForm({
       title: "",
       description: "",
@@ -7238,18 +4426,17 @@ function ProfileManager() {
       githubUrl: "",
       startDate: null,
       endDate: null,
-    });
-    setModalOpen(true);
-  };
+    })
+    setModalOpen(true)
+  }
 
-  const openEditRecord = (item: { id: string; title: string }) => {
+  const openEditRecord = (item: { id: string ; title: string }) => {
     if (tab === "Kinh nghiệm làm việc") {
-      const work = profile.experiences.find(
-        (record) => record.id === item.id,
-      )?.work;
+      const work = profile.experiences.find((record) => record.id === item.id)
+        ?.work
       if (!work) {
-        notify("Vui lòng tải lại để lấy đầy đủ dữ liệu kinh nghiệm.");
-        return;
+        notify("Vui lòng tải lại để lấy đầy đủ dữ liệu kinh nghiệm.")
+        return
       }
       setWorkForm({
         companyName: work.companyName,
@@ -7260,15 +4447,14 @@ function ProfileManager() {
         description: work.description || "",
         achievements: work.achievements,
         version: work.version,
-      });
+      })
     }
     if (tab === "Portfolio") {
-      const project = profile.portfolios.find(
-        (record) => record.id === item.id,
-      )?.portfolio;
+      const project = profile.portfolios.find((record) => record.id === item.id)
+        ?.portfolio
       if (!project) {
-        notify("Vui lòng tải lại để lấy đầy đủ thông tin dự án.");
-        return;
+        notify("Vui lòng tải lại để lấy đầy đủ thông tin dự án.")
+        return
       }
       setPortfolioForm({
         title: project.title,
@@ -7280,37 +4466,37 @@ function ProfileManager() {
         startDate: project.startDate,
         endDate: project.endDate,
         version: project.version,
-      });
+      })
     }
-    const skill = item as FreelancerProfileData["skills"][number];
-    setEditingItem(skill);
-    setProficiency(skill.proficiency ?? 1);
-    setYearsExperience(String(skill.yearsExperience ?? 0));
-    setInputValue(item.title);
-    setSelectedCvFile(null);
-    setModalOpen(true);
-  };
+    const skill = item as FreelancerProfileData["skills"][number]
+    setEditingItem(skill)
+    setProficiency(skill.proficiency ?? 1)
+    setYearsExperience(String(skill.yearsExperience ?? 0))
+    setInputValue(item.title)
+    setSelectedCvFile(null)
+    setModalOpen(true)
+  }
 
   const handleSaveProfile = async () => {
-    if (savingProfile) return;
+    if (savingProfile) return
     if (bio.length > 500) {
-      notify("Nội dung giới thiệu tối đa 500 ký tự.");
-      return;
+      notify("Nội dung giới thiệu tối đa 500 ký tự.")
+      return
     }
-    setSavingProfile(true);
+    setSavingProfile(true)
     const ok = await updateProfileInfo({
       title: title.trim(),
       bio: bio.trim(),
-    });
-    setSavingProfile(false);
-    if (ok) notify("Đã lưu thông tin hồ sơ cá nhân vào hệ thống.");
-  };
+    })
+    setSavingProfile(false)
+    if (ok) notify("Đã lưu thông tin hồ sơ cá nhân vào hệ thống.")
+  }
 
   const handleSaveRecord = async () => {
-    if (savingRecord) return;
-    if (tab === "CV" && !editingItem && !selectedCvFile && !isDemoMode) {
-      notify("Vui lòng chọn tệp CV định dạng PDF từ máy tính để tải lên.");
-      return;
+    if (savingRecord) return
+    if (tab === "CV" && !editingItem && !selectedCvFile) {
+      notify("Vui lòng chọn tệp CV định dạng PDF từ máy tính để tải lên.")
+      return
     }
     const finalTitle =
       tab === "Kinh nghiệm làm việc"
@@ -7319,7 +4505,7 @@ function ProfileManager() {
           ? portfolioForm.title.trim()
           : selectedCvFile
             ? selectedCvFile.name
-            : inputValue.trim();
+            : inputValue.trim()
     if (
       tab === "CV" &&
       selectedCvFile &&
@@ -7330,10 +4516,10 @@ function ProfileManager() {
     ) {
       notify(
         "Vui lòng chọn PDF không rỗng, tối đa 2 MB, tên tệp tối đa 255 ký tự.",
-      );
-      return;
+      )
+      return
     }
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10)
     if (
       tab === "Kinh nghiệm làm việc" &&
       (!workForm.companyName.trim() ||
@@ -7352,8 +4538,8 @@ function ProfileManager() {
     ) {
       notify(
         "Vui lòng nhập vị trí, công ty, mô tả và ngày làm việc hợp lệ. Ngày kết thúc không được trước ngày bắt đầu hoặc sau hôm nay.",
-      );
-      return;
+      )
+      return
     }
     if (tab === "Portfolio") {
       if (
@@ -7371,25 +4557,25 @@ function ProfileManager() {
       ) {
         notify(
           "Vui lòng nhập đầy đủ tên, mô tả, vai trò, công nghệ và khoảng ngày dự án hợp lệ.",
-        );
-        return;
+        )
+        return
       }
       for (const link of [portfolioForm.projectUrl, portfolioForm.githubUrl]) {
-        if (!link.trim()) continue;
+        if (!link.trim()) continue
         try {
-          const url = new URL(link.trim());
+          const url = new URL(link.trim())
           if (
             link.length > 1000 ||
             !["https:", "http:"].includes(url.protocol) ||
             url.username ||
             url.password
           )
-            throw Error();
+            throw Error()
         } catch {
           notify(
             "Liên kết dự án/GitHub phải là URL HTTP(S) hợp lệ, tối đa 1000 ký tự, không chứa thông tin đăng nhập.",
-          );
-          return;
+          )
+          return
         }
       }
     }
@@ -7401,14 +4587,14 @@ function ProfileManager() {
     ) {
       notify(
         "Tên kỹ năng tối đa 100 ký tự; số năm kinh nghiệm phải là số nguyên từ 0 đến 32767.",
-      );
-      return;
+      )
+      return
     }
     if (!finalTitle) {
-      notify(`Vui lòng nhập thông tin cho ${tab}.`);
-      return;
+      notify(`Vui lòng nhập thông tin cho ${tab}.`)
+      return
     }
-    setSavingRecord(true);
+    setSavingRecord(true)
     const saved = await upsertProfileRecord(
       tab as "Kỹ năng" | "Kinh nghiệm làm việc" | "Portfolio" | "CV",
       finalTitle,
@@ -7416,12 +4602,12 @@ function ProfileManager() {
       selectedCvFile,
       { proficiency, yearsExperience: Number(yearsExperience) },
       { work: workForm, portfolio: portfolioForm },
-    );
-    setSavingRecord(false);
-    if (saved === false) return;
-    setSelectedCvFile(null);
-    setModalOpen(false);
-  };
+    )
+    setSavingRecord(false)
+    if (saved === false) return
+    setSelectedCvFile(null)
+    setModalOpen(false)
+  }
 
   return (
     <section className="panel function-panel profile-panel linkit-profile-viewport">
@@ -7608,8 +4794,8 @@ function ProfileManager() {
                 className="secondary-button"
                 disabled={savingProfile}
                 onClick={() => {
-                  setTitle(profile.title || "");
-                  setBio(profile.bio || "");
+                  setTitle(profile.title || "")
+                  setBio(profile.bio || "")
                 }}
               >
                 Hủy
@@ -7624,9 +4810,9 @@ function ProfileManager() {
             </div>
           </div>
         </div>
-      ) : tab === "Đánh giá" && !isDemoMode && historyLoading ? (
+      ) : tab === "Đánh giá" && historyLoading ? (
         <p role="status">Đang tải đánh giá…</p>
-      ) : tab === "Đánh giá" && !isDemoMode && historyError ? (
+      ) : tab === "Đánh giá" && historyError ? (
         <div role="alert">
           <p>{historyError}</p>
           <button
@@ -7697,12 +4883,10 @@ function ProfileManager() {
             </div>
           )}
         </div>
-      ) : !isDemoMode &&
-        ["CV", "Kinh nghiệm làm việc", "Portfolio"].includes(tab) &&
+      ) : ["CV", "Kinh nghiệm làm việc", "Portfolio"].includes(tab) &&
         historyLoading ? (
         <p role="status">Đang tải hồ sơ...</p>
-      ) : !isDemoMode &&
-        ["CV", "Kinh nghiệm làm việc", "Portfolio"].includes(tab) &&
+      ) : ["CV", "Kinh nghiệm làm việc", "Portfolio"].includes(tab) &&
         historyError ? (
         <div role="alert">
           <p>{historyError}</p>
@@ -7781,12 +4965,12 @@ function ProfileManager() {
                 </thead>
                 <tbody>
                   {sortedExperiences.map((item) => {
-                    const parts = item.title.split(" · ");
-                    const roleName = parts[0] || item.title;
+                    const parts = item.title.split(" · ")
+                    const roleName = parts[0] || item.title
                     const companyName =
                       parts.length > 1
                         ? parts.slice(1).join(" · ")
-                        : "Chưa cập nhật";
+                        : "Chưa cập nhật"
                     return (
                       <tr key={item.id}>
                         <td>
@@ -7842,7 +5026,7 @@ function ProfileManager() {
                           </div>
                         </td>
                       </tr>
-                    );
+                    )
                   })}
                 </tbody>
               </table>
@@ -7872,7 +5056,15 @@ function ProfileManager() {
               {records.map((item) => (
                 <article
                   key={item.id}
-                  className={`linkit-profile-card linkit-profile-card--${tab === "Portfolio" ? "portfolio" : tab === "CV" ? "cv" : "experience"} linkit-refined-card ${tab === "CV" ? "linkit-cv-polished" : ""}`}
+                  className={`linkit-profile-card linkit-profile-card--${
+                    tab === "Portfolio"
+                      ? "portfolio"
+                      : tab === "CV"
+                        ? "cv"
+                        : "experience"
+                  } linkit-refined-card ${
+                    tab === "CV" ? "linkit-cv-polished" : ""
+                  }`}
                 >
                   <div className="linkit-profile-card-main">
                     <span className="linkit-profile-card-icon">
@@ -8082,12 +5274,14 @@ function ProfileManager() {
               />
               <div className="linkit-picker-options">
                 {visibleSuggestions.map((name) => {
-                  const existing = selectedSkillNames.has(name.toLowerCase());
-                  const checked = existing || skillSelected.includes(name);
+                  const existing = selectedSkillNames.has(name.toLowerCase())
+                  const checked = existing || skillSelected.includes(name)
                   return (
                     <label
                       key={name}
-                      className={`linkit-picker-option ${existing ? "is-existing" : ""}`}
+                      className={`linkit-picker-option ${
+                        existing ? "is-existing" : ""
+                      }`}
                     >
                       <input
                         type="checkbox"
@@ -8104,7 +5298,7 @@ function ProfileManager() {
                       <span>{name}</span>
                       {existing && <small>Đã thêm</small>}
                     </label>
-                  );
+                  )
                 })}
               </div>
               {skillSearch.trim() &&
@@ -8442,25 +5636,21 @@ function ProfileManager() {
                       type="file"
                       accept=".pdf,application/pdf"
                       onChange={(e) => {
-                        const f = e.target.files?.[0] || null;
-                        setSelectedCvFile(f);
-                        if (f) setInputValue(f.name);
+                        const f = e.target.files?.[0] || null
+                        setSelectedCvFile(f)
+                        if (f) setInputValue(f.name)
                       }}
                     />
                   </label>
                 )}
-                {(tab === "Kỹ năng" || (tab === "CV" && isDemoMode)) && (
+                {tab === "Kỹ năng" && (
                   <label className="full">
-                    {tab === "CV" ? "Tên tệp CV (PDF)" : `Tên ${tab}`}
+                    {`Tên ${tab}`}
                     <input
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleSaveRecord()}
-                      placeholder={
-                        tab === "CV"
-                          ? "Ví dụ: CV_Senior_React_2026.pdf"
-                          : "Nhập nội dung..."
-                      }
+                      placeholder="Nhập nội dung..."
                       autoFocus
                     />
                   </label>
@@ -8508,242 +5698,22 @@ function ProfileManager() {
         />
       )}
     </section>
-  );
+  )
 }
 
 function ProposalManager() {
-  const { isDemoMode } = useStore();
-  const user = getSessionSnapshot().user;
-  return isDemoMode ? (
-    <LegacyProposalManager />
-  ) : user ? (
+  const user = getSessionSnapshot().user
+  return user ? (
     <ProposalsScreen key={user.id} user={user} />
   ) : (
     <div className="panel empty-state">Vui lòng đăng nhập.</div>
-  );
-}
-function LegacyProposalManager() {
-  const { jobs, proposals, withdrawProposal } = useStore();
-  const [selectedId, setSelectedId] = useState(proposals[0]?.id || "");
-  const [showJob, setShowJob] = useState(false);
-  const [mobileDetail, setMobileDetail] = useState(false);
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("Tất cả trạng thái");
-  const [skill, setSkill] = useState("Tất cả kỹ năng");
-  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
-
-  const availableSkills = Array.from(
-    new Set(["React", "Figma", "Go", ...jobs.flatMap((j) => j.skills)]),
-  );
-  const filtered = proposals.filter((item) => {
-    const linkedJob = jobs.find(
-      (jobItem) => String(jobItem.id) === String(item.jobId),
-    );
-    const title = item.jobTitle || linkedJob?.title || "";
-    const company = item.clientName || linkedJob?.company || "";
-    const skills =
-      item.freelancerSkills && item.freelancerSkills.length > 0
-        ? item.freelancerSkills
-        : linkedJob?.skills || [];
-    const searchable = `${title} ${company} ${skills.join(" ")}`.toLowerCase();
-    return (
-      searchable.includes(query.toLowerCase()) &&
-      (status === "Tất cả trạng thái" || item.status === status) &&
-      (skill === "Tất cả kỹ năng" || Boolean(skills.includes(skill)))
-    );
-  });
-
-  const proposal =
-    filtered.find((p) => p.id === selectedId) || filtered[0] || proposals[0];
-  const linkedJob = proposal
-    ? jobs.find((item) => String(item.id) === String(proposal.jobId))
-    : null;
-  const displayTitle =
-    proposal?.jobTitle ||
-    linkedJob?.title ||
-    (proposal ? `Công việc #${proposal.jobId}` : "");
-  const displayCompany =
-    proposal?.clientName || linkedJob?.company || "Doanh nghiệp đối tác";
-
-  return (
-    <>
-      <div className="proposal-search-tools">
-        <div className="dashboard-search-box">
-          <Search />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm theo tiêu đề Job, Client..."
-          />
-          {query && (
-            <button
-              onClick={() => setQuery("")}
-              aria-label="Xóa nội dung tìm kiếm"
-            >
-              <X />
-            </button>
-          )}
-        </div>
-        <select
-          value={status}
-          onChange={(event) => setStatus(event.target.value)}
-          aria-label="Lọc theo trạng thái Proposal"
-        >
-          <option>Tất cả trạng thái</option>
-          <option>Chờ phản hồi</option>
-          <option>Đã chấp nhận</option>
-          <option>Đã từ chối</option>
-          <option>Đã rút</option>
-        </select>
-        <select
-          value={skill}
-          onChange={(event) => setSkill(event.target.value)}
-          aria-label="Lọc theo kỹ năng Job"
-        >
-          <option>Tất cả kỹ năng</option>
-          {availableSkills.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-      </div>
-      <div
-        className={`manager-split responsive-manager ${mobileDetail ? "show-detail" : ""}`}
-      >
-        <section className="panel manager-list proposal-manager">
-          <div className="management-head">
-            <div>
-              <h2>Đề xuất đã gửi</h2>
-              <p>{filtered.length} kết quả phù hợp</p>
-            </div>
-          </div>
-          {filtered.length ? (
-            filtered.map((item) => {
-              const lj = jobs.find(
-                (jobItem) => String(jobItem.id) === String(item.jobId),
-              );
-              const itemTitle =
-                item.jobTitle || lj?.title || `Công việc #${item.jobId}`;
-              return (
-                <button
-                  className={proposal?.id === item.id ? "selected" : ""}
-                  onClick={() => {
-                    setSelectedId(item.id);
-                    setMobileDetail(true);
-                  }}
-                  key={item.id}
-                >
-                  <div>
-                    <strong>{itemTitle}</strong>
-                    <span>
-                      {item.cv} · {item.price} · {item.duration}
-                    </span>
-                  </div>
-                  <b className={`status state-${item.statusKey}`}>
-                    {item.status}
-                  </b>
-                </button>
-              );
-            })
-          ) : (
-            <div className="proposal-empty">
-              <Inbox />
-              <strong>Không tìm thấy Proposal</strong>
-              <span>Thử thay đổi từ khóa hoặc bộ lọc.</span>
-            </div>
-          )}
-        </section>
-        <section className="panel assignment-detail proposal-detail">
-          <button
-            className="mobile-back"
-            onClick={() => setMobileDetail(false)}
-          >
-            ← Quay lại danh sách
-          </button>
-          {proposal ? (
-            <>
-              <div className="record-header">
-                <div>
-                  {linkedJob ? (
-                    <button
-                      className="linked-job-title"
-                      onClick={() => setShowJob(true)}
-                    >
-                      {displayTitle}
-                    </button>
-                  ) : (
-                    <h2>{displayTitle}</h2>
-                  )}
-                  <p>
-                    {proposal.id} · {displayCompany}
-                  </p>
-                </div>
-                <b className={`status state-${proposal.statusKey}`}>
-                  {proposal.status}
-                </b>
-              </div>
-              <div className="detail-stats">
-                <div>
-                  <span>CV đã chọn</span>
-                  <strong>{proposal.cv}</strong>
-                </div>
-                <div>
-                  <span>Giá đề xuất</span>
-                  <strong>{proposal.price}</strong>
-                </div>
-                <div>
-                  <span>Thời gian dự kiến</span>
-                  <strong>{proposal.duration}</strong>
-                </div>
-              </div>
-              <h3>Nội dung Proposal</h3>
-              <p>{proposal.cover}</p>
-              {proposal.statusKey === "pending" && (
-                <div className="form-actions">
-                  <button
-                    className="danger-button"
-                    onClick={() => setConfirmWithdraw(true)}
-                  >
-                    Rút Proposal
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="proposal-empty">
-              <Inbox />
-              <strong>Chưa có Proposal để hiển thị</strong>
-              <span>
-                Khi bạn gửi Proposal cho các công việc trên LinkIT, chi tiết sẽ
-                xuất hiện tại đây.
-              </span>
-            </div>
-          )}
-        </section>
-      </div>
-      {showJob && linkedJob && (
-        <JobModal job={linkedJob} close={() => setShowJob(false)} />
-      )}
-      {confirmWithdraw && proposal && (
-        <ConfirmModal
-          title="Rút Proposal này?"
-          text="Sau khi rút, Proposal sẽ chuyển sang trạng thái Đã rút và không còn trong danh sách chờ duyệt của Client."
-          close={() => setConfirmWithdraw(false)}
-          confirm={() => {
-            withdrawProposal(proposal.id);
-            setConfirmWithdraw(false);
-          }}
-        />
-      )}
-    </>
-  );
+  )
 }
 
 function AssignmentManager({ client }: { client: boolean }) {
-  const { isDemoMode, navigateToDashboard } = useStore();
-  const user = getSessionSnapshot().user;
-  return isDemoMode ? (
-    <LegacyAssignmentManager client={client} />
-  ) : user ? (
+  const { navigateToDashboard } = useStore()
+  const user = getSessionSnapshot().user
+  return user ? (
     <AssignmentsScreen
       key={user.id}
       user={user}
@@ -8753,293 +5723,7 @@ function AssignmentManager({ client }: { client: boolean }) {
     />
   ) : (
     <div className="panel empty-state">Vui lòng đăng nhập.</div>
-  );
-}
-function LegacyAssignmentManager({ client }: { client: boolean }) {
-  const {
-    assignments,
-    assignmentFilter,
-    setAssignmentFilter,
-    completeAssignment,
-    cancelAssignment,
-    rateAssignment,
-    openChatWith,
-  } = useStore();
-  const tab = assignmentFilter;
-  const [selected, setSelected] = useState(0);
-  const [modal, setModal] = useState(false);
-  const [cancelModal, setCancelModal] = useState(false);
-  const [mobileDetail, setMobileDetail] = useState(false);
-  const [ratingStars, setRatingStars] = useState(5);
-  const [comment, setComment] = useState("");
-
-  useEffect(() => {
-    setSelected(0);
-    setMobileDetail(false);
-  }, [tab]);
-
-  const filterTabs: readonly AssignmentFilterTab[] = [
-    "Tất cả",
-    "Đang thực hiện",
-    "Đã hoàn thành",
-    "Đã hủy",
-  ] as const;
-
-  const items =
-    tab === "Tất cả"
-      ? assignments
-      : assignments.filter((a) => a.status === tab);
-  const item = items[Math.min(selected, Math.max(0, items.length - 1))];
-  const isCompleted = item?.status === "Đã hoàn thành";
-  const isCancelled = item?.status === "Đã hủy";
-  const hasExistingReview = Boolean(item?.review);
-
-  const changeTab = (value: AssignmentFilterTab) => {
-    setAssignmentFilter(value);
-    setSelected(0);
-    setMobileDetail(false);
-  };
-
-  const getStatusClass = (status: AssignmentItem["status"]) =>
-    status === "Đã hủy"
-      ? "state-cancelled"
-      : status === "Đã hoàn thành"
-        ? "state-completed"
-        : "state-in_progress";
-
-  return (
-    <>
-      <div className="assignment-tabs content-tabs">
-        {filterTabs.map((value) => (
-          <button
-            className={tab === value ? "active" : ""}
-            onClick={() => changeTab(value)}
-            key={value}
-          >
-            {value}
-          </button>
-        ))}
-      </div>
-      <div
-        className={`manager-split responsive-manager ${mobileDetail ? "show-detail" : ""}`}
-      >
-        <section className="panel manager-list">
-          <div className="management-head">
-            <div>
-              <h2>Assignments</h2>
-              <p>
-                {items.length} công việc{" "}
-                {tab === "Tất cả" ? "trong danh sách" : "trong trạng thái này"}
-              </p>
-            </div>
-          </div>
-          {items.length > 0 ? (
-            items.map((x, i) => (
-              <button
-                className={selected === i ? "selected" : ""}
-                onClick={() => {
-                  setSelected(i);
-                  setMobileDetail(true);
-                }}
-                key={x.id}
-              >
-                <div>
-                  <strong>{x.title}</strong>
-                  <span>{client ? x.freelancerName : x.company}</span>
-                </div>
-                <b className={`status ${getStatusClass(x.status)}`}>
-                  {x.status}
-                </b>
-              </button>
-            ))
-          ) : (
-            <div className="proposal-empty">
-              <Inbox />
-              <strong>Không có công việc nào</strong>
-              <span>
-                {tab === "Tất cả"
-                  ? "Bạn chưa có Assignment nào."
-                  : `Chưa có công việc ở trạng thái "${tab}".`}
-              </span>
-            </div>
-          )}
-        </section>
-        <section className="panel assignment-detail">
-          <button
-            className="mobile-back"
-            onClick={() => setMobileDetail(false)}
-          >
-            ← Quay lại danh sách
-          </button>
-          {item ? (
-            <>
-              <div className="record-header">
-                <div>
-                  <h2>{item.title}</h2>
-                  {!client && (
-                    <p>
-                      Assignment #{item.code} · Job: {item.company}
-                    </p>
-                  )}
-                </div>
-                <b className={`status ${getStatusClass(item.status)}`}>
-                  {item.status}
-                </b>
-              </div>
-              <div className="detail-stats">
-                <div>
-                  <span>{client ? "Freelancer" : "Client"}</span>
-                  <strong>{client ? item.freelancerName : item.company}</strong>
-                </div>
-                <div>
-                  <span>Giá đã thống nhất</span>
-                  <strong>{item.price}</strong>
-                </div>
-                <div>
-                  <span>Thời gian</span>
-                  <strong>{item.period}</strong>
-                </div>
-              </div>
-              <h3>Mô tả công việc</h3>
-              <p>{item.description}</p>
-              <div
-                style={{ display: "flex", gap: "10px", margin: "14px 0" }}
-              ></div>
-              {client && !isCompleted && !isCancelled && (
-                <div className="form-actions">
-                  <button
-                    className="danger-button"
-                    disabled
-                    title="Chưa có quy tắc và API hủy dự án"
-                  >
-                    Hủy Assignment
-                  </button>
-                  <button
-                    className="primary-button"
-                    onClick={() => setModal(true)}
-                  >
-                    Xác nhận hoàn thành
-                  </button>
-                </div>
-              )}
-              {client && isCompleted && !hasExistingReview && (
-                <div className="review-box">
-                  <h3>Đánh giá Freelancer</h3>
-                  <div className="rating-input">
-                    {[1, 2, 3, 4, 5].map((x) => (
-                      <Star
-                        key={x}
-                        fill={x <= ratingStars ? "currentColor" : "none"}
-                        onClick={() => setRatingStars(x)}
-                      />
-                    ))}
-                  </div>
-                  <textarea
-                    rows={4}
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Chia sẻ trải nghiệm làm việc..."
-                  />
-                  <button
-                    className="primary-button"
-                    onClick={() => {
-                      rateAssignment(
-                        item.id,
-                        ratingStars,
-                        comment.trim() ||
-                          "Hoàn thành đúng tiến độ, chủ động trao đổi và chất lượng sản phẩm tốt.",
-                      );
-                      setComment("");
-                    }}
-                  >
-                    Gửi đánh giá
-                  </button>
-                </div>
-              )}
-              {isCompleted && item.review && (
-                <div className="review-display">
-                  <div className="rating-input">
-                    {[1, 2, 3, 4, 5].map((x) => (
-                      <Star
-                        key={x}
-                        fill={
-                          x <= item.review!.rating ? "currentColor" : "none"
-                        }
-                      />
-                    ))}
-                  </div>
-                  <strong>{item.review.rating}.0 · Đánh giá từ Client</strong>
-                  <p>{item.review.comment}</p>
-                </div>
-              )}
-              {isCompleted && !client && !hasExistingReview && (
-                <div className="business-note neutral-note">
-                  <Star />
-                  <div>
-                    <strong>Chưa có đánh giá</strong>
-                    <p>Client chưa gửi nhận xét cho Assignment này.</p>
-                  </div>
-                </div>
-              )}
-              {!isCompleted && !isCancelled && !client && (
-                <div className="business-note waiting-note">
-                  <ShieldCheck />
-                  <div>
-                    <strong>Đang chờ Client nghiệm thu</strong>
-                    <p>Chỉ Client có quyền xác nhận hoàn thành Assignment.</p>
-                  </div>
-                </div>
-              )}
-              {isCancelled && (
-                <div className="business-note neutral-note cancelled-note">
-                  <AlertCircle />
-                  <div>
-                    <strong>Assignment đã hủy</strong>
-                    <p>Không thể gửi đánh giá cho công việc đã hủy.</p>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="proposal-empty">
-              <Inbox />
-              <strong>Chưa có chi tiết công việc</strong>
-              <span>
-                Chọn một trạng thái khác hoặc nhận Assignment mới để xem chi
-                tiết tại đây.
-              </span>
-            </div>
-          )}
-        </section>
-      </div>
-      {modal && item && (
-        <ConfirmModal
-          title="Xác nhận hoàn thành công việc?"
-          text="Sau khi xác nhận, bạn có thể đánh giá Freelancer một lần."
-          close={() => setModal(false)}
-          confirm={() => {
-            setModal(false);
-            completeAssignment(item.id);
-            changeTab("Đã hoàn thành");
-            setSelected(0);
-          }}
-        />
-      )}
-      {cancelModal && item && (
-        <ConfirmModal
-          title="Hủy Assignment này?"
-          text="Sau khi hủy, Assignment sẽ chuyển sang trạng thái Đã hủy và không thể khôi phục."
-          close={() => setCancelModal(false)}
-          confirm={() => {
-            setCancelModal(false);
-            cancelAssignment(item.id);
-            changeTab("Đã hủy");
-            setSelected(0);
-          }}
-        />
-      )}
-    </>
-  );
+  )
 }
 
 function JobManager({
@@ -9047,14 +5731,14 @@ function JobManager({
   initialJobId,
   initialAction = "details",
 }: {
-  admin?: boolean;
-  initialJobId?: number;
-  initialAction?: "details" | "proposals" | "create";
+  admin?: boolean
+  initialJobId?: number
+  initialAction?: "details" | "proposals" | "create"
 }) {
-  const { isDemoMode, notify } = useStore();
-  const [assignments, setAssignments] = useState(false);
-  const user = getSessionSnapshot().user;
-  if (isDemoMode) return <LegacyJobManager admin={admin} />;
+  const { notify } = useStore()
+  const [assignments, setAssignments] = useState(false)
+  const user = getSessionSnapshot().user
+
   return (
     <>
       {admin && (
@@ -9089,808 +5773,30 @@ function JobManager({
         />
       )}
     </>
-  );
-}
-
-function LegacyJobManager({ admin = false }: { admin?: boolean }) {
-  const {
-    jobs,
-    clientJobs,
-    isDemoMode,
-    talents,
-    proposals,
-    jobFilterStatus,
-    setJobFilterStatus,
-    saveJob,
-    closeJob,
-    acceptProposal,
-    rejectProposal,
-    openCvPreview,
-    downloadCvFile,
-    refreshClientData,
-    openChatWith,
-  } = useStore();
-  const [tab, setTab] = useState("Thông tin công việc");
-  const [create, setCreate] = useState(false);
-  const [editingJobId, setEditingJobId] = useState<string | undefined>(
-    undefined,
-  );
-  const [confirmAction, setConfirmAction] = useState<
-    "closeJob" | "acceptProposal" | "rejectProposal" | null
-  >(null);
-  const [selected, setSelected] = useState(0);
-  const [dirty, setDirty] = useState(false);
-  const [applicant, setApplicant] = useState(0);
-  const [cvOpen, setCvOpen] = useState(false);
-  const [mobileDetail, setMobileDetail] = useState(false);
-  const [filterQuery, setFilterQuery] = useState("");
-  const [savingJob, setSavingJob] = useState(false);
-  const [formError, setFormError] = useState("");
-
-  useEffect(() => {
-    if (!admin && refreshClientData) {
-      void refreshClientData();
-    }
-  }, [admin, refreshClientData]);
-
-  const [formTitle, setFormTitle] = useState("");
-  const [formBudget, setFormBudget] = useState("");
-  const [formDeadline, setFormDeadline] = useState("");
-  const [formSkills, setFormSkills] = useState("");
-  const [formDesc, setFormDesc] = useState("");
-
-  const sourceJobs = !admin
-    ? isDemoMode && clientJobs.length === 0
-      ? jobs
-      : clientJobs
-    : jobs;
-
-  const filteredJobs = sourceJobs.filter((item) => {
-    const matchText =
-      !filterQuery.trim() ||
-      `${item.title} ${item.company}`
-        .toLowerCase()
-        .includes(filterQuery.trim().toLowerCase());
-    const matchStatus =
-      jobFilterStatus === "Tất cả trạng thái" ||
-      item.status === jobFilterStatus;
-    return matchText && matchStatus;
-  });
-
-  const job =
-    filteredJobs[Math.min(selected, Math.max(0, filteredJobs.length - 1))] ||
-    sourceJobs[0] ||
-    null;
-  const jobSpecificProposals = job
-    ? proposals.filter((p) => String(p.jobId) === String(job.id))
-    : [];
-  const candidateProposal =
-    jobSpecificProposals[
-      applicant % Math.max(1, jobSpecificProposals.length)
-    ] || null;
-  const matchedTalent = talents.find(
-    (t) => t.name === candidateProposal?.freelancerName,
-  );
-  const candidate: TalentItem = candidateProposal?.freelancerName
-    ? {
-        name: candidateProposal.freelancerName,
-        initials:
-          candidateProposal.freelancerInitials ||
-          toInitials(candidateProposal.freelancerName),
-        role:
-          candidateProposal.freelancerRole ||
-          matchedTalent?.role ||
-          "Chuyên gia IT",
-        location: matchedTalent?.location || "Việt Nam",
-        hourlyRate: matchedTalent?.hourlyRate || "700.000đ/giờ",
-        rating:
-          candidateProposal.freelancerRating || matchedTalent?.rating || "5.0",
-        jobs:
-          candidateProposal.freelancerJobs ||
-          matchedTalent?.jobs ||
-          "Đã xác thực",
-        category: matchedTalent?.category || "Developer",
-        bio: candidateProposal.freelancerBio || matchedTalent?.bio || "",
-        skills:
-          candidateProposal.freelancerSkills &&
-          candidateProposal.freelancerSkills.length > 0
-            ? candidateProposal.freelancerSkills
-            : matchedTalent?.skills || ["Chưa cập nhật kỹ năng"],
-        portfolios: matchedTalent?.portfolios || [],
-        avatarUrl:
-          candidateProposal.freelancerAvatarUrl || matchedTalent?.avatarUrl,
-      }
-    : matchedTalent || talents[0] || initialTalents[0];
-
-  const openCreateForm = () => {
-    setEditingJobId(undefined);
-    setFormTitle("");
-    setFormBudget("");
-    setFormDeadline("");
-    setFormSkills("");
-    setFormDesc("");
-    setFormError("");
-    setDirty(false);
-    setCreate(true);
-    setMobileDetail(true);
-  };
-
-  const openEditForm = (target: JobItem) => {
-    setEditingJobId(target.id);
-    setFormTitle(target.title);
-    setFormBudget(target.budget);
-    const parts = target.deadline.split("/");
-    setFormDeadline(
-      parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : "",
-    );
-    setFormSkills(target.skills.join(", "));
-    setFormDesc(target.description);
-    setFormError("");
-    setDirty(false);
-    setCreate(true);
-  };
-
-  const closeForm = () => {
-    if (
-      !dirty ||
-      window.confirm("Bạn có thay đổi chưa lưu. Bạn có chắc muốn đóng?")
-    ) {
-      setCreate(false);
-      setDirty(false);
-      setFormError("");
-    }
-  };
-
-  const submitJobForm = async () => {
-    if (savingJob) return;
-    if (!formTitle.trim()) {
-      setFormError("Vui lòng nhập tiêu đề công việc.");
-      return;
-    }
-    if (!formBudget.trim() || parseVndInput(formBudget, 0) <= 0) {
-      setFormError(
-        "Vui lòng nhập ngân sách dự kiến hợp lệ (ví dụ: 25.000.000đ).",
-      );
-      return;
-    }
-    if (!formDesc.trim() || formDesc.trim().length < 15) {
-      setFormError(
-        "Vui lòng nhập mô tả công việc chi tiết (tối thiểu 15 ký tự).",
-      );
-      return;
-    }
-    const formattedDeadline = formDeadline.includes("-")
-      ? formDeadline.split("-").reverse().join("/")
-      : formDeadline || "30/12/2026";
-    const parsedSkills = formSkills
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    setFormError("");
-    setSavingJob(true);
-    const ok = await saveJob({
-      id: editingJobId,
-      title: formTitle.trim(),
-      budget: formBudget.trim(),
-      deadline: formattedDeadline,
-      skills: parsedSkills.length
-        ? parsedSkills
-        : ["React", "Node.js", "SQL Server"],
-      description: formDesc.trim(),
-    });
-    setSavingJob(false);
-    if (ok) {
-      setDirty(false);
-      setCreate(false);
-      setSelected(0);
-    }
-  };
-
-  return (
-    <>
-      <div
-        className={`manager-split responsive-manager ${!admin ? "client-job-manager" : ""} ${mobileDetail ? "show-detail" : ""}`}
-      >
-        <section className="panel manager-list">
-          <div className="management-head">
-            <div>
-              <h2>{admin ? "Tất cả Job" : "Job đã đăng"}</h2>
-              {admin && <p>Quản lý trong cùng một khu vực</p>}
-            </div>
-            {!admin && (
-              <button className="primary-button" onClick={openCreateForm}>
-                <Plus />
-                Đăng công việc
-              </button>
-            )}
-          </div>
-          <div className="mini-filter">
-            <Search />
-            <input
-              value={filterQuery}
-              onChange={(e) => {
-                setFilterQuery(e.target.value);
-                setSelected(0);
-              }}
-              placeholder="Tìm Job..."
-            />
-            <select
-              value={jobFilterStatus}
-              onChange={(e) => {
-                setJobFilterStatus(e.target.value);
-                setSelected(0);
-              }}
-            >
-              <option>Tất cả trạng thái</option>
-              <option>Đang mở</option>
-              <option>Đang thực hiện</option>
-              <option>Đã đóng</option>
-            </select>
-          </div>
-          {filteredJobs.length > 0 ? (
-            filteredJobs.map((item, index) => (
-              <button
-                className={job?.id === item.id ? "selected" : ""}
-                onClick={() => {
-                  setSelected(index);
-                  setApplicant(0);
-                  setCreate(false);
-                  setTab("Thông tin công việc");
-                  setMobileDetail(true);
-                }}
-                key={item.id}
-              >
-                <div>
-                  <strong>{item.title}</strong>
-                  <span>{item.company}</span>
-                </div>
-                <b
-                  className={`status ${item.status === "Đang mở" ? "state-open" : item.status === "Đã đóng" ? "state-closed" : "state-in_progress"}`}
-                >
-                  {item.status}
-                </b>
-              </button>
-            ))
-          ) : (
-            <div className="proposal-empty">
-              <Inbox />
-              <strong>Không tìm thấy công việc</strong>
-              <span>Thử thay đổi bộ lọc hoặc đăng công việc mới.</span>
-            </div>
-          )}
-        </section>
-        <section
-          className={`panel assignment-detail manager-detail-scroll ${job?.id === "job-saas-sales" ? "visual-job-saas" : ""}`}
-        >
-          <button
-            className="mobile-back"
-            onClick={() => setMobileDetail(false)}
-          >
-            ← Quay lại danh sách
-          </button>
-          {create ? (
-            <>
-              <div className="record-header">
-                <div>
-                  <h2>
-                    {editingJobId
-                      ? "Chỉnh sửa công việc"
-                      : "Đăng công việc mới"}
-                  </h2>
-                  <p>Điền đầy đủ thông tin bắt buộc.</p>
-                </div>
-                <button
-                  className="text-button"
-                  style={{ marginLeft: "auto" }}
-                  onClick={closeForm}
-                >
-                  Đóng
-                </button>
-              </div>
-              <div className="form-grid" onChange={() => setDirty(true)}>
-                <label className="full">
-                  Tiêu đề *
-                  <input
-                    value={formTitle}
-                    onChange={(e) => setFormTitle(e.target.value)}
-                    placeholder="Ví dụ: Senior React Developer"
-                  />
-                </label>
-                <label>
-                  Ngân sách *
-                  <input
-                    value={formBudget}
-                    onChange={(e) => setFormBudget(e.target.value)}
-                    placeholder="Ví dụ: 30.000.000đ"
-                  />
-                </label>
-                <label>
-                  Deadline
-                  <input
-                    type="date"
-                    value={formDeadline}
-                    onChange={(e) => setFormDeadline(e.target.value)}
-                  />
-                </label>
-                <label className="full">
-                  Kỹ năng yêu cầu
-                  <input
-                    value={formSkills}
-                    onChange={(e) => setFormSkills(e.target.value)}
-                    placeholder="React, Node.js, PostgreSQL"
-                  />
-                </label>
-                <label className="full">
-                  Mô tả *
-                  <textarea
-                    rows={7}
-                    value={formDesc}
-                    onChange={(e) => setFormDesc(e.target.value)}
-                    placeholder="Mô tả chi tiết phạm vi dự án, yêu cầu kỹ thuật và kết quả bàn giao..."
-                  />
-                </label>
-              </div>
-              {formError && (
-                <p className="auth-error">
-                  <AlertCircle size={16} />
-                  {formError}
-                </p>
-              )}
-              <div className="form-actions sticky-form-actions">
-                <button
-                  className="secondary-button"
-                  disabled={savingJob}
-                  onClick={closeForm}
-                >
-                  Đóng
-                </button>
-                <button
-                  className="primary-button"
-                  disabled={savingJob}
-                  onClick={submitJobForm}
-                >
-                  {savingJob ? "Đang lưu..." : "Lưu công việc"}
-                </button>
-              </div>
-            </>
-          ) : job ? (
-            <>
-              <div className="record-header">
-                <div>
-                  <h2>{job.title}</h2>
-                  {(admin || job.id !== "job-saas-sales") && (
-                    <p>
-                      Job #{job.id.replace("job-", "").toUpperCase()} · Tạo ngày{" "}
-                      {job.time}
-                    </p>
-                  )}
-                </div>
-                <b
-                  className={`status ${job.status === "Đang mở" ? "state-open" : job.status === "Đã đóng" ? "state-closed" : "state-in_progress"}`}
-                >
-                  {job.status}
-                </b>
-              </div>
-              {!admin && (
-                <div className="content-tabs">
-                  <button
-                    className={tab === "Thông tin công việc" ? "active" : ""}
-                    onClick={() => setTab("Thông tin công việc")}
-                  >
-                    Thông tin công việc
-                  </button>
-                  <button
-                    className={tab === "Đề xuất ứng tuyển" ? "active" : ""}
-                    onClick={() => {
-                      setTab("Đề xuất ứng tuyển");
-                      if (refreshClientData) void refreshClientData();
-                    }}
-                  >
-                    Đề xuất ứng tuyển (
-                    {jobSpecificProposals.length || job.proposals})
-                  </button>
-                </div>
-              )}
-              {tab === "Đề xuất ứng tuyển" && !admin ? (
-                jobSpecificProposals.length > 0 && candidateProposal ? (
-                  <div className="applicant-review">
-                    <div
-                      className="applicant-tabs"
-                      aria-label="Danh sách ứng viên"
-                    >
-                      {jobSpecificProposals.map((p, index) => (
-                        <button
-                          className={index === applicant ? "selected" : ""}
-                          onClick={() => {
-                            setApplicant(index);
-                            setCvOpen(false);
-                          }}
-                          key={p.id}
-                        >
-                          <UserAvatar
-                            as="span"
-                            className="avatar"
-                            avatarUrl={p.freelancerAvatarUrl}
-                            initials={
-                              p.freelancerInitials ||
-                              toInitials(p.freelancerName)
-                            }
-                            alt={p.freelancerName}
-                          />
-                          <span>
-                            <strong>
-                              {p.freelancerName || "Freelancer IT"}
-                            </strong>
-                            <small>{p.status}</small>
-                          </span>
-                          <ChevronRight />
-                        </button>
-                      ))}
-                    </div>
-                    <div className="applicant-proposal-detail">
-                      <div className="profile-hero">
-                        <UserAvatar
-                          className="talent-avatar"
-                          avatarUrl={
-                            candidateProposal.freelancerAvatarUrl ||
-                            candidate.avatarUrl
-                          }
-                          initials={candidate.initials}
-                          alt={candidate.name}
-                        />
-                        <div>
-                          <h3>{candidate.name}</h3>
-                          <p>
-                            {candidate.role} · {candidate.rating} sao ·{" "}
-                            {candidate.jobs}
-                          </p>
-                        </div>
-                        <div
-                          style={{
-                            marginLeft: "auto",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                          }}
-                        >
-                          <button
-                            type="button"
-                            className="secondary-button"
-                            title="Làm mới danh sách đề xuất"
-                            style={{
-                              padding: "6px 10px",
-                              fontSize: "12px",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "4px",
-                            }}
-                            onClick={() => void refreshClientData()}
-                          >
-                            <RotateCw size={13} /> Cập nhật
-                          </button>
-                          <b
-                            className={`status state-${candidateProposal.statusKey}`}
-                          >
-                            {candidateProposal.status}
-                          </b>
-                        </div>
-                      </div>
-                      <div className="skill-list big">
-                        {candidate.skills.map((skill) => (
-                          <span key={skill}>{skill}</span>
-                        ))}
-                      </div>
-                      <div className="proposal-facts">
-                        <div>
-                          <span>Giá đề xuất</span>
-                          <strong>{candidateProposal.price}</strong>
-                        </div>
-                        <div>
-                          <span>Thời gian dự kiến</span>
-                          <strong>{candidateProposal.duration}</strong>
-                        </div>
-                      </div>
-                      <h3>Thư ứng tuyển</h3>
-                      <p>{candidateProposal.cover}</p>
-                      <h3>Giới thiệu ứng viên</h3>
-                      <p>
-                        {candidate.bio?.trim()
-                          ? candidate.bio
-                          : "Ứng viên chưa cập nhật thông tin giới thiệu."}
-                      </p>
-                      <div className="cv-access">
-                        <FileText />
-                        <div>
-                          <strong>{candidateProposal.cv}</strong>
-                          <span>CV đầy đủ · PDF</span>
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                            marginLeft: "auto",
-                          }}
-                        >
-                          <button
-                            className="secondary-button"
-                            onClick={() => {
-                              if (candidateProposal.cvId != null) {
-                                void openCvPreview(
-                                  candidateProposal.cvId,
-                                  candidateProposal.cv,
-                                );
-                              } else if (isDemoMode) {
-                                setCvOpen(!cvOpen);
-                              } else {
-                                void openCvPreview(null, candidateProposal.cv);
-                              }
-                            }}
-                          >
-                            {isDemoMode && candidateProposal.cvId == null
-                              ? cvOpen
-                                ? "Đóng CV"
-                                : "Xem CV"
-                              : "Xem CV"}
-                          </button>
-                          <button
-                            className="secondary-button"
-                            onClick={() =>
-                              void downloadCvFile(
-                                candidateProposal.cvId,
-                                candidateProposal.cv,
-                              )
-                            }
-                          >
-                            Tải CV
-                          </button>
-                        </div>
-                      </div>
-                      {cvOpen &&
-                        isDemoMode &&
-                        candidateProposal.cvId == null && (
-                          <div
-                            className="cv-viewer"
-                            role="document"
-                            aria-label={`CV của ${candidate.name}`}
-                          >
-                            <header>
-                              <div>
-                                <strong>{candidate.name}</strong>
-                                <span>{candidate.role}</span>
-                              </div>
-                              <b>CV</b>
-                            </header>
-                            <section>
-                              <h4>Tóm tắt chuyên môn</h4>
-                              <p>
-                                {candidate.bio?.trim() ||
-                                  "Chuyên gia phát triển sản phẩm với kinh nghiệm xây dựng giao diện responsive, API và hệ thống vận hành thực tế."}
-                              </p>
-                              <h4>Kỹ năng</h4>
-                              <div className="skill-list">
-                                {candidate.skills.map((skill) => (
-                                  <span key={skill}>{skill}</span>
-                                ))}
-                              </div>
-                            </section>
-                          </div>
-                        )}
-                      <div
-                        className="proposal-actions"
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: "8px",
-                        }}
-                      >
-                        {candidateProposal.statusKey === "pending" &&
-                        job.status === "Đang mở" ? (
-                          <>
-                            <button
-                              className="secondary-button"
-                              onClick={() => setConfirmAction("rejectProposal")}
-                            >
-                              Từ chối Proposal
-                            </button>
-                            <button
-                              className="primary-button"
-                              onClick={() => setConfirmAction("acceptProposal")}
-                            >
-                              Chấp nhận Proposal
-                            </button>
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="proposal-empty">
-                    <Inbox />
-                    <strong>Chưa có đề xuất ứng tuyển nào</strong>
-                    <span>
-                      Khi Freelancer gửi Proposal cho công việc này, danh sách
-                      ứng viên và CV sẽ hiển thị tại đây.
-                    </span>
-                    <button
-                      type="button"
-                      className="secondary-button"
-                      style={{
-                        marginTop: "12px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                      onClick={() => void refreshClientData()}
-                    >
-                      <RotateCw size={14} /> Làm mới đề xuất
-                    </button>
-                  </div>
-                )
-              ) : (
-                <>
-                  <div className="detail-facts">
-                    <div>
-                      <CircleDollarSign />
-                      <span>
-                        Ngân sách<strong>{job.budget}</strong>
-                      </span>
-                    </div>
-                    <div>
-                      <Clock3 />
-                      <span>
-                        Deadline<strong>{job.deadline}</strong>
-                      </span>
-                    </div>
-                    <div>
-                      <FileText />
-                      <span>
-                        Ngày tạo<strong>{job.time}</strong>
-                      </span>
-                    </div>
-                  </div>
-                  <h3>Kỹ năng yêu cầu</h3>
-                  <div className="skill-list big">
-                    {job.skills.map((skill) => (
-                      <span key={skill}>{skill}</span>
-                    ))}
-                  </div>
-                  <h3>Mô tả công việc đầy đủ</h3>
-                  <RichDescription text={job.description} />
-                  <h3>Trách nhiệm chính</h3>
-                  <ul>
-                    <li>
-                      Phát triển sản phẩm theo phạm vi, tiêu chuẩn kỹ thuật và
-                      tiến độ đã thống nhất.
-                    </li>
-                    <li>
-                      Trao đổi định kỳ với Client, báo cáo rủi ro và cập nhật
-                      kết quả theo từng mốc.
-                    </li>
-                    <li>
-                      Bàn giao mã nguồn, tài liệu và hướng dẫn vận hành sau
-                      nghiệm thu.
-                    </li>
-                  </ul>
-                  <div className="management-metadata">
-                    <span>
-                      Hình thức<strong>Làm việc từ xa</strong>
-                    </span>
-                    <span>
-                      Số Proposal
-                      <strong>
-                        {jobSpecificProposals.length || job.proposals}
-                      </strong>
-                    </span>
-                    <span>
-                      Client<strong>{job.company}</strong>
-                    </span>
-                  </div>
-                  <div className="form-actions">
-                    {admin ? (
-                      job.status !== "Đã đóng" && (
-                        <button
-                          className="danger-button"
-                          onClick={() => setConfirmAction("closeJob")}
-                        >
-                          Đóng Job vi phạm
-                        </button>
-                      )
-                    ) : (
-                      <>
-                        {job.status === "Đang mở" && (
-                          <button
-                            className="danger-button"
-                            onClick={() => setConfirmAction("closeJob")}
-                          >
-                            Đóng Job
-                          </button>
-                        )}
-                        {job.status === "Đang mở" && (
-                          <button
-                            className="secondary-button"
-                            onClick={() => openEditForm(job)}
-                          >
-                            Chỉnh sửa Job
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <div className="proposal-empty">
-              <Inbox />
-              <strong>Chưa có công việc để hiển thị</strong>
-              <span>
-                {admin
-                  ? "Hệ thống chưa ghi nhận công việc nào."
-                  : 'Nhấn nút "+ Đăng công việc" để tạo tin tuyển dụng mới.'}
-              </span>
-            </div>
-          )}
-        </section>
-      </div>
-      {confirmAction === "closeJob" && job && (
-        <ConfirmModal
-          title={admin ? "Đóng Job vi phạm này?" : "Đóng công việc này?"}
-          text="Job sẽ chuyển sang trạng thái Đã đóng và không nhận thêm Proposal mới."
-          close={() => setConfirmAction(null)}
-          confirm={() => {
-            setConfirmAction(null);
-            closeJob(job.id);
-          }}
-        />
-      )}
-      {confirmAction === "acceptProposal" && job && candidateProposal && (
-        <ConfirmModal
-          title="Chấp nhận Proposal này?"
-          text="Hệ thống sẽ tạo duy nhất một Assignment cho Job này và tự động từ chối các Proposal đang chờ còn lại."
-          close={() => setConfirmAction(null)}
-          confirm={() => {
-            setConfirmAction(null);
-            acceptProposal(job.id, candidateProposal.id, candidate.name);
-          }}
-        />
-      )}
-      {confirmAction === "rejectProposal" && candidateProposal && (
-        <ConfirmModal
-          title="Từ chối Proposal này?"
-          text={`Bạn có chắc muốn từ chối Proposal của ${candidate.name}?`}
-          close={() => setConfirmAction(null)}
-          confirm={() => {
-            setConfirmAction(null);
-            rejectProposal(candidateProposal.id);
-          }}
-        />
-      )}
-    </>
-  );
+  )
 }
 
 function UserManager() {
-  const { users, profile, toggleUserLock, notify } = useStore();
-  const [query, setQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("Mọi vai trò");
-  const [selectedId, setSelectedId] = useState(users[0]?.id || "");
-  const [confirmLock, setConfirmLock] = useState(false);
+  const { users, profile, toggleUserLock, notify } = useStore()
+  const [query, setQuery] = useState("")
+  const [roleFilter, setRoleFilter] = useState("Mọi vai trò")
+  const [selectedId, setSelectedId] = useState(users[0]?.id || "")
+  const [confirmLock, setConfirmLock] = useState(false)
 
   const filtered = users.filter((u) => {
     const matchText =
       !query.trim() ||
-      `${u.name} ${u.email}`.toLowerCase().includes(query.trim().toLowerCase());
-    const matchRole = roleFilter === "Mọi vai trò" || u.role === roleFilter;
-    return matchText && matchRole;
-  });
+      `${u.name} ${u.email}`.toLowerCase().includes(query.trim().toLowerCase())
+    const matchRole = roleFilter === "Mọi vai trò" || u.role === roleFilter
+    return matchText && matchRole
+  })
 
   const activeUser =
-    filtered.find((u) => u.id === selectedId) || filtered[0] || users[0];
-  const isBlocked = activeUser?.status === "Đã khóa";
+    filtered.find((u) => u.id === selectedId) || filtered[0] || users[0]
+  const isBlocked = activeUser?.status === "Đã khóa"
   const isSelfAdmin =
     activeUser?.role === "Admin" ||
-    activeUser?.email.toLowerCase() === profile.email.toLowerCase();
+    activeUser?.email.toLowerCase() === profile.email.toLowerCase()
 
   return (
     <div className="manager-split">
@@ -9929,7 +5835,9 @@ function UserManager() {
               <span>{u.role}</span>
             </div>
             <b
-              className={`status ${u.status === "Đã khóa" ? "state-blocked" : "state-active"}`}
+              className={`status ${
+                u.status === "Đã khóa" ? "state-blocked" : "state-active"
+              }`}
             >
               {u.status}
             </b>
@@ -9970,10 +5878,10 @@ function UserManager() {
               disabled={isSelfAdmin}
               onClick={() => {
                 if (isSelfAdmin) {
-                  notify("Không thể khóa tài khoản quản trị viên hiện tại.");
-                  return;
+                  notify("Không thể khóa tài khoản quản trị viên hiện tại.")
+                  return
                 }
-                setConfirmLock(true);
+                setConfirmLock(true)
               }}
             >
               {isBlocked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
@@ -9991,29 +5899,29 @@ function UserManager() {
           }
           close={() => setConfirmLock(false)}
           confirm={() => {
-            setConfirmLock(false);
-            toggleUserLock(activeUser.id);
+            setConfirmLock(false)
+            toggleUserLock(activeUser.id)
           }}
         />
       )}
     </div>
-  );
+  )
 }
 
 function ClientProfileManager() {
-  const { profile, updateProfileInfo, notify } = useStore();
-  const [title, setTitle] = useState(profile.title || "");
-  const [bio, setBio] = useState(profile.bio || "");
-  const [companyName, setCompanyName] = useState("");
-  const [industry, setIndustry] = useState("");
-  const [location, setLocation] = useState("");
-  const [companyWebsite, setCompanyWebsite] = useState("");
-  const [publicContactPhone, setPublicContactPhone] = useState("");
-  const [publicContactEmail, setPublicContactEmail] = useState("");
-  const [loaded, setLoaded] = useState(false);
-  const [loadError, setLoadError] = useState("");
-  const [savingProfile, setSavingProfile] = useState(false);
-  const [refresh, setRefresh] = useState(0);
+  const { profile, updateProfileInfo, notify } = useStore()
+  const [title, setTitle] = useState(profile.title || "")
+  const [bio, setBio] = useState(profile.bio || "")
+  const [companyName, setCompanyName] = useState("")
+  const [industry, setIndustry] = useState("")
+  const [location, setLocation] = useState("")
+  const [companyWebsite, setCompanyWebsite] = useState("")
+  const [publicContactPhone, setPublicContactPhone] = useState("")
+  const [publicContactEmail, setPublicContactEmail] = useState("")
+  const [loaded, setLoaded] = useState(false)
+  const [loadError, setLoadError] = useState("")
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [refresh, setRefresh] = useState(0)
   const [savedValues, setSavedValues] = useState({
     title: "",
     bio: "",
@@ -10023,16 +5931,16 @@ function ClientProfileManager() {
     companyWebsite: "",
     publicContactPhone: "",
     publicContactEmail: "",
-  });
+  })
 
   useEffect(() => {
-    let active = true;
-    setLoaded(false);
-    setLoadError("");
+    let active = true
+    setLoaded(false)
+    setLoadError("")
     clientCompanyApi
       .mine()
       .then((data) => {
-        if (!active) return;
+        if (!active) return
         const values = {
           title: data.title || "",
           bio: data.bio || "",
@@ -10042,17 +5950,17 @@ function ClientProfileManager() {
           companyWebsite: data.companyWebsite || "",
           publicContactPhone: data.publicContactPhone || "",
           publicContactEmail: data.publicContactEmail || "",
-        };
-        setSavedValues(values);
-        setTitle(values.title);
-        setBio(values.bio);
-        setCompanyName(values.companyName);
-        setIndustry(values.industry);
-        setLocation(values.location);
-        setCompanyWebsite(values.companyWebsite);
-        setPublicContactPhone(values.publicContactPhone);
-        setPublicContactEmail(values.publicContactEmail);
-        setLoaded(true);
+        }
+        setSavedValues(values)
+        setTitle(values.title)
+        setBio(values.bio)
+        setCompanyName(values.companyName)
+        setIndustry(values.industry)
+        setLocation(values.location)
+        setCompanyWebsite(values.companyWebsite)
+        setPublicContactPhone(values.publicContactPhone)
+        setPublicContactEmail(values.publicContactEmail)
+        setLoaded(true)
       })
       .catch((error) => {
         if (active)
@@ -10060,32 +5968,32 @@ function ClientProfileManager() {
             error instanceof Error
               ? error.message
               : "Không thể tải thông tin doanh nghiệp.",
-          );
-      });
+          )
+      })
     return () => {
-      active = false;
-    };
-  }, [refresh]);
+      active = false
+    }
+  }, [refresh])
 
   const restore = () => {
-    setTitle(savedValues.title);
-    setBio(savedValues.bio);
-    setCompanyName(savedValues.companyName);
-    setIndustry(savedValues.industry);
-    setLocation(savedValues.location);
-    setCompanyWebsite(savedValues.companyWebsite);
-    setPublicContactPhone(savedValues.publicContactPhone);
-    setPublicContactEmail(savedValues.publicContactEmail);
-  };
+    setTitle(savedValues.title)
+    setBio(savedValues.bio)
+    setCompanyName(savedValues.companyName)
+    setIndustry(savedValues.industry)
+    setLocation(savedValues.location)
+    setCompanyWebsite(savedValues.companyWebsite)
+    setPublicContactPhone(savedValues.publicContactPhone)
+    setPublicContactEmail(savedValues.publicContactEmail)
+  }
 
   const handleSaveClientProfile = async () => {
-    if (savingProfile || !loaded) return;
-    const website = companyWebsite.trim();
-    const contact = publicContactPhone.trim();
-    const contactEmail = publicContactEmail.trim();
+    if (savingProfile || !loaded) return
+    const website = companyWebsite.trim()
+    const contact = publicContactPhone.trim()
+    const contactEmail = publicContactEmail.trim()
     if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
-      notify("Email liên hệ không hợp lệ.");
-      return;
+      notify("Email liên hệ không hợp lệ.")
+      return
     }
     if (
       bio.length > 500 ||
@@ -10095,24 +6003,24 @@ function ClientProfileManager() {
       location.length > 200 ||
       website.length > 1000
     ) {
-      notify("Một số thông tin vượt quá giới hạn ký tự.");
-      return;
+      notify("Một số thông tin vượt quá giới hạn ký tự.")
+      return
     }
     if (website && !/^https?:\/\/[^\s/]+(?:\/[^\s]*)?$/i.test(website)) {
       notify(
         "Website cần có địa chỉ đầy đủ bắt đầu bằng https:// hoặc http://.",
-      );
-      return;
+      )
+      return
     }
     if (
       contact &&
       (!/^[+()\d\s.-]{8,20}$/.test(contact) ||
         (contact.match(/\d/g) || []).length < 8)
     ) {
-      notify("Số điện thoại công khai không hợp lệ.");
-      return;
+      notify("Số điện thoại công khai không hợp lệ.")
+      return
     }
-    setSavingProfile(true);
+    setSavingProfile(true)
     try {
       const saved = await clientCompanyApi.save({
         fullName: profile.name,
@@ -10124,7 +6032,7 @@ function ClientProfileManager() {
         companyWebsite: website,
         publicContactPhone: contact,
         publicContactEmail: contactEmail,
-      });
+      })
       const next = {
         title: saved.title || "",
         bio: saved.bio || "",
@@ -10134,30 +6042,30 @@ function ClientProfileManager() {
         companyWebsite: saved.companyWebsite || "",
         publicContactPhone: saved.publicContactPhone || "",
         publicContactEmail: saved.publicContactEmail || "",
-      };
-      setSavedValues(next);
+      }
+      setSavedValues(next)
       const synced = await updateProfileInfo({
         title: next.title,
         bio: next.bio,
-      });
+      })
       if (synced)
         notify(
           "Đã lưu hồ sơ Client. Thông tin doanh nghiệp và liên hệ công khai đã được cập nhật.",
-        );
+        )
       else
         notify(
           "Đã lưu thông tin doanh nghiệp, nhưng chưa đồng bộ một phần giao diện. Vui lòng tải lại.",
-        );
+        )
     } catch (error) {
       notify(
         error instanceof Error
           ? error.message
           : "Không thể lưu hồ sơ doanh nghiệp.",
-      );
+      )
     } finally {
-      setSavingProfile(false);
+      setSavingProfile(false)
     }
-  };
+  }
 
   return (
     <section className="panel function-panel profile-panel client-profile-panel client-company-profile">
@@ -10342,67 +6250,67 @@ function ClientProfileManager() {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
 function SettingsPage({ logout: _logout }: { logout: () => void }) {
-  const { role, profile, updateProfileInfo, notify } = useStore();
-  const [name, setName] = useState(profile.name);
-  const [phone, setPhone] = useState(profile.phone);
-  const [bio, setBio] = useState(profile.bio || "");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const { role, profile, updateProfileInfo, notify } = useStore()
+  const [name, setName] = useState(profile.name)
+  const [phone, setPhone] = useState(profile.phone)
+  const [bio, setBio] = useState(profile.bio || "")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    setName(profile.name);
-    setPhone(profile.phone);
-    setBio(profile.bio || "");
-  }, [profile.name, profile.phone, profile.bio]);
+    setName(profile.name)
+    setPhone(profile.phone)
+    setBio(profile.bio || "")
+  }, [profile.name, profile.phone, profile.bio])
 
   const handleSaveSettings = async () => {
-    if (saving) return;
+    if (saving) return
     if (!name.trim()) {
-      setError("Vui lòng nhập họ và tên.");
-      return;
+      setError("Vui lòng nhập họ và tên.")
+      return
     }
     if (bio.length > 500) {
-      setError("Nội dung giới thiệu tối đa 500 ký tự.");
-      return;
+      setError("Nội dung giới thiệu tối đa 500 ký tự.")
+      return
     }
     if (newPassword || confirmPassword) {
-      const invalid = passwordError(newPassword);
+      const invalid = passwordError(newPassword)
       if (invalid) {
-        setError(invalid);
-        return;
+        setError(invalid)
+        return
       }
       if (newPassword !== confirmPassword) {
-        setError("Xác nhận mật khẩu mới không khớp.");
-        return;
+        setError("Xác nhận mật khẩu mới không khớp.")
+        return
       }
     }
-    setError("");
-    setSaving(true);
+    setError("")
+    setSaving(true)
     const ok = await updateProfileInfo({
       name: name.trim(),
       phone: phone.trim(),
       bio: bio.trim(),
       newPassword: newPassword || undefined,
       confirmPassword: confirmPassword || undefined,
-    });
-    setSaving(false);
+    })
+    setSaving(false)
     if (ok) {
-      setNewPassword("");
-      setConfirmPassword("");
-      notify("Đã lưu cài đặt tài khoản thành công.");
+      setNewPassword("")
+      setConfirmPassword("")
+      notify("Đã lưu cài đặt tài khoản thành công.")
     }
-  };
+  }
 
   const bioPlaceholder =
     role === "Client"
       ? "Chia sẻ đôi nét về bạn, lĩnh vực hoạt động và nhu cầu tìm kiếm Freelancer cho các dự án của mình..."
-      : "Giới thiệu về bản thân, kinh nghiệm, thế mạnh và lĩnh vực bạn muốn làm việc...";
+      : "Giới thiệu về bản thân, kinh nghiệm, thế mạnh và lĩnh vực bạn muốn làm việc..."
 
   return (
     <section className="panel function-panel settings-page">
@@ -10490,12 +6398,12 @@ function SettingsPage({ logout: _logout }: { logout: () => void }) {
               className="secondary-button"
               disabled={saving}
               onClick={() => {
-                setName(profile.name);
-                setPhone(profile.phone);
-                setBio(profile.bio || "");
-                setNewPassword("");
-                setConfirmPassword("");
-                setError("");
+                setName(profile.name)
+                setPhone(profile.phone)
+                setBio(profile.bio || "")
+                setNewPassword("")
+                setConfirmPassword("")
+                setError("")
               }}
             >
               Hủy
@@ -10511,7 +6419,7 @@ function SettingsPage({ logout: _logout }: { logout: () => void }) {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
 function Dashboard({
@@ -10520,23 +6428,23 @@ function Dashboard({
   setPage,
   onPublic,
   onLogout,
-  onDemoBack,
+
   theme,
   toggleTheme,
 }: {
-  role: Role;
-  page: string;
-  setPage: (page: string) => void;
-  onPublic: () => void;
-  onLogout: () => void;
-  onDemoBack?: () => void;
-  theme: Theme;
-  toggleTheme: () => void;
+  role: Role
+  page: string
+  setPage: (page: string) => void
+  onPublic: () => void
+  onLogout: () => void
+
+  theme: Theme
+  toggleTheme: () => void
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(
     () => sessionStorage.getItem("itlink-sidebar-collapsed") === "true",
-  );
+  )
   const [sidebarWidth, setSidebarWidth] = useState(() =>
     Math.min(
       240,
@@ -10545,64 +6453,59 @@ function Dashboard({
         Number(sessionStorage.getItem("itlink-sidebar-width")) || 224,
       ),
     ),
-  );
-  const [quickQuery, setQuickQuery] = useState("");
+  )
+  const [quickQuery, setQuickQuery] = useState("")
   useEffect(
     () => sessionStorage.setItem("itlink-sidebar-collapsed", String(collapsed)),
     [collapsed],
-  );
+  )
   useEffect(
     () => sessionStorage.setItem("itlink-sidebar-width", String(sidebarWidth)),
     [sidebarWidth],
-  );
+  )
   const [recruitmentJob, setRecruitmentJob] = useState<number | undefined>(
     undefined,
-  );
-  const [recruitmentAction, setRecruitmentAction] = useState<
-    "details" | "proposals" | "create"
-  >("details");
+  )
+  const [recruitmentAction, setRecruitmentAction] =
+    useState<"details" | "proposals" | "create">("details")
   useEffect(() => {
-    if (page !== "Quản lý công việc") setRecruitmentAction("details");
-  }, [page]);
+    if (page !== "Quản lý công việc") setRecruitmentAction("details")
+  }, [page])
   const updateQuickQuery = (value: string) => {
-    setQuickQuery(value);
-    if (role === "Freelancer" && value) setPage("Tìm việc");
-  };
-  const { isDemoMode, profile } = useStore();
-  const adminUser = getSessionSnapshot().user;
+    setQuickQuery(value)
+    if (role === "Freelancer" && value) setPage("Tìm việc")
+  }
+  const { profile } = useStore()
+  const adminUser = getSessionSnapshot().user
   const content =
     page === "Thông báo" ? (
-      <NotificationPage
-        user={isDemoMode ? null : getSessionSnapshot().user}
-        navigate={setPage}
-      />
+      <NotificationPage user={getSessionSnapshot().user} navigate={setPage} />
     ) : workspacePages[page] ? (
       <IntegratedWorkspace
         initialJobId={recruitmentJob}
         role={role}
         section={workspacePages[page]}
         user={getSessionSnapshot().user}
-        demo={isDemoMode}
         page={page}
         navigate={setPage}
       />
     ) : page === "Tổng quan" ? (
       <Overview
         onCreateJob={() => {
-          setRecruitmentJob(undefined);
-          setRecruitmentAction("create");
-          setPage("Quản lý công việc");
+          setRecruitmentJob(undefined)
+          setRecruitmentAction("create")
+          setPage("Quản lý công việc")
         }}
         onOpenJob={(id, panel) => {
-          setRecruitmentJob(undefined);
-          setRecruitmentAction("details");
-          setPage("Quản lý công việc");
+          setRecruitmentJob(undefined)
+          setRecruitmentAction("details")
+          setPage("Quản lý công việc")
           navigateClientJobs({
             jobId: id ?? null,
             invalidId: false,
             tab: panel,
             page: 0,
-          });
+          })
         }}
         role={role}
         openJobs={() =>
@@ -10619,7 +6522,7 @@ function Dashboard({
       <DashboardJobSearch query={quickQuery} onQueryChange={setQuickQuery} />
     ) : role === "Freelancer" && page === "Việc làm đã lưu" ? (
       <SavedJobsManager
-        key={getSessionSnapshot().user?.id ?? "demo"}
+        key={getSessionSnapshot().user?.id ?? "anonymous"}
         navigateDashboard={setPage}
       />
     ) : page === "Hỗ trợ" ? (
@@ -10643,9 +6546,9 @@ function Dashboard({
     ) : role === "Admin" && page === "Quản lý người dùng" ? (
       <UserManager />
     ) : (
-      <FunctionalPage title={page} role={role} />
-    );
-  const isProfilePage = page === "Hồ sơ của tôi" && role !== "Admin";
+      <div className="panel function-panel">Trang n?y hi?n kh?ng kh? d?ng.</div>
+    )
+  const isProfilePage = page === "Hồ sơ của tôi" && role !== "Admin"
   const hidePageWelcome =
     isProfilePage ||
     (role === "Freelancer" &&
@@ -10658,10 +6561,10 @@ function Dashboard({
     (role === "Client" &&
       (page === "Tổng quan" ||
         page === "Quản lý công việc" ||
-        page === "Không gian dự án"));
+        page === "Không gian dự án"))
   const shellStyle = {
     "--sidebar-width": `${collapsed ? 70 : sidebarWidth}px`,
-  } as CSSProperties;
+  } as CSSProperties
   const adminView =
     role === "Admin" ? (
       <AdminDashboard
@@ -10669,7 +6572,6 @@ function Dashboard({
         navigate={setPage}
         onPublic={onPublic}
         onLogout={onLogout}
-        onDemoBack={onDemoBack}
         theme={theme}
         toggleTheme={toggleTheme}
         user={
@@ -10677,43 +6579,36 @@ function Dashboard({
             ? { ...adminUser, fullName: profile.name || adminUser.fullName }
             : null
         }
-        demo={isDemoMode}
         settings={<SettingsPage logout={onLogout} />}
       />
-    ) : null;
+    ) : null
   return (
     adminView ?? (
       <div
-        className={`app-shell role-${role.toLowerCase()} ${collapsed ? "sidebar-collapsed" : ""}`}
+        className={`app-shell role-${role.toLowerCase()} ${
+          collapsed ? "sidebar-collapsed" : ""
+        }`}
         style={shellStyle}
       >
         <Sidebar
           role={role}
           page={page}
           select={(target) => {
-            setPage(target);
-            if (
-              !isDemoMode &&
-              role === "Client" &&
-              target === "Quản lý công việc"
-            )
+            setPage(target)
+            if (role === "Client" && target === "Quản lý công việc")
               navigateClientJobs({
                 ...readClientJobRoute(),
                 jobId: null,
                 invalidId: false,
                 tab: "details",
-              });
-            else if (
-              !isDemoMode &&
-              role === "Client" &&
-              target === "Không gian dự án"
-            ) {
+              })
+            else if (role === "Client" && target === "Không gian dự án") {
               window.history.pushState(
                 null,
                 "",
                 `#/dashboard/${encodeURIComponent("Không gian dự án")}`,
-              );
-              window.dispatchEvent(new PopStateEvent("popstate"));
+              )
+              window.dispatchEvent(new PopStateEvent("popstate"))
             }
           }}
           close={() => setOpen(false)}
@@ -10737,7 +6632,6 @@ function Dashboard({
             onLogout={onLogout}
             query={quickQuery}
             onQueryChange={updateQuickQuery}
-            onDemoBack={onDemoBack}
             theme={theme}
             toggleTheme={toggleTheme}
             hideSearch={
@@ -10774,25 +6668,24 @@ function Dashboard({
         </div>
       </div>
     )
-  );
+  )
 }
 
 function SupportPage() {
-  const { profile } = useStore();
-  const [name, setName] = useState(profile.name || "");
-  const [email, setEmail] = useState(profile.email || "");
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
-  const [result, setResult] = useState("");
-  const [requests, setRequests] = useState<
-    import("./api/support").SupportRequest[]
-  >([]);
-  const [historyError, setHistoryError] = useState("");
-  const [historyLoading, setHistoryLoading] = useState(true);
+  const { profile } = useStore()
+  const [name, setName] = useState(profile.name || "")
+  const [email, setEmail] = useState(profile.email || "")
+  const [subject, setSubject] = useState("")
+  const [message, setMessage] = useState("")
+  const [sending, setSending] = useState(false)
+  const [result, setResult] = useState("")
+  const [requests, setRequests] =
+    useState<import("./api/support").SupportRequest[]>([])
+  const [historyError, setHistoryError] = useState("")
+  const [historyLoading, setHistoryLoading] = useState(true)
   const loadRequests = () => {
-    setHistoryLoading(true);
-    setHistoryError("");
+    setHistoryLoading(true)
+    setHistoryError("")
     return supportApi
       .mine()
       .then(setRequests)
@@ -10801,26 +6694,26 @@ function SupportPage() {
           e instanceof Error ? e.message : "Không thể tải lịch sử hỗ trợ",
         ),
       )
-      .finally(() => setHistoryLoading(false));
-  };
+      .finally(() => setHistoryLoading(false))
+  }
   useEffect(() => {
-    void loadRequests();
-  }, []);
+    void loadRequests()
+  }, [])
   const submitSupport = async () => {
-    if (sending) return;
+    if (sending) return
     const input = {
       name: name.trim(),
       email: email.trim(),
       subject: subject.trim(),
       message: message.trim(),
-    };
+    }
     if (!input.name || !input.email || !input.subject || !input.message) {
-      setResult("Vui lòng nhập đầy đủ thông tin.");
-      return;
+      setResult("Vui lòng nhập đầy đủ thông tin.")
+      return
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
-      setResult("Email không hợp lệ.");
-      return;
+      setResult("Email không hợp lệ.")
+      return
     }
     if (
       input.name.length > 150 ||
@@ -10828,27 +6721,27 @@ function SupportPage() {
       input.subject.length > 200 ||
       input.message.length > 4000
     ) {
-      setResult("Nội dung vượt quá giới hạn cho phép.");
-      return;
+      setResult("Nội dung vượt quá giới hạn cho phép.")
+      return
     }
-    setSending(true);
-    setResult("");
+    setSending(true)
+    setResult("")
     try {
-      await supportApi.submitAuthenticated(input);
-      void loadRequests();
-      setSubject("");
-      setMessage("");
-      setResult("Yêu cầu hỗ trợ đã được gửi đến Admin.");
+      await supportApi.submitAuthenticated(input)
+      void loadRequests()
+      setSubject("")
+      setMessage("")
+      setResult("Yêu cầu hỗ trợ đã được gửi đến Admin.")
     } catch (error) {
       setResult(
         error instanceof Error
           ? error.message
           : "Không thể gửi yêu cầu. Vui lòng thử lại.",
-      );
+      )
     } finally {
-      setSending(false);
+      setSending(false)
     }
-  };
+  }
   const faqs = [
     [
       "Làm thế nào để đăng ký và đăng nhập?",
@@ -10894,7 +6787,7 @@ function SupportPage() {
       "Tôi gặp lỗi thì liên hệ ở đâu?",
       "Vào “Hỗ trợ” để xem hướng dẫn hoặc sử dụng thông tin liên hệ của nền tảng.",
     ],
-  ];
+  ]
   return (
     <div className="support-grid">
       <section className="panel function-panel">
@@ -11033,70 +6926,11 @@ function SupportPage() {
         )}
       </section>
     </div>
-  );
-}
-
-function DeveloperDemo({
-  preview,
-  theme,
-  toggleTheme,
-}: {
-  preview: (role: Role) => void;
-  theme: Theme;
-  toggleTheme: () => void;
-}) {
-  const options: [Role, string, string][] = [
-    [
-      "Freelancer",
-      "Preview Freelancer",
-      "Kiểm thử tìm việc, Proposal và Assignment.",
-    ],
-    [
-      "Client",
-      "Preview Client",
-      "Kiểm thử quản lý Job, Proposal và nghiệm thu.",
-    ],
-    ["Admin", "Preview Admin", "Kiểm thử quản lý người dùng và công việc."],
-  ];
-  return (
-    <main className="developer-demo">
-      <div className="developer-demo-card">
-        <div className="demo-brand">
-          <Logo />
-          <p>Kết nối. Hợp tác. Sáng tạo.</p>
-        </div>
-        <div>
-          <h1>Developer Demo</h1>
-          <p>
-            Chọn một vai trò để kiểm thử giao diện mockup. Chế độ này không thay
-            thế cơ chế phân quyền thực tế.
-          </p>
-        </div>
-        <div className="demo-role-grid">
-          {options.map(([role, title, text]) => (
-            <button key={role} onClick={() => preview(role)}>
-              <div>
-                {role === "Admin" ? (
-                  <ShieldCheck />
-                ) : role === "Client" ? (
-                  <BriefcaseBusiness />
-                ) : (
-                  <UserRound />
-                )}
-              </div>
-              <strong>{title}</strong>
-              <span>{text}</span>
-              <ArrowRight />
-            </button>
-          ))}
-        </div>
-      </div>
-    </main>
-  );
+  )
 }
 
 function Footer({ go }: { go?: (p: PublicPage) => void }) {
-  const { loggedIn, role, navigateToDashboard, notify } = useStore();
+  const { loggedIn, role, navigateToDashboard, notify } = useStore()
   return (
     <footer>
       <div>
@@ -11113,12 +6947,12 @@ function Footer({ go }: { go?: (p: PublicPage) => void }) {
           style={{ cursor: "pointer" }}
           onClick={() => {
             if (loggedIn && role === "Freelancer")
-              navigateToDashboard("Hồ sơ của tôi");
+              navigateToDashboard("Hồ sơ của tôi")
             else if (loggedIn)
               notify(
                 "Chức năng Hồ sơ Freelancer dành cho tài khoản Freelancer.",
-              );
-            else go?.("register");
+              )
+            else go?.("register")
           }}
         >
           Xây dựng hồ sơ
@@ -11127,9 +6961,9 @@ function Footer({ go }: { go?: (p: PublicPage) => void }) {
           style={{ cursor: "pointer" }}
           onClick={() => {
             if (loggedIn && role === "Freelancer")
-              navigateToDashboard("Đề xuất đã gửi");
-            else if (loggedIn) navigateToDashboard("Quản lý công việc");
-            else go?.("login");
+              navigateToDashboard("Đề xuất đã gửi")
+            else if (loggedIn) navigateToDashboard("Quản lý công việc")
+            else go?.("login")
           }}
         >
           Quản lý Proposal
@@ -11138,12 +6972,10 @@ function Footer({ go }: { go?: (p: PublicPage) => void }) {
           style={{ cursor: "pointer" }}
           onClick={() => {
             if (loggedIn && role === "Freelancer")
-              navigateToDashboard("Việc làm đã lưu");
+              navigateToDashboard("Việc làm đã lưu")
             else if (loggedIn)
-              notify(
-                "Chức năng Việc làm đã lưu dành cho tài khoản Freelancer.",
-              );
-            else go?.("jobs");
+              notify("Chức năng Việc làm đã lưu dành cho tài khoản Freelancer.")
+            else go?.("jobs")
           }}
         >
           Việc làm đã lưu
@@ -11155,12 +6987,12 @@ function Footer({ go }: { go?: (p: PublicPage) => void }) {
           style={{ cursor: "pointer" }}
           onClick={() => {
             if (loggedIn && role === "Client")
-              navigateToDashboard("Quản lý công việc");
+              navigateToDashboard("Quản lý công việc")
             else if (loggedIn && role === "Freelancer")
               notify(
                 "Vui lòng sử dụng tài khoản Client để đăng dự án tuyển dụng.",
-              );
-            else go?.("register");
+              )
+            else go?.("register")
           }}
         >
           Đăng dự án
@@ -11185,13 +7017,11 @@ function Footer({ go }: { go?: (p: PublicPage) => void }) {
         </span>
       </div>
     </footer>
-  );
+  )
 }
 
 export default function App() {
-  const devRoute =
-    import.meta.env.DEV && window.location.pathname === "/dev-demo";
-  const authState = useSyncExternalStore(subscribeSession, getSessionSnapshot);
+  const authState = useSyncExternalStore(subscribeSession, getSessionSnapshot)
   const publicPages: PublicPage[] = [
     "home",
     "jobs",
@@ -11201,92 +7031,86 @@ export default function App() {
     "contact",
     "login",
     "register",
-  ];
+  ]
   const parseRouteHash = (
     hash: string,
     isLoggedIn: boolean,
     currentRole: Role,
   ): {
-    mode: "public" | "dashboard";
-    page: PublicPage;
-    dashboardPage: string;
+    mode: "public" | "dashboard"
+    page: PublicPage
+    dashboardPage: string
   } => {
-    let path = "/";
+    let path = "/"
     try {
-      path = decodeURIComponent(hash.replace(/^#/, "").split("?")[0]) || "/";
+      path = decodeURIComponent(hash.replace(/^#/, "").split("?")[0]) || "/"
     } catch {}
     if (path.startsWith("/dashboard")) {
       if (!isLoggedIn)
-        return { mode: "public", page: "login", dashboardPage: "Tổng quan" };
-      const rawRequested = path.replace(/^\/dashboard\/?/, "");
+        return { mode: "public", page: "login", dashboardPage: "Tổng quan" }
+      const rawRequested = path.replace(/^\/dashboard\/?/, "")
       const adminAliases: Record<string, string> = {
         "Quản lý công việc": "Quản lý Job",
         "Báo cáo": "Báo cáo & thống kê",
         "Không gian dự án": "Quản lý dự án",
-      };
+      }
       if (currentRole === "Admin" && adminAliases[rawRequested])
         return {
           mode: "dashboard",
           page: "home",
           dashboardPage: adminAliases[rawRequested],
-        };
+        }
       const requested =
         currentRole === "Client" && rawRequested === "Công việc đang thực hiện"
           ? "Không gian dự án"
           : currentRole === "Client" && rawRequested === "Chất lượng tin"
             ? "Quản lý công việc"
-            : rawRequested;
-      const allowed = menus[currentRole] || [];
-      const known = [...allowed, "Cài đặt tài khoản", "Thông báo"];
+            : rawRequested
+      const allowed = menus[currentRole] || []
+      const known = [...allowed, "Cài đặt tài khoản", "Thông báo"]
       return {
         mode: "dashboard",
         page: "home",
         dashboardPage: known.includes(requested) ? requested : "Tổng quan",
-      };
+      }
     }
-    const name = path.replace(/^\//, "") as PublicPage;
+    const name = path.replace(/^\//, "") as PublicPage
     return {
       mode: "public",
       page: publicPages.includes(name) ? name : "home",
       dashboardPage: "Tổng quan",
-    };
-  };
+    }
+  }
   const initialRoute = parseRouteHash(
     window.location.hash,
     !!authState.user,
     uiRole(authState.user) || "Freelancer",
-  );
-  const [mode, setMode] = useState<"public" | "dashboard">(initialRoute.mode);
-  const [page, setPage] = useState<PublicPage>(initialRoute.page);
-  const [dashboardPage, setDashboardPage] = useState(
-    initialRoute.dashboardPage,
-  );
-  const [loggedIn, setLoggedIn] = useState(!!authState.user);
-  const [role, setRole] = useState<Role>(
-    uiRole(authState.user) || "Freelancer",
-  );
-  const [returnTo, setReturnTo] = useState<PublicPage | null>(null);
-  const [selectedJobId, setSelectedJobId] = useState("");
-  const [publicSearchQuery, setPublicSearchQuery] = useState("");
-  const [demoActive, setDemoActive] = useState(false);
-  const [theme, setTheme] = useState<Theme>("light");
+  )
+  const [mode, setMode] = useState<"public" | "dashboard">(initialRoute.mode)
+  const [page, setPage] = useState<PublicPage>(initialRoute.page)
+  const [dashboardPage, setDashboardPage] = useState(initialRoute.dashboardPage)
+  const [loggedIn, setLoggedIn] = useState(!!authState.user)
+  const [role, setRole] = useState<Role>(uiRole(authState.user) || "Freelancer")
+  const [returnTo, setReturnTo] = useState<PublicPage | null>(null)
+  const [selectedJobId, setSelectedJobId] = useState("")
+  const [publicSearchQuery, setPublicSearchQuery] = useState("")
 
-  const [jobsState, setJobsState] = useState<JobItem[]>([]);
-  const [clientJobsState, setClientJobsState] = useState<JobItem[]>([]);
-  const [proposalsState, setProposalsState] = useState<ProposalItem[]>([]);
-  const [assignmentsState, setAssignmentsState] = useState<AssignmentItem[]>(
-    [],
-  );
-  const [talentsState, setTalentsState] = useState<TalentItem[]>([]);
-  const [usersState, setUsersState] = useState<UserItem[]>([]);
+  const [theme, setTheme] = useState<Theme>("light")
+
+  const [jobsState, setJobsState] = useState<JobItem[]>([])
+  const [clientJobsState, setClientJobsState] = useState<JobItem[]>([])
+  const [proposalsState, setProposalsState] = useState<ProposalItem[]>([])
+  const [assignmentsState, setAssignmentsState] = useState<AssignmentItem[]>([])
+  const [talentsState, setTalentsState] = useState<TalentItem[]>([])
+  const [usersState, setUsersState] = useState<UserItem[]>([])
   const [profileState, setProfileState] = useState<FreelancerProfileData>(() =>
     createEmptyAuthenticatedProfile(),
-  );
+  )
   const [assignmentFilter, setAssignmentFilter] =
-    useState<AssignmentFilterTab>("Tất cả");
+    useState<AssignmentFilterTab>("Tất cả")
   const [jobFilterStatus, setJobFilterStatus] =
-    useState<string>("Tất cả trạng thái");
-  const [profileTab, setProfileTab] = useState<ProfileTab>("Thông tin cá nhân");
+    useState<string>("Tất cả trạng thái")
+  const [profileTab, setProfileTab] = useState<ProfileTab>("Thông tin cá nhân")
   const [selectedTalent, setSelectedTalent] = useState<TalentItem>({
     name: "",
     role: "",
@@ -11299,89 +7123,62 @@ export default function App() {
     bio: "",
     skills: [],
     portfolios: [],
-  });
-  const [applyingJob, setApplyingJob] = useState<JobItem | null>(null);
+  })
+  const [applyingJob, setApplyingJob] = useState<JobItem | null>(null)
   const [cvPreview, setCvPreview] = useState<{
-    fileName: string;
-    cvId: string | number | null;
-    blobUrl: string | null;
-    loading: boolean;
-    error: string | null;
-  } | null>(null);
-  const cvPreviewRequest = useRef(0);
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
-  const isDemoMode = Boolean(devRoute && demoActive);
-  const savedJobs = useSavedJobs(devRoute ? null : authState.user);
-  const [demoSavedIds, setDemoSavedIds] = useState<string[]>(() => {
-    if (!devRoute) return [];
-    try {
-      const stored: unknown = JSON.parse(
-        localStorage.getItem("linkit_saved_jobs_demo") || "[]",
-      );
-      return Array.isArray(stored)
-        ? [
-            ...new Set(
-              stored.filter((id): id is string => typeof id === "string"),
-            ),
-          ]
-        : [];
-    } catch {
-      return [];
-    }
-  });
-  const savedJobIds = isDemoMode ? demoSavedIds : savedJobs.ids;
-  const toggleSaveJob = async (jobId: string) => {
-    if (!isDemoMode && !loggedIn) {
-      setReturnTo(page);
-      setPage("login");
-      return;
-    }
-    const wasSaved = savedJobIds.includes(jobId);
-    if (isDemoMode) {
-      const next = wasSaved
-        ? demoSavedIds.filter((id) => id !== jobId)
-        : [...demoSavedIds, jobId];
-      try {
-        localStorage.setItem("linkit_saved_jobs_demo", JSON.stringify(next));
-        setDemoSavedIds(next);
-      } catch {
-        notify("Không thể lưu danh sách demo trên trình duyệt này.");
-      }
-      return;
-    }
-    if (await savedJobs.toggle(jobId))
-      notify(wasSaved ? "Đã bỏ lưu việc làm." : "Đã lưu việc làm.");
-  };
+    fileName: string
+    cvId: string | number | null
+    blobUrl: string | null
+    loading: boolean
+    error: string | null
+  } | null>(null)
+  const cvPreviewRequest = useRef(0)
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
 
-  const isJobSaved = (jobId: string) => savedJobIds.includes(jobId);
+  const savedJobs = useSavedJobs(authState.user)
+
+  const savedJobIds = savedJobs.ids
+  const toggleSaveJob = async (jobId: string) => {
+    if (!loggedIn) {
+      setReturnTo(page)
+      setPage("login")
+      return
+    }
+    const wasSaved = savedJobIds.includes(jobId)
+
+    if (await savedJobs.toggle(jobId))
+      notify(wasSaved ? "Đã bỏ lưu việc làm." : "Đã lưu việc làm.")
+  }
+
+  const isJobSaved = (jobId: string) => savedJobIds.includes(jobId)
 
   const openChatWith = (_partner: {
-    name: string;
-    role?: string;
-    avatarUrl?: string | null;
-    jobId?: string;
-    jobTitle?: string;
+    name: string
+    role?: string
+    avatarUrl?: string | null
+    jobId?: string
+    jobTitle?: string
   }) => {
-    notify("Chat nằm ngoài phạm vi sản phẩm LinkIT.");
-  };
+    notify("Chat nằm ngoài phạm vi sản phẩm LinkIT.")
+  }
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+    document.documentElement.dataset.theme = theme
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "dark" ? "#111827" : "#16A34A");
-  }, [theme]);
+      ?.setAttribute("content", theme === "dark" ? "#111827" : "#16A34A")
+  }, [theme])
 
   const notify = (msg: string) => {
-    setToastMsg(msg);
-  };
+    setToastMsg(msg)
+  }
 
-  const routeRef = useRef({ loggedIn, role });
-  routeRef.current = { loggedIn, role };
-  const historyInitialized = useRef(false);
+  const routeRef = useRef({ loggedIn, role })
+  routeRef.current = { loggedIn, role }
+  const historyInitialized = useRef(false)
   const rawWorkspaceSection = new URLSearchParams(
     window.location.hash.split("?")[1] || "",
-  ).get("section");
+  ).get("section")
   const workspaceSection = [
     "overview",
     "scope",
@@ -11391,30 +7188,53 @@ export default function App() {
     "acceptance",
   ].includes(rawWorkspaceSection || "")
     ? rawWorkspaceSection
-    : null;
+    : null
   const routeHash =
     mode === "dashboard" && loggedIn
-      ? `#/dashboard/${encodeURIComponent(dashboardPage)}${(role === "Admin" || dashboardPage === "Đề xuất đã gửi" || (role === "Freelancer" && dashboardPage === "Tìm việc")) && window.location.hash.split("?")[0] === `#/dashboard/${encodeURIComponent(dashboardPage)}` ? (window.location.hash.includes("?") ? `?${window.location.hash.split("?")[1]}` : "") : !isDemoMode && role === "Client" && dashboardPage === "Quản lý công việc" ? clientJobQuery() : !isDemoMode && ["overview", "scope", "milestones", "changes", "risks", "acceptance"].includes(workspacePages[dashboardPage]) && workspaceId(window.location.hash) ? `?assignmentId=${workspaceId(window.location.hash)}${workspaceSection ? "&section=" + workspaceSection : ""}` : ""}`
-      : `#/${page === "home" ? "" : page}`;
+      ? `#/dashboard/${encodeURIComponent(dashboardPage)}${
+          (role === "Admin" ||
+            dashboardPage === "Đề xuất đã gửi" ||
+            (role === "Freelancer" && dashboardPage === "Tìm việc")) &&
+          window.location.hash.split("?")[0] ===
+            `#/dashboard/${encodeURIComponent(dashboardPage)}`
+            ? window.location.hash.includes("?")
+              ? `?${window.location.hash.split("?")[1]}`
+              : ""
+            : role === "Client" && dashboardPage === "Quản lý công việc"
+              ? clientJobQuery()
+              : [
+                    "overview",
+                    "scope",
+                    "milestones",
+                    "changes",
+                    "risks",
+                    "acceptance",
+                  ].includes(workspacePages[dashboardPage]) &&
+                  workspaceId(window.location.hash)
+                ? `?assignmentId=${workspaceId(window.location.hash)}${
+                    workspaceSection ? "&section=" + workspaceSection : ""
+                  }`
+                : ""
+        }`
+      : `#/${page === "home" ? "" : page}`
 
   useEffect(() => {
     if (
-      !devRoute &&
-      (authState.status === "loading" ||
-        authState.status === "error" ||
-        (!!authState.user && !loggedIn))
+      authState.status === "loading" ||
+      authState.status === "error" ||
+      (!!authState.user && !loggedIn)
     )
-      return;
+      return
     const normalize = (h: string) => {
       try {
-        return decodeURIComponent(h) || "#/";
+        return decodeURIComponent(h) || "#/"
       } catch {
-        return h || "#/";
+        return h || "#/"
       }
-    };
+    }
     if (normalize(window.location.hash) === normalize(routeHash)) {
-      historyInitialized.current = true;
-      return;
+      historyInitialized.current = true
+      return
     }
     if (
       !historyInitialized.current ||
@@ -11424,140 +7244,141 @@ export default function App() {
           "#/dashboard/Chất lượng tin",
         ].includes(normalize(window.location.hash).split("?")[0]))
     ) {
-      window.history.replaceState(window.history.state, "", routeHash);
-      historyInitialized.current = true;
+      window.history.replaceState(window.history.state, "", routeHash)
+      historyInitialized.current = true
     } else {
-      window.history.pushState(null, "", routeHash);
+      window.history.pushState(null, "", routeHash)
     }
-  }, [routeHash, authState.status, devRoute, loggedIn]);
+  }, [routeHash, authState.status, loggedIn])
 
   useEffect(() => {
     const onPop = () => {
-      const { loggedIn: isIn, role: r } = routeRef.current;
+      const { loggedIn: isIn, role: r } = routeRef.current
       if (r === "Client") {
-        let currentPath = "";
+        let currentPath = ""
         try {
-          currentPath = decodeURIComponent(window.location.hash.split("?")[0]);
+          currentPath = decodeURIComponent(window.location.hash.split("?")[0])
         } catch {}
         if (currentPath === "#/dashboard/Công việc đang thực hiện") {
-          const assignmentId = workspaceId(window.location.hash);
+          const assignmentId = workspaceId(window.location.hash)
           window.history.replaceState(
             window.history.state,
             "",
-            `#/dashboard/${encodeURIComponent("Không gian dự án")}${assignmentId ? `?assignmentId=${assignmentId}` : ""}`,
-          );
+            `#/dashboard/${encodeURIComponent("Không gian dự án")}${
+              assignmentId ? `?assignmentId=${assignmentId}` : ""
+            }`,
+          )
         } else if (currentPath === "#/dashboard/Chất lượng tin") {
           window.history.replaceState(
             window.history.state,
             "",
             `#/dashboard/${encodeURIComponent("Quản lý công việc")}${clientJobQuery({ ...readClientJobRoute(), tab: "quality" })}`,
-          );
+          )
         }
       }
-      const next = parseRouteHash(window.location.hash, isIn, r);
+      const next = parseRouteHash(window.location.hash, isIn, r)
       if (
         isIn &&
         window.location.hash.startsWith("#/dashboard/") &&
         next.dashboardPage === "Tổng quan"
       ) {
-        let requested = "";
+        let requested = ""
         try {
           requested = decodeURIComponent(window.location.hash)
             .split("/dashboard/")[1]
-            ?.split("?")[0];
+            ?.split("?")[0]
         } catch {}
         if (requested && requested !== "Tổng quan")
-          notify("Bạn không có quyền truy cập trang này.");
+          notify("Bạn không có quyền truy cập trang này.")
       }
-      setMode(next.mode);
-      setPage(next.page);
-      setDashboardPage(next.dashboardPage);
-    };
-    window.addEventListener("popstate", onPop);
-    window.addEventListener("hashchange", onPop);
+      setMode(next.mode)
+      setPage(next.page)
+      setDashboardPage(next.dashboardPage)
+    }
+    window.addEventListener("popstate", onPop)
+    window.addEventListener("hashchange", onPop)
     return () => {
-      window.removeEventListener("popstate", onPop);
-      window.removeEventListener("hashchange", onPop);
-    };
-  }, []);
+      window.removeEventListener("popstate", onPop)
+      window.removeEventListener("hashchange", onPop)
+    }
+  }, [])
 
   const closeCvPreview = () => {
-    cvPreviewRequest.current += 1;
+    cvPreviewRequest.current += 1
     setCvPreview((prev) => {
-      if (prev?.blobUrl) URL.revokeObjectURL(prev.blobUrl);
-      return null;
-    });
-  };
+      if (prev?.blobUrl) URL.revokeObjectURL(prev.blobUrl)
+      return null
+    })
+  }
 
   const navigateToDashboard = (targetPage: string) => {
-    const legacyQuality = role === "Client" && targetPage === "Chất lượng tin";
-    if (legacyQuality) targetPage = "Quản lý công việc";
+    const legacyQuality = role === "Client" && targetPage === "Chất lượng tin"
+    if (legacyQuality) targetPage = "Quản lý công việc"
     if (role === "Client" && targetPage === "Công việc đang thực hiện")
-      targetPage = "Không gian dự án";
+      targetPage = "Không gian dự án"
     if (!loggedIn) {
-      setMode("public");
-      setPage("login");
-      return;
+      setMode("public")
+      setPage("login")
+      return
     }
     if (
-      (!isDemoMode && !canUseDashboard(authState.user, role)) ||
+      !canUseDashboard(authState.user, role) ||
       ![...menus[role], "Cài đặt tài khoản", "Thông báo"].includes(targetPage)
     ) {
-      notify("Bạn không có quyền truy cập trang này.");
-      return;
+      notify("Bạn không có quyền truy cập trang này.")
+      return
     }
-    setDashboardPage(targetPage);
-    setMode("dashboard");
+    setDashboardPage(targetPage)
+    setMode("dashboard")
     if (legacyQuality)
-      navigateClientJobs({ ...readClientJobRoute(), tab: "quality" });
-  };
+      navigateClientJobs({ ...readClientJobRoute(), tab: "quality" })
+  }
 
   const fetchJobs = useCallback(async () => {
-    if (devRoute || !getAccessToken()) return;
-    const epoch = sessionGeneration();
+    if (!getAccessToken()) return
+    const epoch = sessionGeneration()
     try {
-      const result = await jobApi.search({ page: 0, size: 6 });
-      if (epoch !== sessionGeneration()) return;
-      const mapped = result.content.map(mapJobDtoToItem);
-      setJobsState(mapped);
-      setSelectedJobId((previous) => previous || mapped[0]?.id || "");
+      const result = await jobApi.search({ page: 0, size: 6 })
+      if (epoch !== sessionGeneration()) return
+      const mapped = result.content.map(mapJobDtoToItem)
+      setJobsState(mapped)
+      setSelectedJobId((previous) => previous || mapped[0]?.id || "")
     } catch (e) {
-      if (epoch !== sessionGeneration()) return;
-      setJobsState([]);
-      notify(e instanceof Error ? e.message : "Không thể tải Job.");
+      if (epoch !== sessionGeneration()) return
+      setJobsState([])
+      notify(e instanceof Error ? e.message : "Không thể tải Job.")
     }
-  }, [devRoute]);
+  }, [])
   useEffect(() => {
-    if (!devRoute && authState.user && page === "home") void fetchJobs();
-  }, [authState.user, page, fetchJobs, devRoute]);
+    if (authState.user && page === "home") void fetchJobs()
+  }, [authState.user, page, fetchJobs])
 
   const refreshClientData = useCallback(async () => {
-    if (devRoute || !getAccessToken()) return;
-    const epoch = sessionGeneration();
+    if (!getAccessToken()) return
+    const epoch = sessionGeneration()
     try {
-      const result = await jobApi.mine(0, 100);
-      if (epoch !== sessionGeneration()) return;
-      setClientJobsState(result.content.map(mapJobDtoToItem));
+      const result = await jobApi.mine(0, 100)
+      if (epoch !== sessionGeneration()) return
+      setClientJobsState(result.content.map(mapJobDtoToItem))
     } catch (e) {
-      if (epoch !== sessionGeneration()) return;
-      setClientJobsState([]);
-      notify(e instanceof Error ? e.message : "Không thể tải Job.");
+      if (epoch !== sessionGeneration()) return
+      setClientJobsState([])
+      notify(e instanceof Error ? e.message : "Không thể tải Job.")
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     if (
-      devRoute ||
       authState.status !== "authenticated" ||
       !authState.user?.roles.includes("CLIENT") ||
       role !== "Client"
     )
-      return;
-    let active = true;
+      return
+    let active = true
     userApi
       .me()
       .then((saved) => {
-        if (!active) return;
+        if (!active) return
         setProfileState((prev) => ({
           ...prev,
           name: saved.fullName,
@@ -11567,7 +7388,7 @@ export default function App() {
           phone: saved.phoneNumber ?? "",
           bio: saved.bio ?? "",
           title: saved.title ?? "",
-        }));
+        }))
       })
       .catch((error) => {
         if (active)
@@ -11575,20 +7396,20 @@ export default function App() {
             error instanceof Error
               ? error.message
               : "Không thể tải hồ sơ Client.",
-          );
-      });
+          )
+      })
     return () => {
-      active = false;
-    };
-  }, [devRoute, authState.status, authState.user, role]);
+      active = false
+    }
+  }, [authState.status, authState.user, role])
 
   const refreshFreelancerData = useCallback(async () => {
-    if (devRoute || !getAccessToken()) return false;
-    const epoch = sessionGeneration();
+    if (!getAccessToken()) return false
+    const epoch = sessionGeneration()
     try {
-      const fp = await freelancerApi.me();
-      if (epoch !== sessionGeneration()) return false;
-      const parts = (fp.fullName || "User").trim().split(/\s+/);
+      const fp = await freelancerApi.me()
+      if (epoch !== sessionGeneration()) return false
+      const parts = (fp.fullName || "User").trim().split(/\s+/)
       setProfileState((prev) => ({
         ...prev,
         name: fp.fullName || prev.name,
@@ -11635,46 +7456,47 @@ export default function App() {
         })),
         averageRating: fp.averageRating ?? 0,
         completedJobs: fp.completedJobs ?? 0,
-      }));
-      return true;
+      }))
+      return true
     } catch (err) {
-      if (epoch !== sessionGeneration()) return false;
+      if (epoch !== sessionGeneration()) return false
       notify(
-        `Không thể tải hồ sơ Freelancer: ${err instanceof Error ? err.message : "Lỗi kết nối API"}. Vui lòng kiểm tra quyền tài khoản và đăng nhập lại nếu cần.`,
-      );
-      return false;
+        `Không thể tải hồ sơ Freelancer: ${
+          err instanceof Error ? err.message : "Lỗi kết nối API"
+        }. Vui lòng kiểm tra quyền tài khoản và đăng nhập lại nếu cần.`,
+      )
+      return false
     }
-  }, [jobsState]);
+  }, [jobsState])
 
   const refreshAdminData = useCallback(async () => {
-    if (devRoute || !getAccessToken()) return;
-    const epoch = sessionGeneration();
+    if (!getAccessToken()) return
+    const epoch = sessionGeneration()
     try {
-      const allUsers = await adminApi.users();
-      if (epoch !== sessionGeneration()) return;
-      setUsersState(allUsers.map(mapUserDtoToItem));
+      const allUsers = await adminApi.users()
+      if (epoch !== sessionGeneration()) return
+      setUsersState(allUsers.map(mapUserDtoToItem))
     } catch {}
     try {
-      const adminJobsPage = await adminApi.jobs(0, 100);
-      if (epoch !== sessionGeneration()) return;
+      const adminJobsPage = await adminApi.jobs(0, 100)
+      if (epoch !== sessionGeneration()) return
       const mappedAdminJobs = adminJobsPage.content.map((j, idx) =>
         mapJobDtoToItem(j, idx),
-      );
-      setJobsState(mappedAdminJobs);
+      )
+      setJobsState(mappedAdminJobs)
     } catch {}
-  }, [jobsState]);
+  }, [jobsState])
 
   useEffect(() => {
-    if (!devRoute) void initializeSession();
-  }, [devRoute]);
+    void initializeSession()
+  }, [])
   useEffect(() => {
-    if (devRoute) return;
-    const user = authState.user;
+    const user = authState.user
     if (authState.status === "authenticated" && user) {
-      const actualRole = uiRole(user);
-      if (!actualRole) return;
-      setRole(actualRole);
-      setLoggedIn(true);
+      const actualRole = uiRole(user)
+      if (!actualRole) return
+      setRole(actualRole)
+      setLoggedIn(true)
       setProfileState(
         createEmptyAuthenticatedProfile({
           fullName: user.fullName,
@@ -11682,14 +7504,14 @@ export default function App() {
           phone: user.phoneNumber || "",
           avatarUrl: user.avatarUrl,
         }),
-      );
-      const next = parseRouteHash(window.location.hash, true, actualRole);
+      )
+      const next = parseRouteHash(window.location.hash, true, actualRole)
       if (window.location.hash.startsWith("#/dashboard/")) {
-        let requested = "";
+        let requested = ""
         try {
           requested = decodeURIComponent(window.location.hash)
             .split("/dashboard/")[1]
-            ?.split("?")[0];
+            ?.split("?")[0]
         } catch {}
         if (
           requested &&
@@ -11707,34 +7529,34 @@ export default function App() {
             requested,
           )
         )
-          notify("Bạn không có quyền truy cập trang này.");
+          notify("Bạn không có quyền truy cập trang này.")
       }
       if (window.location.hash.startsWith("#/dashboard")) {
-        setMode(next.mode);
-        setDashboardPage(next.dashboardPage);
+        setMode(next.mode)
+        setDashboardPage(next.dashboardPage)
       }
     } else if (authState.status !== "loading") {
-      setLoggedIn(false);
-      setProfileState(createEmptyAuthenticatedProfile());
-      setClientJobsState([]);
-      setProposalsState([]);
-      setAssignmentsState([]);
-      setUsersState([]);
-      setApplyingJob(null);
+      setLoggedIn(false)
+      setProfileState(createEmptyAuthenticatedProfile())
+      setClientJobsState([])
+      setProposalsState([])
+      setAssignmentsState([])
+      setUsersState([])
+      setApplyingJob(null)
       if (
         mode === "dashboard" ||
         window.location.hash.startsWith("#/dashboard")
       ) {
-        setMode("public");
-        setPage("login");
+        setMode("public")
+        setPage("login")
       }
-      if (authState.error) notify(authState.error);
+      if (authState.error) notify(authState.error)
     }
-  }, [authState, devRoute]);
+  }, [authState])
 
   const store: AppStore = {
     loggedIn,
-    isDemoMode,
+
     role,
     jobs: jobsState,
     clientJobs: clientJobsState,
@@ -11754,443 +7576,142 @@ export default function App() {
     navigateToDashboard,
     openApplyModal: (job) => {
       if (!loggedIn) {
-        setReturnTo("jobs");
-        setPage("login");
-        notify("Vui lòng đăng nhập tài khoản Freelancer để gửi Proposal.");
-        return;
+        setReturnTo("jobs")
+        setPage("login")
+        notify("Vui lòng đăng nhập tài khoản Freelancer để gửi Proposal.")
+        return
       }
       if (role !== "Freelancer") {
-        notify("Chỉ tài khoản Freelancer mới có thể gửi Proposal ứng tuyển.");
-        return;
+        notify("Chỉ tài khoản Freelancer mới có thể gửi Proposal ứng tuyển.")
+        return
       }
       if (job.status !== "Đang mở") {
-        notify("Công việc này hiện không còn nhận ứng tuyển.");
-        return;
+        notify("Công việc này hiện không còn nhận ứng tuyển.")
+        return
       }
       const existing = proposalsState.find(
         (p) =>
           String(p.jobId) === String(job.id) && p.statusKey !== "withdrawn",
-      );
+      )
       if (existing) {
-        notify("Bạn đã ứng tuyển công việc này rồi.");
-        return;
+        notify("Bạn đã ứng tuyển công việc này rồi.")
+        return
       }
-      setApplyingJob(job);
+      setApplyingJob(job)
     },
     submitProposal: async (jobId, cv, price, duration, cover) => {
-      if (!isDemoMode) {
-        notify("Vui lòng dùng form Proposal hiện tại.");
-        return false;
+      {
+        notify("Vui lòng dùng form Proposal hiện tại.")
+        return false
       }
-      const currentJob = jobsState.find((j) => String(j.id) === String(jobId));
-      if (currentJob && currentJob.status !== "Đang mở") {
-        notify("Công việc này hiện không còn nhận ứng tuyển.");
-        return false;
-      }
-      const existing = proposalsState.find(
-        (p) => String(p.jobId) === String(jobId) && p.statusKey !== "withdrawn",
-      );
-      if (existing) {
-        notify("Bạn đã ứng tuyển công việc này rồi.");
-        return false;
-      }
-      const numericJobId = parseNumericId(jobId);
-      const selectedCvObj = profileState.cvs.find((c) => c.title === cv);
-      const numericCvId = parseNumericId(selectedCvObj?.id);
-
-      const next: ProposalItem = {
-        id: `PR-${1043 + proposalsState.length}`,
-        jobId,
-        freelancerName: profileState.name,
-        freelancerRole: profileState.title,
-        freelancerInitials: profileState.initials,
-        cv,
-        price,
-        duration,
-        status: "Chờ phản hồi",
-        statusKey: "pending",
-        cover,
-      };
-      setProposalsState([next, ...proposalsState]);
-      setJobsState((prev) =>
-        prev.map((j) =>
-          j.id === jobId ? { ...j, proposals: j.proposals + 1 } : j,
-        ),
-      );
-      notify("Đã gửi Proposal ứng tuyển thành công!");
-      return true;
     },
     withdrawProposal: (proposalId) => {
-      if (!isDemoMode) {
-        navigateToDashboard("Đề xuất đã gửi");
-        return;
+      {
+        navigateToDashboard("Đề xuất đã gửi")
+        return
       }
-      const numericId = parseNumericId(proposalId);
-
-      setProposalsState((prev) =>
-        prev.map((p) =>
-          p.id === proposalId
-            ? { ...p, status: "Đã rút", statusKey: "withdrawn" }
-            : p,
-        ),
-      );
-      notify("Đã rút Proposal thành công.");
     },
     acceptProposal: (jobId, proposalId, candidateName) => {
-      if (!isDemoMode) {
-        navigateToDashboard("Quản lý công việc");
-        return;
+      {
+        navigateToDashboard("Quản lý công việc")
+        return
       }
-      const numericId = parseNumericId(proposalId);
-      const targetJob =
-        jobsState.find((j) => j.id === jobId) ||
-        clientJobsState.find((j) => j.id === jobId) ||
-        jobsState[0];
-
-      setJobsState((prev) =>
-        prev.map((j) =>
-          j.id === jobId ? { ...j, status: "Đang thực hiện" } : j,
-        ),
-      );
-      setClientJobsState((prev) =>
-        prev.map((j) =>
-          j.id === jobId ? { ...j, status: "Đang thực hiện" } : j,
-        ),
-      );
-      setProposalsState((prev) =>
-        prev.map((p) =>
-          p.id === proposalId
-            ? { ...p, status: "Đã chấp nhận", statusKey: "accepted" }
-            : p.jobId === jobId && p.statusKey === "pending"
-              ? { ...p, status: "Đã từ chối", statusKey: "rejected" }
-              : p,
-        ),
-      );
-      const newAsg: AssignmentItem = {
-        id: `as-${Date.now()}`,
-        code: `AS-02${50 + assignmentsState.length}`,
-        jobId: targetJob.id,
-        title: targetJob.title,
-        company: targetJob.company,
-        freelancerName: candidateName,
-        price: targetJob.budget,
-        period: `Hạn ${targetJob.deadline}`,
-        status: "Đang thực hiện",
-        description: targetJob.description,
-        review: null,
-      };
-      setAssignmentsState((prev) => [newAsg, ...prev]);
-      notify(
-        `Đã chấp nhận Proposal của ${candidateName} và tạo Assignment mới!`,
-      );
     },
     rejectProposal: (proposalId) => {
-      if (!isDemoMode) {
-        navigateToDashboard("Quản lý công việc");
-        return;
+      {
+        navigateToDashboard("Quản lý công việc")
+        return
       }
-      const numericId = parseNumericId(proposalId);
-
-      setProposalsState((prev) =>
-        prev.map((p) =>
-          p.id === proposalId
-            ? { ...p, status: "Đã từ chối", statusKey: "rejected" }
-            : p,
-        ),
-      );
-      notify("Đã từ chối Proposal.");
     },
     saveJob: async (data) => {
-      if (!isDemoMode) {
-        notify("Vui lòng dùng form quản lý Job hiện tại.");
-        return false;
+      {
+        notify("Vui lòng dùng form quản lý Job hiện tại.")
+        return false
       }
-      if (data.id) {
-        setJobsState((prev) =>
-          prev.map((j) =>
-            j.id === data.id
-              ? {
-                  ...j,
-                  title: data.title,
-                  budget: data.budget,
-                  deadline: data.deadline,
-                  skills: data.skills,
-                  description: data.description,
-                }
-              : j,
-          ),
-        );
-        setClientJobsState((prev) =>
-          prev.map((j) =>
-            j.id === data.id
-              ? {
-                  ...j,
-                  title: data.title,
-                  budget: data.budget,
-                  deadline: data.deadline,
-                  skills: data.skills,
-                  description: data.description,
-                }
-              : j,
-          ),
-        );
-        notify("Đã cập nhật thông tin công việc thành công!");
-      } else {
-        const newJob: JobItem = {
-          id: `job-${Date.now()}`,
-          title: data.title,
-          company: profileState.name || "NovaTech Solutions",
-          budget: data.budget,
-          time: "Hôm nay",
-          deadline: data.deadline,
-          status: "Đang mở",
-          description: data.description,
-          skills: data.skills,
-          category: "Lập trình Web",
-          proposals: 0,
-          image: initialJobs[0].image,
-        };
-        setJobsState((prev) => [newJob, ...prev]);
-        setClientJobsState((prev) => [newJob, ...prev]);
-        notify("Đã đăng công việc mới thành công!");
-      }
-      return true;
     },
     closeJob: (jobId) => {
-      if (!isDemoMode) {
-        notify("Vui lòng hủy Job trong màn hình quản lý Job.");
-        return;
+      {
+        notify("Vui lòng hủy Job trong màn hình quản lý Job.")
+        return
       }
-      setJobsState((prev) =>
-        prev.map((j) => (j.id === jobId ? { ...j, status: "Đã đóng" } : j)),
-      );
-      setClientJobsState((prev) =>
-        prev.map((j) => (j.id === jobId ? { ...j, status: "Đã đóng" } : j)),
-      );
-      notify("Công việc đã chuyển sang trạng thái Đã đóng.");
     },
     completeAssignment: (assignmentId) => {
-      if (!isDemoMode) {
-        navigateToDashboard("Không gian dự án");
-        const id = parseNumericId(assignmentId);
-        if (id != null) openWorkspace(id);
-        return;
+      {
+        navigateToDashboard("Không gian dự án")
+        const id = parseNumericId(assignmentId)
+        if (id != null) openWorkspace(id)
+        return
       }
-      const numericId = parseNumericId(assignmentId);
-      const targetAsg = assignmentsState.find((a) => a.id === assignmentId);
-      if (numericId != null && !isDemoMode && getAccessToken()) {
-        void (async () => {
-          try {
-            await assignmentApi.complete(numericId);
-            setAssignmentsState((prev) =>
-              prev.map((a) =>
-                a.id === assignmentId ? { ...a, status: "Đã hoàn thành" } : a,
-              ),
-            );
-            if (targetAsg?.jobId) {
-              setJobsState((prev) =>
-                prev.map((j) =>
-                  j.id === targetAsg.jobId ? { ...j, status: "Đã đóng" } : j,
-                ),
-              );
-              setClientJobsState((prev) =>
-                prev.map((j) =>
-                  j.id === targetAsg.jobId ? { ...j, status: "Đã đóng" } : j,
-                ),
-              );
-            }
-            void fetchJobs();
-            if (role === "Client") void refreshClientData();
-            if (role === "Freelancer") void refreshFreelancerData();
-            if (role === "Admin") void refreshAdminData();
-            notify(
-              "Đã xác nhận hoàn thành Assignment! Bạn có thể gửi đánh giá cho Freelancer.",
-            );
-          } catch (err) {
-            notify(
-              err instanceof Error
-                ? err.message
-                : "Không thể xác nhận hoàn thành Assignment.",
-            );
-          }
-        })();
-        return;
-      }
-      setAssignmentsState((prev) =>
-        prev.map((a) =>
-          a.id === assignmentId ? { ...a, status: "Đã hoàn thành" } : a,
-        ),
-      );
-      if (targetAsg?.jobId) {
-        setJobsState((prev) =>
-          prev.map((j) =>
-            j.id === targetAsg.jobId ? { ...j, status: "Đã đóng" } : j,
-          ),
-        );
-        setClientJobsState((prev) =>
-          prev.map((j) =>
-            j.id === targetAsg.jobId ? { ...j, status: "Đã đóng" } : j,
-          ),
-        );
-      }
-      notify(
-        "Đã xác nhận hoàn thành Assignment! Bạn có thể gửi đánh giá cho Freelancer.",
-      );
     },
     cancelAssignment: (assignmentId) => {
-      if (!isDemoMode) {
+      {
         notify(
           "Chức năng hủy dự án chưa được backend hỗ trợ. Trạng thái dự án chưa thay đổi.",
-        );
-        return;
+        )
+        return
       }
-      const numericId = parseNumericId(assignmentId);
-      const targetAsg = assignmentsState.find((a) => a.id === assignmentId);
-      if (numericId != null && !isDemoMode && getAccessToken()) {
-        void (async () => {
-          try {
-            await assignmentApi.cancel(numericId);
-            setAssignmentsState((prev) =>
-              prev.map((a) =>
-                a.id === assignmentId ? { ...a, status: "Đã hủy" } : a,
-              ),
-            );
-            if (targetAsg?.jobId) {
-              setJobsState((prev) =>
-                prev.map((j) =>
-                  j.id === targetAsg.jobId ? { ...j, status: "Đã đóng" } : j,
-                ),
-              );
-              setClientJobsState((prev) =>
-                prev.map((j) =>
-                  j.id === targetAsg.jobId ? { ...j, status: "Đã đóng" } : j,
-                ),
-              );
-            }
-            void fetchJobs();
-            if (role === "Client") void refreshClientData();
-            if (role === "Freelancer") void refreshFreelancerData();
-            if (role === "Admin") void refreshAdminData();
-            notify("Đã hủy Assignment thành công.");
-          } catch (err) {
-            notify(
-              err instanceof Error ? err.message : "Không thể hủy Assignment.",
-            );
-          }
-        })();
-        return;
-      }
-      setAssignmentsState((prev) =>
-        prev.map((a) =>
-          a.id === assignmentId ? { ...a, status: "Đã hủy" } : a,
-        ),
-      );
-      if (targetAsg?.jobId) {
-        setJobsState((prev) =>
-          prev.map((j) =>
-            j.id === targetAsg.jobId ? { ...j, status: "Đã đóng" } : j,
-          ),
-        );
-        setClientJobsState((prev) =>
-          prev.map((j) =>
-            j.id === targetAsg.jobId ? { ...j, status: "Đã đóng" } : j,
-          ),
-        );
-      }
-      notify("Đã hủy Assignment thành công.");
     },
     rateAssignment: (assignmentId, rating, comment) => {
-      if (!isDemoMode) {
-        navigateToDashboard("Không gian dự án");
-        const id = parseNumericId(assignmentId);
-        if (id != null) openWorkspace(id);
-        return;
+      {
+        navigateToDashboard("Không gian dự án")
+        const id = parseNumericId(assignmentId)
+        if (id != null) openWorkspace(id)
+        return
       }
-      const numericId = parseNumericId(assignmentId);
-      if (numericId != null && !isDemoMode && getAccessToken()) {
-        void (async () => {
-          try {
-            await reviewApi.create(numericId, { rating, comment });
-            setAssignmentsState((prev) =>
-              prev.map((a) =>
-                a.id === assignmentId
-                  ? { ...a, review: { rating, comment } }
-                  : a,
-              ),
-            );
-            if (role === "Client") void refreshClientData();
-            if (role === "Freelancer") void refreshFreelancerData();
-            notify(`Đã gửi đánh giá ${rating} sao cho Freelancer thành công!`);
-          } catch (err) {
-            notify(
-              err instanceof Error ? err.message : "Không thể gửi đánh giá.",
-            );
-          }
-        })();
-        return;
-      }
-      setAssignmentsState((prev) =>
-        prev.map((a) =>
-          a.id === assignmentId ? { ...a, review: { rating, comment } } : a,
-        ),
-      );
-      notify(`Đã gửi đánh giá ${rating} sao cho Freelancer thành công!`);
     },
     toggleUserLock: (userId) => {
-      const numericId = parseNumericId(userId);
-      const targetUser = usersState.find((u) => u.id === userId);
-      if (!targetUser) return;
-      const isCurrentlyActive = targetUser.status === "Đang hoạt động";
+      const numericId = parseNumericId(userId)
+      const targetUser = usersState.find((u) => u.id === userId)
+      if (!targetUser) return
+      const isCurrentlyActive = targetUser.status === "Đang hoạt động"
       const nextStatus: "Đang hoạt động" | "Đã khóa" = isCurrentlyActive
         ? "Đã khóa"
-        : "Đang hoạt động";
-      if (numericId != null && !isDemoMode && getAccessToken()) {
+        : "Đang hoạt động"
+      if (numericId != null && getAccessToken()) {
         void (async () => {
           try {
             if (isCurrentlyActive) {
-              await adminApi.lockUser(numericId);
+              await adminApi.lockUser(numericId)
             } else {
-              await adminApi.unlockUser(numericId);
+              await adminApi.unlockUser(numericId)
             }
             setUsersState((prev) =>
               prev.map((u) =>
                 u.id === userId ? { ...u, status: nextStatus } : u,
               ),
-            );
-            void refreshAdminData();
+            )
+            void refreshAdminData()
             notify(
               `Đã cập nhật trạng thái tài khoản ${targetUser.name}: ${nextStatus}.`,
-            );
+            )
           } catch (err) {
             notify(
               err instanceof Error
                 ? err.message
                 : "Không thể cập nhật trạng thái người dùng.",
-            );
+            )
           }
-        })();
-        return;
+        })()
+        return
       }
       setUsersState((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, status: nextStatus } : u)),
-      );
+      )
       notify(
         `Đã cập nhật trạng thái tài khoản ${targetUser.name}: ${nextStatus}.`,
-      );
+      )
     },
     updateProfileInfo: async (patch) => {
-      if (!isDemoMode && !getAccessToken()) {
-        notify("Vui lòng đăng nhập lại để lưu hồ sơ.");
-        return false;
+      if (!getAccessToken()) {
+        notify("Vui lòng đăng nhập lại để lưu hồ sơ.")
+        return false
       }
-      const fullName = patch.name || profileState.name;
-      const title =
-        patch.title !== undefined ? patch.title : profileState.title;
-      const phoneNumber = patch.phone ?? profileState.phone;
-      const bio = patch.bio ?? profileState.bio;
-      const avatarUrl = patch.avatarUrl ?? profileState.avatarUrl;
+      const fullName = patch.name || profileState.name
+      const title = patch.title !== undefined ? patch.title : profileState.title
+      const phoneNumber = patch.phone ?? profileState.phone
+      const bio = patch.bio ?? profileState.bio
+      const avatarUrl = patch.avatarUrl ?? profileState.avatarUrl
       if (
-        !isDemoMode &&
         getAccessToken() &&
         (patch.name ||
           patch.title !== undefined ||
@@ -12209,7 +7730,7 @@ export default function App() {
               avatarUrl,
               newPassword: patch.newPassword,
               confirmPassword: patch.confirmPassword,
-            });
+            })
           } else {
             await freelancerApi.updateMe({
               fullName,
@@ -12217,32 +7738,32 @@ export default function App() {
               phoneNumber,
               bio,
               avatarUrl,
-            });
+            })
           }
         } catch (err) {
           notify(
             err instanceof Error
               ? err.message
               : "Không thể cập nhật thông tin tài khoản.",
-          );
-          return false;
+          )
+          return false
         }
       }
       setProfileState((prev) => {
-        const next = { ...prev, ...patch };
+        const next = { ...prev, ...patch }
         if (patch.name) {
-          const parts = patch.name.trim().split(/\s+/);
-          next.shortName = parts.slice(-2).join(" ");
-          next.initials = toInitials(patch.name);
+          const parts = patch.name.trim().split(/\s+/)
+          next.shortName = parts.slice(-2).join(" ")
+          next.initials = toInitials(patch.name)
         }
-        return next;
-      });
+        return next
+      })
       if (patch.bio !== undefined || patch.name || patch.title !== undefined) {
-        const prevName = profileState.name;
-        const nextName = patch.name ? patch.name.trim() : prevName;
-        const nextBio = patch.bio !== undefined ? patch.bio : profileState.bio;
+        const prevName = profileState.name
+        const nextName = patch.name ? patch.name.trim() : prevName
+        const nextBio = patch.bio !== undefined ? patch.bio : profileState.bio
         const nextTitle =
-          patch.title !== undefined ? patch.title.trim() : profileState.title;
+          patch.title !== undefined ? patch.title.trim() : profileState.title
         setTalentsState((prev) =>
           prev.map((t) =>
             t.name === prevName || t.name === nextName
@@ -12255,7 +7776,7 @@ export default function App() {
                 }
               : t,
           ),
-        );
+        )
         setSelectedTalent((prev) =>
           prev.name === prevName || prev.name === nextName
             ? {
@@ -12266,52 +7787,54 @@ export default function App() {
                 role: nextTitle || prev.role,
               }
             : prev,
-        );
+        )
       }
-      if (role === "Freelancer") void refreshFreelancerData();
-      if (role === "Client") void refreshClientData();
-      return true;
+      if (role === "Freelancer") void refreshFreelancerData()
+      if (role === "Client") void refreshClientData()
+      return true
     },
     uploadAvatarFile: async (file) => {
-      if (!isDemoMode) {
+      {
         if (!getAccessToken()) {
-          notify("Vui lòng đăng nhập để lưu ảnh đại diện.");
-          return false;
+          notify("Vui lòng đăng nhập để lưu ảnh đại diện.")
+          return false
         }
         try {
-          const updated = await userApi.uploadAvatar(file);
+          const updated = await userApi.uploadAvatar(file)
           if (!updated.avatarUrl)
-            throw new Error("Máy chủ chưa xác nhận ảnh đại diện đã lưu.");
-          const persisted = await authApi.me();
+            throw new Error("Máy chủ chưa xác nhận ảnh đại diện đã lưu.")
+          const persisted = await authApi.me()
           if (
             persisted.id !== updated.id ||
             persisted.avatarUrl !== updated.avatarUrl
           )
-            throw new Error("Không thể xác nhận ảnh đại diện đã lưu.");
-          const nextAvatarUrl = `${persisted.avatarUrl}?v=${Date.now()}`;
+            throw new Error("Không thể xác nhận ảnh đại diện đã lưu.")
+          const nextAvatarUrl = `${persisted.avatarUrl}?v=${Date.now()}`
           setProfileState((prev) => ({
             ...prev,
             avatarUrl: nextAvatarUrl,
-          }));
-          notify("Đã cập nhật ảnh đại diện thành công!");
-          return true;
+          }))
+          notify("Đã cập nhật ảnh đại diện thành công!")
+          return true
         } catch (err) {
           notify(
-            `Không thể lưu ảnh đại diện: ${err instanceof Error ? err.message : "Máy chủ không phản hồi."}`,
-          );
-          return false;
+            `Không thể lưu ảnh đại diện: ${
+              err instanceof Error ? err.message : "Máy chủ không phản hồi."
+            }`,
+          )
+          return false
         }
       }
-      const localUrl = URL.createObjectURL(file);
-      setProfileState((prev) => ({ ...prev, avatarUrl: localUrl }));
-      notify("Đã cập nhật ảnh đại diện thành công!");
-      return true;
+      const localUrl = URL.createObjectURL(file)
+      setProfileState((prev) => ({ ...prev, avatarUrl: localUrl }))
+      notify("Đã cập nhật ảnh đại diện thành công!")
+      return true
     },
     uploadCvFile: async (file) => {
-      const sub = "PDF · Cập nhật hôm nay";
-      if (!isDemoMode && (!getAccessToken() || role !== "Freelancer")) {
-        notify("Vui lòng đăng nhập bằng tài khoản Freelancer để tải CV.");
-        return null;
+      const sub = "PDF · Cập nhật hôm nay"
+      if (!getAccessToken() || role !== "Freelancer") {
+        notify("Vui lòng đăng nhập bằng tài khoản Freelancer để tải CV.")
+        return null
       }
       if (
         !file.name.toLowerCase().endsWith(".pdf") ||
@@ -12321,46 +7844,44 @@ export default function App() {
       ) {
         notify(
           "Vui lòng chọn PDF không rỗng, tối đa 2 MB, tên tệp tối đa 255 ký tự.",
-        );
-        return null;
+        )
+        return null
       }
-      if (!isDemoMode && getAccessToken() && role === "Freelancer") {
+      if (getAccessToken() && role === "Freelancer") {
         try {
-          const uploaded = await cvApi.upload(file);
+          const uploaded = await cvApi.upload(file)
           const item = {
             id: String(uploaded.id),
             title: uploaded.fileName,
             updatedAt: sub,
             fileUrl: uploaded.fileUrl,
-          };
-          setProfileState((prev) => ({ ...prev, cvs: [...prev.cvs, item] }));
-          notify(`Đã tải lên tệp CV "${uploaded.fileName}" thành công.`);
-          return { id: String(uploaded.id), title: uploaded.fileName };
+          }
+          setProfileState((prev) => ({ ...prev, cvs: [...prev.cvs, item] }))
+          notify(`Đã tải lên tệp CV "${uploaded.fileName}" thành công.`)
+          return { id: String(uploaded.id), title: uploaded.fileName }
         } catch (err) {
           notify(
             err instanceof Error
               ? err.message
               : "Không thể tải tệp CV lên máy chủ.",
-          );
-          return null;
+          )
+          return null
         }
       }
-      const item = { id: `cv-${Date.now()}`, title: file.name, updatedAt: sub };
-      setProfileState((prev) => ({ ...prev, cvs: [...prev.cvs, item] }));
-      notify(`Đã tải lên tệp CV "${file.name}" thành công.`);
-      return { id: item.id, title: item.title };
+      const item = { id: `cv-${Date.now()}`, title: file.name, updatedAt: sub }
+      setProfileState((prev) => ({ ...prev, cvs: [...prev.cvs, item] }))
+      notify(`Đã tải lên tệp CV "${file.name}" thành công.`)
+      return { id: item.id, title: item.title }
     },
     openCvPreview: async (cvId, fileName) => {
-      const numericId = parseNumericId(cvId);
+      const numericId = parseNumericId(cvId)
       if (numericId == null) {
-        notify(
-          "Tệp CV này không tồn tại trên máy chủ hoặc chỉ là dữ liệu mẫu.",
-        );
-        return;
+        notify("Tệp CV này không tồn tại trên máy chủ hoặc chỉ là dữ liệu mẫu.")
+        return
       }
-      const request = ++cvPreviewRequest.current;
+      const request = ++cvPreviewRequest.current
       if (cvPreview?.blobUrl) {
-        URL.revokeObjectURL(cvPreview.blobUrl);
+        URL.revokeObjectURL(cvPreview.blobUrl)
       }
       setCvPreview({
         fileName,
@@ -12368,69 +7889,67 @@ export default function App() {
         blobUrl: null,
         loading: true,
         error: null,
-      });
+      })
       try {
-        const blob = await cvApi.downloadBlob(numericId);
-        if (request !== cvPreviewRequest.current) return;
+        const blob = await cvApi.downloadBlob(numericId)
+        if (request !== cvPreviewRequest.current) return
         const pdfBlob =
           blob.type === "application/pdf"
             ? blob
-            : new Blob([blob], { type: "application/pdf" });
-        const blobUrl = URL.createObjectURL(pdfBlob);
+            : new Blob([blob], { type: "application/pdf" })
+        const blobUrl = URL.createObjectURL(pdfBlob)
         setCvPreview({
           fileName,
           cvId: numericId,
           blobUrl,
           loading: false,
           error: null,
-        });
+        })
       } catch (err) {
-        if (request !== cvPreviewRequest.current) return;
+        if (request !== cvPreviewRequest.current) return
         const errMsg =
           err instanceof Error
             ? err.message
-            : "Không thể tải tệp CV từ máy chủ.";
+            : "Không thể tải tệp CV từ máy chủ."
         setCvPreview({
           fileName,
           cvId: numericId,
           blobUrl: null,
           loading: false,
           error: errMsg,
-        });
-        notify(errMsg);
+        })
+        notify(errMsg)
       }
     },
     downloadCvFile: async (cvId, fileName) => {
-      const numericId = parseNumericId(cvId);
+      const numericId = parseNumericId(cvId)
       if (numericId == null) {
-        notify(
-          "Tệp CV này không tồn tại trên máy chủ nên không thể tải xuống.",
-        );
-        return;
+        notify("Tệp CV này không tồn tại trên máy chủ nên không thể tải xuống.")
+        return
       }
       try {
-        const blob = await cvApi.downloadBlob(numericId);
+        const blob = await cvApi.downloadBlob(numericId)
         const pdfBlob =
           blob.type === "application/pdf"
             ? blob
-            : new Blob([blob], { type: "application/pdf" });
-        const url = URL.createObjectURL(pdfBlob);
-        const link = document.createElement("a");
-        link.href = url;
+            : new Blob([blob], { type: "application/pdf" })
+        const url = URL.createObjectURL(pdfBlob)
+        const link = document.createElement("a")
+        link.href = url
         link.download = fileName.toLowerCase().endsWith(".pdf")
           ? fileName
-          : `${fileName}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        notify(`Đã tải xuống tệp CV "${link.download}" thành công.`);
+          : `${fileName}.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        setTimeout(() => URL.revokeObjectURL(url), 1000)
+        notify(`Đã tải xuống tệp CV "${link.download}" thành công.`)
       } catch (err) {
         notify(
           err instanceof Error
             ? err.message
             : "Không thể tải xuống tệp CV từ máy chủ.",
-        );
+        )
       }
     },
     upsertProfileRecord: async (
@@ -12448,23 +7967,23 @@ export default function App() {
             ? "skills"
             : tab === "Kinh nghiệm làm việc"
               ? "experiences"
-              : "portfolios";
-      if (!isDemoMode && (!getAccessToken() || role !== "Freelancer")) {
-        notify("Vui lòng đăng nhập bằng tài khoản Freelancer để lưu hồ sơ.");
-        return false;
+              : "portfolios"
+      if (!getAccessToken() || role !== "Freelancer") {
+        notify("Vui lòng đăng nhập bằng tài khoản Freelancer để lưu hồ sơ.")
+        return false
       }
-      const sub = tab === "CV" ? "PDF · Cập nhật hôm nay" : "Cập nhật hôm nay";
-      const numericEditId = parseNumericId(editId);
-      if (!isDemoMode && getAccessToken() && role === "Freelancer") {
+      const sub = tab === "CV" ? "PDF · Cập nhật hôm nay" : "Cập nhật hôm nay"
+      const numericEditId = parseNumericId(editId)
+      if (getAccessToken() && role === "Freelancer") {
         try {
           if (tab === "Kinh nghiệm làm việc") {
             if (!recordDetails?.work)
-              throw new Error("Thiếu thông tin kinh nghiệm làm việc.");
+              throw new Error("Thiếu thông tin kinh nghiệm làm việc.")
             if (numericEditId != null) {
               const updated = await workExperienceApi.update(
                 numericEditId,
                 recordDetails.work,
-              );
+              )
               setProfileState((prev) => ({
                 ...prev,
                 experiences: prev.experiences.map((item) =>
@@ -12477,13 +7996,11 @@ export default function App() {
                       }
                     : item,
                 ),
-              }));
-              notify(`Đã cập nhật ${tab} thành công.`);
-              return;
+              }))
+              notify(`Đã cập nhật ${tab} thành công.`)
+              return
             } else {
-              const created = await workExperienceApi.create(
-                recordDetails.work,
-              );
+              const created = await workExperienceApi.create(recordDetails.work)
               setProfileState((prev) => ({
                 ...prev,
                 experiences: [
@@ -12495,18 +8012,18 @@ export default function App() {
                     work: created,
                   },
                 ],
-              }));
-              notify(`Đã thêm mới ${tab} thành công.`);
-              return;
+              }))
+              notify(`Đã thêm mới ${tab} thành công.`)
+              return
             }
           } else if (tab === "Portfolio") {
             if (!recordDetails?.portfolio)
-              throw new Error("Thiếu thông tin dự án.");
+              throw new Error("Thiếu thông tin dự án.")
             if (numericEditId != null) {
               const updated = await portfolioApi.update(
                 numericEditId,
                 recordDetails.portfolio,
-              );
+              )
               setProfileState((prev) => ({
                 ...prev,
                 portfolios: prev.portfolios.map((item) =>
@@ -12519,13 +8036,11 @@ export default function App() {
                       }
                     : item,
                 ),
-              }));
-              notify(`Đã cập nhật ${tab} thành công.`);
-              return;
+              }))
+              notify(`Đã cập nhật ${tab} thành công.`)
+              return
             } else {
-              const created = await portfolioApi.create(
-                recordDetails.portfolio,
-              );
+              const created = await portfolioApi.create(recordDetails.portfolio)
               setProfileState((prev) => ({
                 ...prev,
                 portfolios: [
@@ -12537,24 +8052,24 @@ export default function App() {
                     portfolio: created,
                   },
                 ],
-              }));
-              notify(`Đã thêm mới ${tab} thành công.`);
-              return;
+              }))
+              notify(`Đã thêm mới ${tab} thành công.`)
+              return
             }
           } else if (tab === "Kỹ năng") {
             const input = {
               name: title,
               proficiency: skillDetails?.proficiency ?? 1,
               yearsExperience: skillDetails?.yearsExperience ?? 0,
-            };
+            }
             const savedSkill =
               numericEditId != null
                 ? await skillApi.updateMine(numericEditId, input)
-                : await skillApi.addMineByName(input);
+                : await skillApi.addMineByName(input)
             setProfileState((prev) => {
               const filtered = editId
                 ? prev.skills.filter((s) => s.id !== editId)
-                : prev.skills.filter((s) => s.id !== String(savedSkill.id));
+                : prev.skills.filter((s) => s.id !== String(savedSkill.id))
               return {
                 ...prev,
                 skills: [
@@ -12567,20 +8082,20 @@ export default function App() {
                     updatedAt: sub,
                   },
                 ],
-              };
-            });
+              }
+            })
             notify(
               editId
                 ? `Đã cập nhật ${tab} thành công.`
                 : `Đã thêm mới kỹ năng "${savedSkill.name}" vào hồ sơ.`,
-            );
-            return;
+            )
+            return
           } else if (tab === "CV" && !numericEditId) {
             if (!file) {
-              notify("Vui lòng chọn tệp CV định dạng PDF từ máy tính.");
-              return;
+              notify("Vui lòng chọn tệp CV định dạng PDF từ máy tính.")
+              return
             }
-            const uploaded = await cvApi.upload(file);
+            const uploaded = await cvApi.upload(file)
             setProfileState((prev) => ({
               ...prev,
               cvs: [
@@ -12592,35 +8107,35 @@ export default function App() {
                   fileUrl: uploaded.fileUrl,
                 },
               ],
-            }));
-            if (role === "Freelancer") void refreshFreelancerData();
-            notify(`Đã tải lên ${tab} "${uploaded.fileName}" thành công.`);
-            return;
+            }))
+            if (role === "Freelancer") void refreshFreelancerData()
+            notify(`Đã tải lên ${tab} "${uploaded.fileName}" thành công.`)
+            return
           }
         } catch (err) {
           notify(
             err instanceof Error
               ? err.message
               : `Không thể lưu ${tab} lên máy chủ.`,
-          );
-          return false;
+          )
+          return false
         }
       }
       setProfileState((prev) => {
-        const list = prev[key];
+        const list = prev[key]
         const updated = editId
           ? list.map((item) =>
               item.id === editId ? { ...item, title, updatedAt: sub } : item,
             )
-          : [...list, { id: `${key}-${Date.now()}`, title, updatedAt: sub }];
-        return { ...prev, [key]: updated };
-      });
-      if (role === "Freelancer") void refreshFreelancerData();
+          : [...list, { id: `${key}-${Date.now()}`, title, updatedAt: sub }]
+        return { ...prev, [key]: updated }
+      })
+      if (role === "Freelancer") void refreshFreelancerData()
       notify(
         editId
           ? `Đã cập nhật ${tab} thành công.`
           : `Đã thêm mới ${tab} thành công.`,
-      );
+      )
     },
     deleteProfileRecord: async (tab, id) => {
       const key =
@@ -12630,60 +8145,57 @@ export default function App() {
             ? "skills"
             : tab === "Kinh nghiệm làm việc"
               ? "experiences"
-              : "portfolios";
-      const numericId = parseNumericId(id);
-      if (
-        !isDemoMode &&
-        (!getAccessToken() || role !== "Freelancer" || numericId == null)
-      ) {
+              : "portfolios"
+      const numericId = parseNumericId(id)
+      if (!getAccessToken() || role !== "Freelancer" || numericId == null) {
         notify(
           "Không thể xóa dữ liệu: cần đăng nhập Freelancer và mã bản ghi hợp lệ.",
-        );
-        return false;
+        )
+        return false
       }
       try {
-        if (!isDemoMode && numericId != null) {
-          if (tab === "Kỹ năng") await skillApi.removeMine(numericId);
+        if (numericId != null) {
+          if (tab === "Kỹ năng") await skillApi.removeMine(numericId)
           if (tab === "Kinh nghiệm làm việc") {
             const entry = profileState.experiences.find(
               (record) => record.id === id,
-            )?.work;
+            )?.work
             if (!entry)
               throw new Error(
                 "Vui lòng tải lại dữ liệu trước khi xóa kinh nghiệm.",
-              );
-            await workExperienceApi.remove(numericId, entry.version);
+              )
+            await workExperienceApi.remove(numericId, entry.version)
           }
           if (tab === "Portfolio") {
             const entry = profileState.portfolios.find(
               (record) => record.id === id,
-            )?.portfolio;
+            )?.portfolio
             if (!entry)
-              throw new Error("Vui lòng tải lại dữ liệu trước khi xóa dự án.");
-            await portfolioApi.remove(numericId, entry.version);
+              throw new Error("Vui lòng tải lại dữ liệu trước khi xóa dự án.")
+            await portfolioApi.remove(numericId, entry.version)
           }
-          if (tab === "CV") await cvApi.remove(numericId);
+          if (tab === "CV") await cvApi.remove(numericId)
         }
         if (tab === "CV" && numericId != null && cvPreview?.cvId === numericId)
-          closeCvPreview();
+          closeCvPreview()
         setProfileState((prev) => ({
           ...prev,
           [key]: prev[key].filter((item) => String(item.id) !== String(id)),
-        }));
-        if (!isDemoMode) void refreshFreelancerData();
+        }))
+        void refreshFreelancerData()
         notify(
           tab === "CV"
             ? "Đã xóa tệp CV khỏi hồ sơ thành công."
             : "Đã xóa mục khỏi " + tab + ".",
-        );
-        return true;
+        )
+        return true
       } catch (err) {
         notify(
           err instanceof Error
             ? err.message
             : "Không thể xóa mục khỏi " + tab + ".",
-        );
-        return false;
+        )
+        return false
       }
     },
     refreshJobs: fetchJobs,
@@ -12701,42 +8213,42 @@ export default function App() {
     toggleSaveJob,
     isJobSaved,
     openChatWith,
-  };
+  }
 
   const toggleTheme = () =>
-    setTheme((current) => (current === "dark" ? "light" : "dark"));
+    setTheme((current) => (current === "dark" ? "light" : "dark"))
   const openJobs = (id?: string) => {
-    if (id) setSelectedJobId(id);
-    setPage("jobs");
-    setMode("public");
-  };
+    if (id) setSelectedJobId(id)
+    setPage("jobs")
+    setMode("public")
+  }
   const handleHeroSearch = (q: string) => {
-    setPublicSearchQuery(q);
-    setPage("jobs");
-    setMode("public");
-  };
+    setPublicSearchQuery(q)
+    setPage("jobs")
+    setMode("public")
+  }
   const handlePostProject = () => {
     if (loggedIn && role === "Client") {
-      setDashboardPage("Quản lý công việc");
-      setMode("dashboard");
+      setDashboardPage("Quản lý công việc")
+      setMode("dashboard")
     } else if (loggedIn && role === "Freelancer") {
-      notify("Chức năng Đăng dự án dành cho tài khoản Client.");
+      notify("Chức năng Đăng dự án dành cho tài khoản Client.")
     } else if (loggedIn && role === "Admin") {
-      setDashboardPage("Quản lý Job");
-      setMode("dashboard");
+      setDashboardPage("Quản lý Job")
+      setMode("dashboard")
     } else {
-      setPage("register");
+      setPage("register")
     }
-  };
+  }
   const login = (user: AuthUser) => {
-    const actualRole = uiRole(user);
+    const actualRole = uiRole(user)
     if (!actualRole) {
-      notify("Tài khoản không có quyền truy cập.");
-      return;
+      notify("Tài khoản không có quyền truy cập.")
+      return
     }
-    setRole(actualRole);
-    setDemoActive(false);
-    setLoggedIn(true);
+    setRole(actualRole)
+
+    setLoggedIn(true)
     setProfileState(
       createEmptyAuthenticatedProfile({
         fullName: user.fullName,
@@ -12744,79 +8256,56 @@ export default function App() {
         phone: user.phoneNumber || "",
         avatarUrl: user.avatarUrl,
       }),
-    );
-    setProposalsState([]);
-    setAssignmentsState([]);
-    setClientJobsState([]);
-    setAssignmentFilter("Tất cả");
-    setJobFilterStatus("Tất cả trạng thái");
-    setProfileTab("Thông tin cá nhân");
-    setDashboardPage("Tổng quan");
+    )
+    setProposalsState([])
+    setAssignmentsState([])
+    setClientJobsState([])
+    setAssignmentFilter("Tất cả")
+    setJobFilterStatus("Tất cả trạng thái")
+    setProfileTab("Thông tin cá nhân")
+    setDashboardPage("Tổng quan")
     if (returnTo) {
-      setMode("public");
-      setPage(returnTo);
-      setReturnTo(null);
-    } else setMode("dashboard");
-  };
+      setMode("public")
+      setPage(returnTo)
+      setReturnTo(null)
+    } else setMode("dashboard")
+  }
   const logout = async () => {
-    setLoggedIn(false);
-    setMode("public");
-    setPage("login");
-    setDemoActive(false);
-    setProfileState(createEmptyAuthenticatedProfile());
-    setClientJobsState([]);
-    setProposalsState([]);
-    setAssignmentsState([]);
-    setUsersState([]);
-    setJobsState([]);
-    setTalentsState([]);
-    setAssignmentFilter("Tất cả");
-    setJobFilterStatus("Tất cả trạng thái");
-    setProfileTab("Thông tin cá nhân");
-    setDashboardPage("Tổng quan");
-    if (!devRoute && !(await authApi.logout()))
+    setLoggedIn(false)
+    setMode("public")
+    setPage("login")
+
+    setProfileState(createEmptyAuthenticatedProfile())
+    setClientJobsState([])
+    setProposalsState([])
+    setAssignmentsState([])
+    setUsersState([])
+    setJobsState([])
+    setTalentsState([])
+    setAssignmentFilter("Tất cả")
+    setJobFilterStatus("Tất cả trạng thái")
+    setProfileTab("Thông tin cá nhân")
+    setDashboardPage("Tổng quan")
+    if (!(await authApi.logout()))
       notify(
         "Đã xóa phiên trên thiết bị; chưa xác nhận thu hồi phiên trên máy chủ do lỗi kết nối.",
-      );
-  };
-  const previewDemo = (selectedRole: Role) => {
-    setRole(selectedRole);
-    setJobsState(initialJobs);
-    setTalentsState(initialTalents);
-    setUsersState(initialUsers);
-    setProposalsState(initialProposals);
-    setAssignmentsState(initialAssignments);
-    setProfileState(initialFreelancerProfile);
-    setAssignmentFilter("Tất cả");
-    setJobFilterStatus("Tất cả trạng thái");
-    setProfileTab("Thông tin cá nhân");
-    setDashboardPage("Tổng quan");
-    setLoggedIn(true);
-    setMode("dashboard");
-    setDemoActive(true);
-  };
+      )
+  }
 
   return (
     <StoreContext.Provider value={store}>
-      {devRoute && !demoActive ? (
-        <DeveloperDemo
-          preview={previewDemo}
-          theme={theme}
-          toggleTheme={toggleTheme}
-        />
-      ) : mode === "dashboard" &&
-        loggedIn &&
-        (isDemoMode || canUseDashboard(authState.user, role)) ? (
+      {mode === "dashboard" &&
+      loggedIn &&
+      canUseDashboard(authState.user, role) ? (
         <Dashboard
           role={role}
           page={dashboardPage}
           setPage={navigateToDashboard}
           onPublic={() => {
-            setPage("home");
-            setMode("public");
+            setPage("home")
+            setMode("public")
           }}
           onLogout={logout}
-          onDemoBack={devRoute ? () => setDemoActive(false) : undefined}
           theme={theme}
           toggleTheme={toggleTheme}
         />
@@ -12829,10 +8318,10 @@ export default function App() {
             role={role}
             openDashboard={(targetPage) => {
               if (loggedIn) {
-                if (targetPage) setDashboardPage(targetPage);
-                setMode("dashboard");
+                if (targetPage) setDashboardPage(targetPage)
+                setMode("dashboard")
               } else {
-                setPage("login");
+                setPage("login")
               }
             }}
             logout={logout}
@@ -12854,18 +8343,14 @@ export default function App() {
               initialQuery={publicSearchQuery}
               loggedIn={loggedIn}
               requireLogin={() => {
-                setReturnTo("jobs");
-                setPage("login");
+                setReturnTo("jobs")
+                setPage("login")
               }}
             />
           ) : page === "talents" ? (
             <PublicListing type="talents" go={setPage} />
           ) : page === "profile" ? (
-            isDemoMode ? (
-              <DetailPage profile go={setPage} />
-            ) : (
-              <PublicFreelancerDetail go={setPage} />
-            )
+            <PublicFreelancerDetail go={setPage} />
           ) : page === "about" ? (
             <AboutPage />
           ) : page === "contact" ? (
@@ -12971,5 +8456,5 @@ export default function App() {
           document.body,
         )}
     </StoreContext.Provider>
-  );
+  )
 }

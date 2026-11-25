@@ -48,9 +48,7 @@ import java.util.concurrent.*;
             "spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=LinkIT_V2;integratedSecurity=true;encrypt=true;trustServerCertificate=true",
             "spring.datasource.username=",
             "spring.datasource.password=",
-            "spring.jpa.hibernate.ddl-auto=validate",
-            "linkit.seed.enabled=false",
-            "debug=false"
+            "spring.jpa.hibernate.ddl-auto=validate",            "debug=false"
         })
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @EnabledIfEnvironmentVariable(named = "LINKIT_SCOPE_TEST", matches = "true")
@@ -114,11 +112,6 @@ class ScopeIntegrationTest {
                                 Object[] values = users.toArray();
                                 String owned =
                                         "SELECT id FROM dbo.jobs WHERE client_id IN (" + ids + ")";
-                                jdbc.update(
-                                        "DELETE FROM dbo.compatibility_scores WHERE job_id IN ("
-                                                + owned
-                                                + ")",
-                                        values);
                                 String project =
                                         "SELECT id FROM dbo.assignments WHERE job_id IN ("
                                                 + owned

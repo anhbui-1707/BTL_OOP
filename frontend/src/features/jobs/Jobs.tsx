@@ -1188,7 +1188,7 @@ export default function Jobs({
   onLogin: () => void;
   initialId?: number;
   initialQuery?: string;
-  initialPanel?: "details" | "proposals" | "matching" | "quality";
+  initialPanel?: "details" | "proposals" | "quality";
   initialCreate?: boolean;
   savedJobIds?: string[];
   savedJobsLoading?: boolean;
@@ -1205,12 +1205,12 @@ export default function Jobs({
     manage && !admin && Boolean(user?.roles.includes("CLIENT"));
   const [clientRoute, setClientRoute] = useState(readClientJobRoute);
   const [panel, setPanel] = useState<JobTab>(
-    initialPanel === "matching" ? "proposals" : initialPanel,
+    initialPanel,
   );
 
   useEffect(() => {
     if (!clientManagement)
-      setPanel(initialPanel === "matching" ? "proposals" : initialPanel);
+      setPanel(initialPanel);
   }, [initialId, initialPanel, clientManagement]);
 
   const [filters, setFilters] = useState<JobFilters>({
@@ -1545,9 +1545,7 @@ export default function Jobs({
 
   const selectJob = (
     jobId: number,
-    nextPanel: "details" | "proposals" | "quality" = initialPanel === "matching"
-      ? "proposals"
-      : initialPanel,
+    nextPanel: "details" | "proposals" | "quality" = initialPanel,
   ) => {
     if (clientManagement) {
       navigateClientJobs({

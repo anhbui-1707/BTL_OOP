@@ -16,7 +16,9 @@ public class UserRoleId implements Serializable {
     @Column(name = "role", nullable = false, length = 20, columnDefinition = "varchar(20)")
     private UserRole.Role role;
 
-    public UserRoleId() {}
+    public UserRoleId() {
+
+    }
 
     public UserRoleId(Long userId, UserRole.Role role) {
         this.userId = userId;

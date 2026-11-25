@@ -26,8 +26,7 @@ import java.util.*;
             "spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=LinkIT_V2;integratedSecurity=true;encrypt=true;trustServerCertificate=true",
             "spring.datasource.username=",
             "spring.datasource.password=",
-            "spring.jpa.hibernate.ddl-auto=validate",
-            "linkit.seed.enabled=false"
+            "spring.jpa.hibernate.ddl-auto=validate"
         })
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @EnabledIfEnvironmentVariable(named = "LINKIT_PROFILE_SKILL_TEST", matches = "true")

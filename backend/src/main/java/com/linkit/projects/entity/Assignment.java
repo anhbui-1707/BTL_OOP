@@ -154,12 +154,6 @@ public class Assignment {
     @OneToMany(mappedBy = "assignment", fetch = FetchType.LAZY)
     private Set<Milestone> milestones = new HashSet<>();
 
-    @OneToMany(mappedBy = "assignment", fetch = FetchType.LAZY)
-    private Set<ChangeRequest> changeRequests = new HashSet<>();
-
-    @OneToMany(mappedBy = "assignment", fetch = FetchType.LAZY)
-    private Set<RiskAlert> riskAlerts = new HashSet<>();
-
     public Assignment() {}
 
     public Long getId() {
@@ -276,11 +270,4 @@ public class Assignment {
         return milestones;
     }
 
-    public Set<ChangeRequest> getChangeRequests() {
-        return changeRequests;
-    }
-
-    public Set<RiskAlert> getRiskAlerts() {
-        return riskAlerts;
-    }
 }

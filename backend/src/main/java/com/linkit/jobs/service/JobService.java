@@ -547,9 +547,7 @@ public class JobService {
                 value.setJob(job);
                 value.setSkill(chosen.get(input.skillId()));
             }
-            value.setRequiredLevel((short) 3);
             value.setIsRequired(input.isRequired());
-            value.setWeight(BigDecimal.ONE.setScale(2));
             jobSkills.save(value);
         }
         jobSkills.flush();

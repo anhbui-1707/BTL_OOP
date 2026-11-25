@@ -94,7 +94,9 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<RefreshToken> refreshTokens = new HashSet<>();
 
-    public User() {}
+    public User() {
+
+    }
 
     public Long getId() {
         return id;

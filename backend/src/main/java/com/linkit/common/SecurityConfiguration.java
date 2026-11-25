@@ -166,31 +166,6 @@ public class SecurityConfiguration {
                                                 "/api/assignments/*/review")
                                         .hasRole("CLIENT")
                                         .requestMatchers(
-                                                HttpMethod.GET,
-                                                "/api/assignments/*/risk-alerts",
-                                                "/api/risk-alerts/*")
-                                        .hasAnyRole("CLIENT", "FREELANCER", "ADMIN")
-                                        .requestMatchers(
-                                                HttpMethod.GET,
-                                                "/api/assignments/*/change-requests",
-                                                "/api/change-requests/*")
-                                        .hasAnyRole("CLIENT", "FREELANCER")
-                                        .requestMatchers(
-                                                HttpMethod.POST,
-                                                "/api/assignments/*/change-requests",
-                                                "/api/change-requests/*/decisions")
-                                        .hasAnyRole("CLIENT", "FREELANCER")
-                                        .requestMatchers(
-                                                HttpMethod.POST,
-                                                "/api/change-requests/*/apply",
-                                                "/api/risk-alerts/*/acknowledge")
-                                        .hasRole("CLIENT")
-                                        .requestMatchers(
-                                                HttpMethod.POST,
-                                                "/api/assignments/*/risk-alerts/evaluate",
-                                                "/api/risk-alerts/*/resolve")
-                                        .hasAnyRole("CLIENT", "ADMIN")
-                                        .requestMatchers(
                                                 HttpMethod.GET, "/api/assignments/*/milestones")
                                         .hasAnyRole("CLIENT", "FREELANCER", "ADMIN")
                                         .requestMatchers(
@@ -235,7 +210,6 @@ public class SecurityConfiguration {
                                         .hasRole("CLIENT")
                                         .requestMatchers(
                                                 HttpMethod.POST,
-                                                "/api/jobs/*/matching-scores",
                                                 "/api/proposals/*/select")
                                         .hasRole("CLIENT")
                                         .requestMatchers(

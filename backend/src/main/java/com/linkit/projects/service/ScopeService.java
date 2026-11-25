@@ -241,7 +241,7 @@ public class ScopeService {
         if (a.getStatus() != Assignment.Status.PENDING_SCOPE
                 || history.stream().anyMatch(s -> s.getStatus() == ScopeVersion.Status.LOCKED))
             throw conflict(
-                    "Scope changes require PENDING_SCOPE without a locked version; later changes require Change Request.");
+                    "Scope changes require PENDING_SCOPE without a locked version.");
     }
 
     private ScopeVersion current(Long id, List<ScopeVersion> history) {

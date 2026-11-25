@@ -1,6 +1,6 @@
 IF DB_NAME() <> N'LinkIT_V2' THROW 51000, 'Migration requires LinkIT_V2.', 1;
 
--- No reference/demo data in this task. Unique/PK indexes already cover many FKs.
+
 CREATE INDEX IX_refresh_tokens_user ON dbo.refresh_tokens(user_id);
 CREATE INDEX IX_freelancer_skills_skill ON dbo.freelancer_skills(skill_id);
 CREATE INDEX IX_jobs_client_status_created ON dbo.jobs(client_id,status,created_at);

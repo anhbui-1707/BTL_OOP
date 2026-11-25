@@ -48,9 +48,7 @@ import java.util.concurrent.*;
             "spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=LinkIT_V2;integratedSecurity=true;encrypt=true;trustServerCertificate=true",
             "spring.datasource.username=",
             "spring.datasource.password=",
-            "spring.jpa.hibernate.ddl-auto=validate",
-            "linkit.seed.enabled=false",
-            "debug=false"
+            "spring.jpa.hibernate.ddl-auto=validate",            "debug=false"
         })
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @EnabledIfEnvironmentVariable(named = "LINKIT_AUTH_TEST", matches = "true")
@@ -324,24 +322,6 @@ class AuthIntegrationTest {
         JsonNode wrong = login(email, "Wrong-" + UUID.randomUUID(), 401);
         JsonNode unknown = login("unknown-" + email, password, 401);
         assertThat(wrong.path("message").asText()).isEqualTo(unknown.path("message").asText());
-    }
-
-    @Test
-    void seededAdminClientAndFreelancerCanLogIn() throws Exception {
-        String demo = System.getenv("LINKIT_DEMO_PASSWORD");
-        assertThat(demo != null && !demo.isBlank()).as("LINKIT_DEMO_PASSWORD is required").isTrue();
-        for (String role : List.of("admin", "client", "freelancer")) {
-            JsonNode response = login(role + "@linkit.test", demo, 200);
-            assertThat(response.path("user").path("roles").get(0).asText())
-                    .isEqualTo(role.toUpperCase(Locale.ROOT));
-            me(response.path("accessToken").asText(), 200);
-            mvc.perform(
-                            get("/api/" + role + "/auth-probe")
-                                    .header(
-                                            "Authorization",
-                                            "Bearer " + response.path("accessToken").asText()))
-                    .andExpect(status().isOk());
-        }
     }
 
     @Test
